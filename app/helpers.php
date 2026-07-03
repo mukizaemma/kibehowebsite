@@ -54,6 +54,16 @@ if (! function_exists('hotel_reservation_url')) {
     }
 }
 
+if (! function_exists('slideshow_cta_label')) {
+    function slideshow_cta_label(?object $setting = null): string
+    {
+        $setting = $setting ?? \App\Models\Setting::first();
+        $label = trim((string) ($setting?->slideshow_cta_label ?? ''));
+
+        return $label !== '' ? $label : 'Book Now';
+    }
+}
+
 if (! function_exists('hotel_book_now_url')) {
     /** External booking URL when channel is active, otherwise the contact page. */
     function hotel_book_now_url(?object $setting = null): string

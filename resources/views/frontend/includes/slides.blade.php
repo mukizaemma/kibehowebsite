@@ -55,19 +55,19 @@
                     <div class="container">
                         <div class="row justify-content-center">
                             <div class="col-lg-10">
+                                @php
+                                    $caption = $slide->heading ?: $slide->subheading;
+                                    $slideBtnText = filled($slide->button) ? $slide->button : slideshow_cta_label($setting ?? null);
+                                    $slideBtnUrl = filled($slide->link) ? $slide->link : hotel_book_now_url($setting ?? null);
+                                    $slideBtnExternal = filled($slide->link) ? true : hotel_book_now_is_external($setting ?? null);
+                                @endphp
                                 <div class="banner__slide__content">
-                                    {{-- <span class="h6 subtitle__icon">Centre Saint Paul - Kigali</span> --}}
-                                    <h1>{{ $slide->heading }}</h1>
-                                    <p class="sub__text">{{ $slide->subheading ?? '' }}</p>
-                                    @if(hotel_reservation_url())
-                                    <a href="{{ hotel_reservation_url() }}" class="theme-btn btn-style fill no-border" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
-                                        <span>Book Now</span>
-                                    </a>
-                                    @else
-                                    <a wire:navigate href="{{ localized_route('connect') }}" class="theme-btn btn-style fill no-border">
-                                        <span>Book Now</span>
-                                    </a>
+                                    @if($caption)
+                                    <h1>{{ $caption }}</h1>
                                     @endif
+                                    <a href="{{ $slideBtnUrl }}" class="theme-btn btn-style fill no-border" @if($slideBtnExternal) target="_blank" rel="noopener noreferrer" data-no-spa-navigate @else wire:navigate @endif>
+                                        <span>{{ $slideBtnText }}</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>

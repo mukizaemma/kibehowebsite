@@ -190,6 +190,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'linktree' => 'nullable|string|max:4000',
+            'slideshow_cta_label' => 'nullable|string|max:100',
             'booking_com_url' => 'nullable|string|max:4000',
             'expedia_url' => 'nullable|string|max:4000',
             'booking_com_review_score' => 'nullable|numeric|min:0|max:10',
@@ -220,6 +221,7 @@ class SettingsController extends Controller
 
         foreach ([
             'linktree',
+            'slideshow_cta_label',
             'booking_com_url',
             'expedia_url',
             'booking_com_review_score',

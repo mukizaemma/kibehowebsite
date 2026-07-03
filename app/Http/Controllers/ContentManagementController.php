@@ -505,51 +505,24 @@ class ContentManagementController extends Controller
 
     public function storeSlide(Request $request)
     {
-        $rules = [
-            'heading' => 'nullable|string|max:255',
-            'subheading' => 'nullable|string|max:255',
+        $request->validate([
+            'caption' => 'nullable|string|max:500',
             'button' => 'nullable|string|max:255',
             'link' => 'nullable|url|max:255',
-            'media_type' => 'required|in:image,video',
-        ];
-
-        if ($request->media_type === 'image') {
-            $rules['image'] = 'required|image|max:2048';
-        } else {
-            // Video validation - at least one must be provided
-            $rules['video_url'] = 'nullable|url|max:500';
-            $rules['video_file'] = 'nullable|mimes:mp4,webm,ogg|max:10240'; // 10MB max for video
-        }
-
-        $request->validate($rules);
-
-        // Additional validation for video: at least video_url or video_file must be provided
-        if ($request->media_type === 'video') {
-            if (empty($request->video_url) && !$request->hasFile('video_file')) {
-                return redirect()->back()->with('error', 'Please provide either a video URL or upload a video file.');
-            }
-        }
+            'image' => 'required|image|max:2048',
+        ]);
 
         $slide = new Slide();
-        $slide->heading = $request->heading;
-        $slide->subheading = $request->subheading;
-        $slide->button = $request->button;
-        $slide->link = $request->link;
-        $slide->media_type = $request->media_type;
-        
-        if ($request->media_type === 'image') {
-            if ($request->hasFile('image')) {
-                $slide->image = store_optimized_image($request->file('image'), 'slides');
-            }
-        } else {
-            // Video mode - prioritize URL over file
-            if ($request->filled('video_url')) {
-                $slide->video_url = $request->video_url;
-            } elseif ($request->hasFile('video_file')) {
-                $slide->video_file = $request->file('video_file')->store('slides/videos', 'public');
-            }
+        $slide->heading = $request->input('caption');
+        $slide->subheading = null;
+        $slide->button = $request->filled('button') ? $request->input('button') : null;
+        $slide->link = $request->filled('link') ? $request->input('link') : null;
+        $slide->media_type = 'image';
+
+        if ($request->hasFile('image')) {
+            $slide->image = store_optimized_image($request->file('image'), 'slides');
         }
-        
+
         $slide->save();
 
         return redirect()->back()->with('success', 'Slide added successfully');
@@ -557,67 +530,24 @@ class ContentManagementController extends Controller
 
     public function updateSlide(Request $request, Slide $slide)
     {
-        $rules = [
-            'heading' => 'nullable|string|max:255',
-            'subheading' => 'nullable|string|max:255',
+        $request->validate([
+            'caption' => 'nullable|string|max:500',
             'button' => 'nullable|string|max:255',
             'link' => 'nullable|url|max:255',
-            'media_type' => 'required|in:image,video',
-        ];
+            'image' => 'nullable|image|max:2048',
+        ]);
 
-        if ($request->media_type === 'image') {
-            $rules['image'] = 'nullable|image|max:2048';
-        } else {
-            $rules['video_url'] = 'nullable|url|max:500';
-            $rules['video_file'] = 'nullable|mimes:mp4,webm,ogg|max:10240';
-        }
+        $slide->heading = $request->input('caption');
+        $slide->subheading = null;
+        $slide->button = $request->filled('button') ? $request->input('button') : null;
+        $slide->link = $request->filled('link') ? $request->input('link') : null;
+        $slide->media_type = 'image';
 
-        $request->validate($rules);
-
-        if ($request->media_type === 'video' && empty($request->video_url) && ! $request->hasFile('video_file')) {
-            return redirect()->back()->with('error', 'Please provide either a video URL or upload a video file.');
-        }
-
-        $slide->heading = $request->heading;
-        $slide->subheading = $request->subheading;
-        $slide->button = $request->button;
-        $slide->link = $request->link;
-        $slide->media_type = $request->media_type;
-
-        if ($request->media_type === 'image') {
-            // Clear any previous video data
-            if ($slide->video_file) {
-                Storage::disk('public')->delete($slide->video_file);
-            }
-            $slide->video_url = null;
-            $slide->video_file = null;
-
-            if ($request->hasFile('image')) {
-                if ($slide->image) {
-                    Storage::disk('public')->delete($slide->image);
-                }
-                $slide->image = store_optimized_image($request->file('image'), 'slides');
-            }
-        } else {
-            // Clear any previous image
+        if ($request->hasFile('image')) {
             if ($slide->image) {
                 Storage::disk('public')->delete($slide->image);
             }
-            $slide->image = null;
-
-            if ($request->filled('video_url')) {
-                $slide->video_url = $request->video_url;
-                if ($slide->video_file) {
-                    Storage::disk('public')->delete($slide->video_file);
-                }
-                $slide->video_file = null;
-            } elseif ($request->hasFile('video_file')) {
-                if ($slide->video_file) {
-                    Storage::disk('public')->delete($slide->video_file);
-                }
-                $slide->video_url = null;
-                $slide->video_file = $request->file('video_file')->store('slides/videos', 'public');
-            }
+            $slide->image = store_optimized_image($request->file('image'), 'slides');
         }
 
         $slide->save();

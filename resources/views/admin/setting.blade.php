@@ -322,9 +322,12 @@
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Online reservations</legend>
                                 <label class="form-label" for="channel_linktree">Online reservation URL (channel manager)</label>
                                 <input type="url" class="form-control font-monospace small" id="channel_linktree" name="linktree" value="{{ old('linktree', $data->linktree ?? '') }}" placeholder="https://your-channel-manager.com/book/...">
-                                <p class="text-muted small mt-1 mb-0">
-                                    Used when the <strong>online booking channel</strong> is enabled (see toggle above). Powers every <strong>Book Now</strong> button on the public site.
+                                <p class="text-muted small mt-1 mb-3">
+                                    Used when the <strong>online booking channel</strong> is enabled (see toggle above). Powers slideshow and site-wide <strong>Book Now</strong> buttons unless a slide has its own button link.
                                 </p>
+                                <label class="form-label" for="slideshow_cta_label">Slideshow button label</label>
+                                <input type="text" class="form-control" id="slideshow_cta_label" name="slideshow_cta_label" value="{{ old('slideshow_cta_label', $data->slideshow_cta_label ?? '') }}" maxlength="100" placeholder="Book Now">
+                                <p class="text-muted small mt-1 mb-0">Default text on the homepage slideshow CTA. Leave empty to use “Book Now”.</p>
                             </fieldset>
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Booking.com</legend>

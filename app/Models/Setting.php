@@ -30,6 +30,7 @@ class Setting extends Model
         'youtube',
         'linkedin',
         'linktree',
+        'slideshow_cta_label',
         'booking_channel_enabled',
         'quote',
         'google_map_embed',
