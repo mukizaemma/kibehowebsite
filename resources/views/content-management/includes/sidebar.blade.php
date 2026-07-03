@@ -30,7 +30,7 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 </span>
             </div>
         </div>
-        <div class="navbar-nav w-100">
+        <div class="navbar-nav w-100" data-no-spa-navigate>
             <a href="{{ route('content-management.dashboard') }}" class="nav-item nav-link {{ $isCmsOrLegacyDashboard ? 'active' : '' }}">
                 <i class="fas fa-grip-horizontal me-2"></i>Dashboard
             </a>
@@ -44,10 +44,10 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-church me-2"></i>Kibeho page
             </a>
             <a href="{{ route('content-management.nyaruguru-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.nyaruguru-page') ? 'active' : '' }}">
-                <i class="fas fa-mountain me-2"></i>Nyaruguru page
+                <i class="fas fa-mountain me-2"></i>Nyaruguru
             </a>
             <a href="{{ route('content-management.gikongoro-diocese-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.gikongoro-diocese-page') ? 'active' : '' }}">
-                <i class="fas fa-cross me-2"></i>Gikongoro Diocese
+                <i class="fas fa-cross me-2"></i>Diocese
             </a>
             <a href="{{ route('resto') }}" class="nav-item nav-link {{ $isDiningAdmin ? 'active' : '' }}">
                 <i class="fas fa-utensils me-2"></i>Dining page

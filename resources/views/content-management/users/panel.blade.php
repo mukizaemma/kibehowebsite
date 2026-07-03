@@ -100,6 +100,7 @@
             </div>
             <form id="userForm">
                 <div class="modal-body">
+                    <div id="userFormErrors" class="alert alert-danger d-none" role="alert"></div>
                     <input type="hidden" id="user_id" name="id">
                     <div class="mb-3">
                         <label class="form-label">Name *</label>

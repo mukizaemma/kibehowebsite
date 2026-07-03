@@ -214,7 +214,7 @@ function openReservationModal(id) {
             `;
         });
 
-    new bootstrap.Modal(document.getElementById('reservationModal')).show();
+    CmsAdmin.showModal('reservationModal');
 }
 
 function submitReservationReply() {
@@ -235,8 +235,7 @@ function submitReservationReply() {
         if (data.success) {
             const modalElement = document.getElementById('reservationModal');
             if (modalElement) {
-                const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-                modal.hide();
+                CmsAdmin.hideModal(modalElement);
             }
             setTimeout(() => location.reload(), 300);
         } else if (data.message) {

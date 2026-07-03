@@ -8,6 +8,11 @@
     }
     window.__amenityManagementActionsInitialized = true;
 
+    var Cms = window.CmsAdmin;
+    if (!Cms) {
+        return;
+    }
+
     window.__amenityMgmtCurrentId = null;
 
     function cfg() {
@@ -18,72 +23,22 @@
         return !!cfg();
     }
 
-    function getCsrfToken() {
-        var m = document.querySelector('meta[name="csrf-token"]');
-        return m ? m.getAttribute('content') : '';
-    }
-
-    function modalInstance(modalEl) {
-        if (!modalEl) {
-            return null;
-        }
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            var Modal = bootstrap.Modal;
-            if (typeof Modal.getOrCreateInstance === 'function') {
-                return Modal.getOrCreateInstance(modalEl);
-            }
-            var existing = Modal.getInstance(modalEl);
-            return existing || new Modal(modalEl);
-        }
-        return null;
-    }
-
-    function showModal(modalEl) {
-        if (!modalEl) {
-            return;
-        }
-        var bs = modalInstance(modalEl);
-        if (bs && typeof bs.show === 'function') {
-            bs.show();
-            return;
-        }
-        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
-            jQuery(modalEl).modal('show');
-        }
-    }
-
-    function hideModal(modalEl) {
-        if (!modalEl) {
-            return;
-        }
-        var bs = modalInstance(modalEl);
-        if (bs && typeof bs.hide === 'function') {
-            bs.hide();
-            return;
-        }
-        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
-            jQuery(modalEl).modal('hide');
-        }
-    }
-
     function resetAmenityForm() {
         if (!onAmenitiesPage()) {
             return;
         }
+
         window.__amenityMgmtCurrentId = null;
         var form = document.getElementById('amenityForm');
         if (!form) {
             return;
         }
+
         form.reset();
         form.classList.remove('was-validated');
         document.getElementById('amenity_id').value = '';
         document.getElementById('amenityModalTitle').textContent = 'Add New Amenity';
-        var errorDiv = document.getElementById('amenityFormErrors');
-        if (errorDiv) {
-            errorDiv.style.display = 'none';
-            errorDiv.innerHTML = '';
-        }
+        Cms.clearErrors('amenityFormErrors');
         form.querySelectorAll('.is-invalid').forEach(function (el) {
             el.classList.remove('is-invalid');
         });
@@ -133,6 +88,7 @@
             }
             return;
         }
+
         input.dataset.bound = '1';
         input.addEventListener('input', function () {
             filterAmenityRows(input.value);
@@ -151,7 +107,7 @@
         if (addBtn && onAmenitiesPage()) {
             e.preventDefault();
             resetAmenityForm();
-            showModal(document.getElementById('amenityModal'));
+            Cms.showModal('amenityModal');
             return;
         }
 
@@ -167,55 +123,40 @@
         }
 
         var c = cfg();
-        var token = getCsrfToken();
 
         if (action === 'edit') {
-            fetch(c.dataset.urlShow.replace('__ID__', id), {
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            })
-                .then(function (r) {
-                    if (!r.ok) {
-                        throw new Error('HTTP ' + r.status);
-                    }
-                    return r.json();
-                })
-                .then(function (data) {
-                    window.__amenityMgmtCurrentId = id;
-                    document.getElementById('amenity_id').value = data.id;
-                    document.getElementById('amenity_title').value = data.title || '';
-                    document.getElementById('amenity_icon').value = data.icon || '';
-                    document.getElementById('amenityModalTitle').textContent = 'Edit Amenity';
-                    showModal(document.getElementById('amenityModal'));
-                })
-                .catch(function () {
-                    alert('Could not load amenity. Please refresh and try again.');
-                });
+            Cms.fetchJson(Cms.templateUrl(c.dataset.urlShow, id), {
+                headers: { Accept: 'application/json' },
+            }).then(function (result) {
+                if (!result.ok) {
+                    window.alert('Could not load amenity. Please refresh and try again.');
+                    return;
+                }
+
+                var data = result.data;
+                window.__amenityMgmtCurrentId = id;
+                document.getElementById('amenity_id').value = data.id;
+                document.getElementById('amenity_title').value = data.title || '';
+                document.getElementById('amenity_icon').value = data.icon || '';
+                document.getElementById('amenityModalTitle').textContent = 'Edit Amenity';
+                Cms.clearErrors('amenityFormErrors');
+                Cms.showModal('amenityModal');
+            });
             return;
         }
 
         if (action === 'delete') {
-            if (!confirm('Are you sure you want to delete this amenity?')) {
+            if (!window.confirm('Are you sure you want to delete this amenity?')) {
                 return;
             }
-            fetch(c.dataset.urlDestroy.replace('__ID__', id), {
+
+            Cms.fetchJson(Cms.templateUrl(c.dataset.urlDestroy, id), {
                 method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            })
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (data) {
-                    if (data.success) {
-                        location.reload();
-                    }
-                });
+            }).then(function (result) {
+                if (result.ok && result.data.success) {
+                    window.location.reload();
+                }
+            });
         }
     });
 
@@ -246,78 +187,69 @@
             spinner.classList.remove('d-none');
         }
 
+        Cms.clearErrors('amenityFormErrors');
+
         var c = cfg();
         var currentId = window.__amenityMgmtCurrentId;
         var url = currentId
-            ? c.dataset.urlUpdate.replace('__ID__', currentId)
-            : c.dataset.urlStore;
+            ? Cms.templateUrl(c.dataset.urlUpdate, currentId)
+            : Cms.appUrl(c.dataset.urlStore);
 
-        fetch(url, {
+        Cms.fetchJson(url, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': getCsrfToken(),
-                Accept: 'application/json',
-            },
             body: new FormData(form),
-        })
-            .then(function (r) {
-                return r.json().then(function (data) {
-                    return { ok: r.ok, data: data };
+        }).then(function (result) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+
+            if (result.ok && result.data.success) {
+                Cms.hideModal('amenityModal');
+                window.setTimeout(function () {
+                    window.location.reload();
+                }, 300);
+                return;
+            }
+
+            var data = result.data || {};
+            var errorHtml = '<strong>Please fix the following errors:</strong><ul class="mb-0">';
+            if (data.errors) {
+                Object.keys(data.errors).forEach(function (field) {
+                    errorHtml += '<li>' + data.errors[field][0] + '</li>';
+                    var input = form.querySelector('[name="' + field + '"]');
+                    if (input) {
+                        input.classList.add('is-invalid');
+                    }
                 });
-            })
-            .then(function (result) {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                }
-                if (spinner) {
-                    spinner.classList.add('d-none');
-                }
+            } else if (data.message) {
+                errorHtml += '<li>' + data.message + '</li>';
+            } else {
+                errorHtml += '<li>An error occurred. Please try again.</li>';
+            }
+            errorHtml += '</ul>';
 
-                if (result.ok && result.data.success) {
-                    hideModal(document.getElementById('amenityModal'));
-                    setTimeout(function () {
-                        location.reload();
-                    }, 300);
-                    return;
-                }
-
-                var errorDiv = document.getElementById('amenityFormErrors');
-                if (!errorDiv) {
-                    return;
-                }
+            var errorDiv = document.getElementById('amenityFormErrors');
+            if (errorDiv) {
                 errorDiv.style.display = 'block';
-                var errorHtml = '<strong>Please fix the following errors:</strong><ul class="mb-0">';
-                var data = result.data || {};
-
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(function (field) {
-                        errorHtml += '<li>' + data.errors[field][0] + '</li>';
-                        var input = form.querySelector('[name="' + field + '"]');
-                        if (input) {
-                            input.classList.add('is-invalid');
-                        }
-                    });
-                } else if (data.message) {
-                    errorHtml += '<li>' + data.message + '</li>';
-                } else {
-                    errorHtml += '<li>An error occurred. Please try again.</li>';
-                }
-                errorHtml += '</ul>';
                 errorDiv.innerHTML = errorHtml;
-            })
-            .catch(function (err) {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                }
-                if (spinner) {
-                    spinner.classList.add('d-none');
-                }
-                var errorDiv = document.getElementById('amenityFormErrors');
-                if (errorDiv) {
-                    errorDiv.style.display = 'block';
-                    errorDiv.innerHTML = '<strong>Error:</strong> ' + (err.message || 'An error occurred. Please try again.');
-                }
-            });
+            }
+        }).catch(function (err) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+
+            var errorDiv = document.getElementById('amenityFormErrors');
+            if (errorDiv) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML = '<strong>Error:</strong> ' + (err.message || 'An error occurred. Please try again.');
+            }
+        });
     });
 
     document.addEventListener('DOMContentLoaded', initAmenitySearch);

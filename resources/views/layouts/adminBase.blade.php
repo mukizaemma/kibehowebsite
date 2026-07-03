@@ -91,6 +91,7 @@
 
     <script src="/admin/js/summernote.js"></script>
     <script src="{{ asset('admin/js/cms-summernote.js') }}"></script>
+    <script src="{{ asset('admin/js/cms-admin-request.js') }}"></script>
     @stack('scripts')
 
     {{-- System Users (content-management/users): inline scripts in Livewire slots do not run reliably after SPA navigation --}}
@@ -164,6 +165,8 @@
                 var url = new URL(link.href, window.location.origin);
                 if (url.origin !== window.location.origin) return;
                 if (url.pathname.startsWith('/livewire/')) return;
+                // CMS pages rely on inline/page scripts — use full navigation so forms and modals initialize.
+                if (url.pathname.startsWith('/content-management') || url.pathname.startsWith('/setting')) return;
             } catch (err) {
                 return;
             }

@@ -133,6 +133,7 @@
             </div>
             <form id="gikongoroStatForm">
                 <div class="modal-body">
+                    <div id="gikongoroStatFormErrors" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
                         <label class="form-label">Label <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="gikongoro_stat_label" name="label" required maxlength="255" placeholder="e.g. Schools">
@@ -196,7 +197,7 @@ function editGikongoroStat(id) {
         document.getElementById('gikongoro_stat_sort').value = data.sort_order ?? 0;
         document.getElementById('gikongoro_stat_active').checked = !!data.is_active;
         document.getElementById('gikongoroStatModalTitle').textContent = 'Edit statistic';
-        new bootstrap.Modal(document.getElementById('gikongoroStatModal')).show();
+        CmsAdmin.showModal('gikongoroStatModal');
     });
 }
 
@@ -212,18 +213,15 @@ document.getElementById('gikongoroStatForm').addEventListener('submit', function
     e.preventDefault();
     const formData = new FormData(this);
     if (!document.getElementById('gikongoro_stat_active').checked) formData.delete('is_active');
+    else formData.set('is_active', '1');
     const url = currentGikongoroStatId
         ? `${gikongoroStatBase}/${currentGikongoroStatId}/update`
-        : @json(route('content-management.gikongoro-diocese-page.stats.store'));
-    fetch(url, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('gikongoroStatModal'))?.hide();
-            location.reload();
-        }
+        : @json(route('content-management.gikongoro-diocese-page.stats.store', [], false));
+    CmsAdmin.clearErrors('gikongoroStatFormErrors');
+    CmsAdmin.submitFormData(url, formData, {
+        modalId: 'gikongoroStatModal',
+        errorsEl: 'gikongoroStatFormErrors',
+        defaultError: 'Could not save statistic. Please check the form and try again.',
     });
 });
 </script>

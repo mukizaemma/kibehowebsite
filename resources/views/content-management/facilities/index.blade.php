@@ -185,7 +185,7 @@ function editFacility(id) {
             document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
             document.getElementById('facility_images').value = '';
             renderFacilityEditGallery(data.images || [], id);
-            new bootstrap.Modal(document.getElementById('facilityModal')).show();
+            CmsAdmin.showModal('facilityModal');
         });
 }
 
@@ -330,7 +330,7 @@ function viewFacility(id) {
             // Set facility ID for adding images
             document.getElementById('addFacilityImagesFacilityId').value = id;
             
-            new bootstrap.Modal(document.getElementById('viewFacilityModal')).show();
+            CmsAdmin.showModal('viewFacilityModal');
         });
 }
 

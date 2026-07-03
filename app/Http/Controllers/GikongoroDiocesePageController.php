@@ -49,6 +49,10 @@ class GikongoroDiocesePageController extends Controller
 
     public function storeStat(Request $request)
     {
+        $request->merge([
+            'sort_order' => $this->nullableSortOrder($request->input('sort_order')),
+        ]);
+
         $data = $request->validate([
             'label' => 'required|string|max:255',
             'value' => 'nullable|string|max:50',
@@ -73,6 +77,10 @@ class GikongoroDiocesePageController extends Controller
 
     public function updateStat(Request $request, $id)
     {
+        $request->merge([
+            'sort_order' => $this->nullableSortOrder($request->input('sort_order')),
+        ]);
+
         $data = $request->validate([
             'label' => 'required|string|max:255',
             'value' => 'nullable|string|max:50',
@@ -95,5 +103,14 @@ class GikongoroDiocesePageController extends Controller
         GikongoroDioceseStat::findOrFail($id)->delete();
 
         return response()->json(['success' => true, 'message' => 'Statistic deleted successfully']);
+    }
+
+    private function nullableSortOrder(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
     }
 }

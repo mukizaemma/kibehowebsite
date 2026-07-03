@@ -151,6 +151,7 @@
             </div>
             <form id="kibehoEventForm" enctype="multipart/form-data">
                 <div class="modal-body">
+                    <div id="kibehoEventFormErrors" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
                         <label class="form-label">Title <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="kibeho_event_title" name="title" required maxlength="255">
@@ -255,7 +256,7 @@ function editKibehoEvent(id) {
                 wrap.style.display = 'none';
             }
             document.getElementById('kibehoEventModalTitle').textContent = 'Edit activity';
-            new bootstrap.Modal(document.getElementById('kibehoEventModal')).show();
+            CmsAdmin.showModal('kibehoEventModal');
         });
 }
 
@@ -271,16 +272,13 @@ document.getElementById('kibehoEventForm').addEventListener('submit', function(e
     e.preventDefault();
     const formData = new FormData(this);
     if (!document.getElementById('kibeho_event_active').checked) formData.delete('is_active');
-    const url = currentKibehoEventId ? `${kibehoEventBase}/${currentKibehoEventId}/update` : @json(route('content-management.kibeho-page.events.store'));
-    fetch(url, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('kibehoEventModal'))?.hide();
-            location.reload();
-        }
+    else formData.set('is_active', '1');
+    const url = currentKibehoEventId ? `${kibehoEventBase}/${currentKibehoEventId}/update` : @json(route('content-management.kibeho-page.events.store', [], false));
+    CmsAdmin.clearErrors('kibehoEventFormErrors');
+    CmsAdmin.submitFormData(url, formData, {
+        modalId: 'kibehoEventModal',
+        errorsEl: 'kibehoEventFormErrors',
+        defaultError: 'Could not save activity. Please check the form and try again.',
     });
 });
 

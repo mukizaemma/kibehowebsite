@@ -212,8 +212,7 @@
 
         toggleMediaFields();
 
-        const modal = new bootstrap.Modal(document.getElementById('slideModal'));
-        modal.show();
+        CmsAdmin.showModal('slideModal');
     }
 
     function deleteSlide(id) {

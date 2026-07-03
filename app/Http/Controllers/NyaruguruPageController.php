@@ -70,6 +70,7 @@ class NyaruguruPageController extends Controller
     {
         $request->merge([
             'external_url' => $this->nullableUrl($request->input('external_url')),
+            'sort_order' => $this->nullableSortOrder($request->input('sort_order')),
         ]);
 
         $data = $request->validate([
@@ -104,6 +105,7 @@ class NyaruguruPageController extends Controller
     {
         $request->merge([
             'external_url' => $this->nullableUrl($request->input('external_url')),
+            'sort_order' => $this->nullableSortOrder($request->input('sort_order')),
         ]);
 
         $data = $request->validate([
@@ -148,6 +150,19 @@ class NyaruguruPageController extends Controller
     {
         $value = trim((string) $value);
 
-        return $value === '' ? null : $value;
+        if ($value === '' || $value === 'https://' || $value === 'http://') {
+            return null;
+        }
+
+        return $value;
+    }
+
+    private function nullableSortOrder(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
     }
 }

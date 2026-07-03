@@ -138,7 +138,7 @@
                 document.getElementById('seo_og_title').value = data.og_title || '';
                 document.getElementById('seo_og_description').value = data.og_description || '';
                 document.getElementById('seoModalTitle').textContent = 'Edit SEO data';
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('seoModal')).show();
+                CmsAdmin.showModal('seoModal');
             });
     };
 
@@ -167,8 +167,8 @@
             .then(data => {
                 if (data.success) {
                     const modalElement = document.getElementById('seoModal');
-                    if (modalElement && typeof bootstrap !== 'undefined') {
-                        bootstrap.Modal.getInstance(modalElement)?.hide();
+                    if (modalElement) {
+                        CmsAdmin.hideModal(modalElement);
                     }
                     setTimeout(() => location.reload(), 300);
                 }

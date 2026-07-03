@@ -174,7 +174,7 @@ function editService(id) {
             document.getElementById('service_cover_image').required = false;
             renderCoverPreview(data.cover_image, data.title);
             renderExistingGalleryImages(data.images || []);
-            new bootstrap.Modal(document.getElementById('serviceModal')).show();
+            CmsAdmin.showModal('serviceModal');
         });
 }
 
@@ -197,7 +197,7 @@ function viewService(id) {
             } else {
                 gallery.innerHTML = '<span class="text-muted">No gallery images</span>';
             }
-            new bootstrap.Modal(document.getElementById('viewServiceModal')).show();
+            CmsAdmin.showModal('viewServiceModal');
         });
 }
 

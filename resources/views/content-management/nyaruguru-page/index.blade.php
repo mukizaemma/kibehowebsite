@@ -18,6 +18,15 @@
                 </a>
             </div>
 
+            <div id="nyaruguru-page-config" class="d-none"
+                data-page-update="{{ route('content-management.nyaruguru-page.update', [], false) }}"
+                data-image-destroy-base="{{ str_replace('/0', '', route('content-management.nyaruguru-page.images.destroy', ['id' => 0], false)) }}"
+                data-activity-store="{{ route('content-management.nyaruguru-page.activities.store', [], false) }}"
+                data-activity-show="{{ route('content-management.nyaruguru-page.activities.show', ['id' => '__ID__'], false) }}"
+                data-activity-update="{{ route('content-management.nyaruguru-page.activities.update', ['id' => '__ID__'], false) }}"
+                data-activity-destroy="{{ route('content-management.nyaruguru-page.activities.destroy', ['id' => '__ID__'], false) }}"
+            ></div>
+
             <ul class="nav nav-tabs mb-4" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#nyaruguru-panel-page" type="button" role="tab">Page content</button>
@@ -144,6 +153,7 @@
             </div>
             <form id="nyaruguruActivityForm" enctype="multipart/form-data">
                 <div class="modal-body">
+                    <div id="nyaruguruActivityFormErrors" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
                         <label class="form-label">Title <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nyaruguru_activity_title" name="title" required maxlength="255">
@@ -182,49 +192,51 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-let currentNyaruguruActivityId = null;
-const nyaruguruActivityBase = @json(url('content-management/nyaruguru-page/activities'));
-
-document.getElementById('nyaruguruPageForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (window.CmsSummernote) {
-        CmsSummernote.syncFormData(formData, '#nyaruguru_description');
+(function () {
+    var cfg = document.getElementById('nyaruguru-page-config');
+    var Cms = window.CmsAdmin;
+    if (!cfg || !Cms) {
+        return;
     }
-    fetch(@json(route('content-management.nyaruguru-page.update')), {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => {
-        if (data.success) location.reload();
-    });
-});
 
-function deleteNyaruguruImage(id) {
-    if (!confirm('Remove this image?')) return;
-    fetch(@json(url('content-management/nyaruguru-page/images')) + '/' + id, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            document.querySelector('[data-image-id="' + id + '"]')?.remove();
+    var currentNyaruguruActivityId = null;
+
+    window.resetNyaruguruActivityForm = function () {
+        currentNyaruguruActivityId = null;
+        var form = document.getElementById('nyaruguruActivityForm');
+        if (!form) {
+            return;
         }
-    });
-}
+        form.reset();
+        document.getElementById('nyaruguru_activity_active').checked = true;
+        document.getElementById('nyaruguruActivityModalTitle').textContent = 'Add activity';
+        document.getElementById('nyaruguru_activity_image_wrap').style.display = 'none';
+        Cms.clearErrors('nyaruguruActivityFormErrors');
+    };
 
-function resetNyaruguruActivityForm() {
-    currentNyaruguruActivityId = null;
-    document.getElementById('nyaruguruActivityForm').reset();
-    document.getElementById('nyaruguru_activity_active').checked = true;
-    document.getElementById('nyaruguruActivityModalTitle').textContent = 'Add activity';
-    document.getElementById('nyaruguru_activity_image_wrap').style.display = 'none';
-}
+    window.deleteNyaruguruImage = function (id) {
+        if (!window.confirm('Remove this image?')) {
+            return;
+        }
+        Cms.fetchJson(Cms.appUrl(cfg.dataset.imageDestroyBase + '/' + id), {
+            method: 'DELETE',
+        }).then(function (result) {
+            if (result.ok && result.data.success) {
+                document.querySelector('[data-image-id="' + id + '"]')?.remove();
+            }
+        });
+    };
 
-function editNyaruguruActivity(id) {
-    fetch(`${nyaruguruActivityBase}/${id}`)
-        .then(r => r.json())
-        .then(data => {
+    window.editNyaruguruActivity = function (id) {
+        Cms.fetchJson(Cms.templateUrl(cfg.dataset.activityShow, id)).then(function (result) {
+            if (!result.ok) {
+                window.alert('Could not load this activity. Please refresh and try again.');
+                return;
+            }
+
+            var data = result.data;
             currentNyaruguruActivityId = id;
             document.getElementById('nyaruguru_activity_title').value = data.title || '';
             document.getElementById('nyaruguru_activity_description').value = data.description || '';
@@ -232,48 +244,73 @@ function editNyaruguruActivity(id) {
             document.getElementById('nyaruguru_activity_url').value = data.external_url || '';
             document.getElementById('nyaruguru_activity_active').checked = !!data.is_active;
             document.getElementById('nyaruguru_activity_image').value = '';
-            const wrap = document.getElementById('nyaruguru_activity_image_wrap');
-            const img = document.getElementById('nyaruguru_activity_image_preview');
+            var wrap = document.getElementById('nyaruguru_activity_image_wrap');
+            var img = document.getElementById('nyaruguru_activity_image_preview');
             if (data.image) {
-                img.src = '{{ asset('storage') }}/' + data.image;
+                img.src = @json(asset('storage')) + '/' + data.image;
                 wrap.style.display = 'block';
             } else {
                 wrap.style.display = 'none';
             }
             document.getElementById('nyaruguruActivityModalTitle').textContent = 'Edit activity';
-            new bootstrap.Modal(document.getElementById('nyaruguruActivityModal')).show();
+            Cms.clearErrors('nyaruguruActivityFormErrors');
+            Cms.showModal('nyaruguruActivityModal');
         });
-}
+    };
 
-function deleteNyaruguruActivity(id) {
-    if (!confirm('Delete this activity?')) return;
-    fetch(`${nyaruguruActivityBase}/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-    }).then(r => r.json()).then(data => { if (data.success) location.reload(); });
-}
-
-document.getElementById('nyaruguruActivityForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (!document.getElementById('nyaruguru_activity_active').checked) formData.delete('is_active');
-    const url = currentNyaruguruActivityId
-        ? `${nyaruguruActivityBase}/${currentNyaruguruActivityId}/update`
-        : @json(route('content-management.nyaruguru-page.activities.store'));
-    fetch(url, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('nyaruguruActivityModal'))?.hide();
-            location.reload();
+    window.deleteNyaruguruActivity = function (id) {
+        if (!window.confirm('Delete this activity?')) {
+            return;
         }
-    });
-});
-</script>
+        Cms.fetchJson(Cms.templateUrl(cfg.dataset.activityDestroy, id), {
+            method: 'DELETE',
+        }).then(function (result) {
+            if (result.ok && result.data.success) {
+                window.location.reload();
+            }
+        });
+    };
 
-@push('scripts')
+    var pageForm = document.getElementById('nyaruguruPageForm');
+    if (pageForm) {
+        pageForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            if (window.CmsSummernote) {
+                CmsSummernote.syncFormData(formData, '#nyaruguru_description');
+            }
+            Cms.submitFormData(Cms.appUrl(cfg.dataset.pageUpdate), formData, {
+                defaultError: 'Could not save page content.',
+            });
+        });
+    }
+
+    var activityForm = document.getElementById('nyaruguruActivityForm');
+    if (activityForm) {
+        activityForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            Cms.clearErrors('nyaruguruActivityFormErrors');
+
+            var formData = new FormData(this);
+            if (!document.getElementById('nyaruguru_activity_active').checked) {
+                formData.delete('is_active');
+            } else {
+                formData.set('is_active', '1');
+            }
+
+            var url = currentNyaruguruActivityId
+                ? Cms.templateUrl(cfg.dataset.activityUpdate, currentNyaruguruActivityId)
+                : Cms.appUrl(cfg.dataset.activityStore);
+
+            Cms.submitFormData(url, formData, {
+                modalId: 'nyaruguruActivityModal',
+                errorsEl: 'nyaruguruActivityFormErrors',
+                defaultError: 'Could not save activity. Please check the form and try again.',
+            });
+        });
+    }
+})();
+</script>
 <script>
 jQuery(function () {
     CmsSummernote.initOnReady('#nyaruguru_description', {

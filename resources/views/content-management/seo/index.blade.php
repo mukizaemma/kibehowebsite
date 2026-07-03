@@ -124,7 +124,7 @@ function editSeo(id) {
             document.getElementById('seo_og_title').value = data.og_title || '';
             document.getElementById('seo_og_description').value = data.og_description || '';
             document.getElementById('seoModalTitle').textContent = 'Edit SEO Data';
-            new bootstrap.Modal(document.getElementById('seoModal')).show();
+            CmsAdmin.showModal('seoModal');
         });
 }
 

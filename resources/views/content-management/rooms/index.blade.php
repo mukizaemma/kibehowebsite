@@ -219,7 +219,7 @@ function editRoom(id) {
             }
             
             document.getElementById('roomModalTitle').textContent = 'Edit Room';
-            new bootstrap.Modal(document.getElementById('roomModal')).show();
+            CmsAdmin.showModal('roomModal');
         });
 }
 
@@ -282,18 +282,7 @@ document.getElementById('roomForm').addEventListener('submit', function(e) {
         spinner.classList.add('d-none');
         
         if (data.success) {
-            // Close modal using jQuery (more reliable)
-            const modalElement = document.getElementById('roomModal');
-            if (modalElement && typeof jQuery !== 'undefined') {
-                jQuery(modalElement).modal('hide');
-            } else if (modalElement) {
-                // Fallback: manually hide
-                modalElement.classList.remove('show');
-                modalElement.style.display = 'none';
-                document.body.classList.remove('modal-open');
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
-            }
+            CmsAdmin.hideModal('roomModal');
             setTimeout(() => location.reload(), 300);
         } else {
             const errorDiv = document.getElementById('roomFormErrors');
@@ -365,7 +354,7 @@ function viewRoom(id) {
             // Set room ID for adding images
             document.getElementById('addRoomImagesRoomId').value = id;
             
-            new bootstrap.Modal(document.getElementById('viewRoomModal')).show();
+            CmsAdmin.showModal('viewRoomModal');
         });
 }
 

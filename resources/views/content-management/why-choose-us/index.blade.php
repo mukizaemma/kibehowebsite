@@ -111,7 +111,7 @@ function editWcu(id) {
             document.getElementById('wcu_description').value = data.description || '';
             document.getElementById('wcu_sort_order').value = data.sort_order ?? 0;
             document.getElementById('wcuModalTitle').textContent = 'Edit item';
-            new bootstrap.Modal(document.getElementById('wcuModal')).show();
+            CmsAdmin.showModal('wcuModal');
         });
 }
 
@@ -155,7 +155,7 @@ document.getElementById('wcuForm').addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) {
             const el = document.getElementById('wcuModal');
-            if (el && typeof bootstrap !== 'undefined') bootstrap.Modal.getInstance(el)?.hide();
+            if (el && typeof bootstrap !== 'undefined') CmsAdmin.hideModal(el);
             setTimeout(() => location.reload(), 200);
         }
     });

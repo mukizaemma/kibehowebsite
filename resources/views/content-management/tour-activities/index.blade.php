@@ -123,7 +123,7 @@ function editActivity(id) {
             }
             document.getElementById('activity_status').value = data.status;
             document.getElementById('activityModalTitle').textContent = 'Edit Tour Activity';
-            new bootstrap.Modal(document.getElementById('activityModal')).show();
+            CmsAdmin.showModal('activityModal');
         });
 }
 

@@ -71,6 +71,7 @@
             </div>
             <form id="attractionForm" enctype="multipart/form-data">
                 <div class="modal-body">
+                    <div id="attractionFormErrors" class="alert alert-danger d-none" role="alert"></div>
                     <input type="hidden" id="attraction_id" name="id">
                     <div class="mb-3">
                         <label class="form-label" for="attraction_title">Title <span class="text-danger">*</span></label>
@@ -130,7 +131,7 @@ function editAttraction(id) {
                 wrap.style.display = 'none';
             }
             document.getElementById('attractionModalTitle').textContent = 'Edit attraction';
-            new bootstrap.Modal(document.getElementById('attractionModal')).show();
+            CmsAdmin.showModal('attractionModal');
         });
 }
 
@@ -155,23 +156,13 @@ document.getElementById('attractionForm').addEventListener('submit', function(e)
     const formData = new FormData(this);
     const url = currentAttractionId
         ? `${baseUrl}/${currentAttractionId}/update`
-        : @json(route('content-management.attractions.store'));
+        : @json(route('content-management.attractions.store', [], false));
 
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            const el = document.getElementById('attractionModal');
-            if (el && typeof bootstrap !== 'undefined') bootstrap.Modal.getInstance(el)?.hide();
-            setTimeout(() => location.reload(), 200);
-        }
+    CmsAdmin.clearErrors('attractionFormErrors');
+    CmsAdmin.submitFormData(url, formData, {
+        modalId: 'attractionModal',
+        errorsEl: 'attractionFormErrors',
+        defaultError: 'Could not save attraction. Please check the form and try again.',
     });
 });
 </script>
