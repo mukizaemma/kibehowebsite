@@ -5,8 +5,9 @@ $currentRoute = request()->route()->getName();
 $isCmsOrLegacyDashboard = in_array($currentRoute, ['dashboard', 'content-management.dashboard'], true);
 $isUpdatesAdmin = in_array($currentRoute, ['getBlogs', 'saveBlog', 'editBlog', 'viewBlog', 'updateBlog', 'deleteBlog', 'publishBlog'], true);
 $isTeamAdmin = in_array($currentRoute, ['staff', 'saveStaff', 'editStaff', 'updateStaff', 'deleteStaff'], true);
-$isSlidesAdmin = in_array($currentRoute, ['slides', 'saveSlide', 'editSlide', 'updateSlide', 'destroySlide'], true);
+$isSlidesAdmin = str_contains($currentRoute, 'content-management.slideshow');
 $isPartnersAdmin = in_array($currentRoute, ['getPartners', 'savePartner', 'editPartner', 'updatePartner', 'destroyPartner'], true);
+$isSettingsAdmin = in_array($currentRoute, ['setting', 'saveSetting', 'homePage', 'saveHome', 'aboutPage', 'saveAbout'], true) || str_starts_with((string) $currentRoute, 'setting.');
 $isDiningAdmin = $currentRoute === 'resto' || str_contains(strtolower((string) $currentRoute), 'resto');
 $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((string) $currentRoute), 'event') || str_contains(strtolower((string) $currentRoute), 'meeting');
 @endphp
@@ -34,13 +35,6 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-grip-horizontal me-2"></i>Dashboard
             </a>
 
-            <a href="{{ route('content-management.contacts') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.contacts') ? 'active' : '' }}">
-                <i class="fas fa-address-book me-2"></i>Contacts
-            </a>
-
-            <a href="{{ route('content-management.reservations') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.reservations') ? 'active' : '' }}">
-                <i class="fas fa-calendar-check me-2"></i>Reservations
-            </a>
             <a href="{{ route('content-management.rooms') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.rooms') ? 'active' : '' }}">
                 <i class="fas fa-bed me-2"></i>Rooms
             </a>
@@ -77,11 +71,8 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
             <a href="{{ route('content-management.gallery') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.gallery') ? 'active' : '' }}">
                 <i class="fas fa-images me-2"></i>Gallery
             </a>
-            <a href="{{ route('slides') }}" class="nav-item nav-link {{ $isSlidesAdmin ? 'active' : '' }}">
-                <i class="fas fa-clone me-2"></i>Home Slide
-            </a>
-            <a href="{{ route('content-management.slideshow') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.slideshow') ? 'active' : '' }}">
-                <i class="fas fa-sliders-h me-2"></i>Slideshow
+            <a href="{{ route('content-management.slideshow') }}" class="nav-item nav-link {{ $isSlidesAdmin ? 'active' : '' }}">
+                <i class="fas fa-images me-2"></i>Home Slideshow
             </a>
             <a href="{{ route('content-management.page-heroes') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.page-heroes') ? 'active' : '' }}">
                 <i class="fas fa-image me-2"></i>Page Heroes
@@ -90,16 +81,9 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-handshake me-2"></i>Partners
             </a>
 
-            <a href="{{ route('content-management.terms') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.terms') ? 'active' : '' }}">
-                <i class="fas fa-file-contract me-2"></i>Terms
-            </a>
-            <a href="{{ route('content-management.seo') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.seo') ? 'active' : '' }}">
-                <i class="fas fa-search me-2"></i>SEO Data
-            </a>
-
             <hr>
 
-            <a href="{{ route('setting') }}" class="nav-item nav-link {{ in_array($currentRoute, ['setting', 'saveSetting', 'homePage', 'saveHome', 'aboutPage', 'saveAbout'], true) || str_starts_with((string) $currentRoute, 'setting.') ? 'active' : '' }}">
+            <a href="{{ route('setting') }}" class="nav-item nav-link {{ $isSettingsAdmin ? 'active' : '' }}">
                 <i class="fas fa-cog me-2"></i>Settings
             </a>
             <a href="{{ route('logouts') }}" class="nav-item nav-link">

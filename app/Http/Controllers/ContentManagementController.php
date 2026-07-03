@@ -36,8 +36,10 @@ class ContentManagementController extends Controller
             'facilities' => Facility::count(),
             'users' => User::count(),
         ];
-        
-        return view('content-management.dashboard', compact('stats'));
+
+        $contentReady = $stats['rooms'] > 0 && $stats['services'] > 0 && $stats['facilities'] > 0;
+
+        return view('content-management.dashboard', compact('stats', 'contentReady'));
     }
 
     /**
@@ -164,7 +166,7 @@ class ContentManagementController extends Controller
         $contact->fill($request->all());
         $contact->save();
 
-        return redirect()->back()->with('success', 'Hotel contacts updated successfully');
+        return redirect()->to(route('setting').'#contacts')->with('success', 'Hotel contacts updated successfully');
     }
 
     // About Us Management
@@ -214,7 +216,7 @@ class ContentManagementController extends Controller
         
         $about->save();
 
-        return redirect()->back()->with('success', 'About information updated successfully');
+        return redirect()->to(route('setting').'#about')->with('success', 'About information updated successfully');
     }
 
     // Terms and Conditions
@@ -232,7 +234,7 @@ class ContentManagementController extends Controller
         $terms->updated_by = auth()->id();
         $terms->save();
 
-        return redirect()->back()->with('success', 'Terms and conditions updated successfully');
+        return redirect()->to(route('setting').'#tab-terms')->with('success', 'Terms and conditions updated successfully');
     }
 
     // SEO Data Management

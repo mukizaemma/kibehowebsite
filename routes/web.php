@@ -29,14 +29,10 @@ use App\Livewire\Public\TourShowPage;
 use App\Livewire\Public\ToursPage;
 use App\Livewire\Public\UpdatesPage;
 use App\Livewire\Admin\AmenityIndex;
-use App\Livewire\Admin\ContentManagementContacts;
 use App\Livewire\Admin\ContentManagementDashboard;
 use App\Livewire\Admin\ContentManagementGallery;
 use App\Livewire\Admin\ContentManagementPageHeroes;
-use App\Livewire\Admin\ContentManagementReservations;
-use App\Livewire\Admin\ContentManagementSeo;
 use App\Livewire\Admin\ContentManagementSlideshow;
-use App\Livewire\Admin\ContentManagementTerms;
 use App\Livewire\Admin\FacilityManagementIndex;
 use App\Livewire\Admin\ServiceManagementIndex;
 use App\Livewire\Admin\TourActivityIndex;
@@ -54,20 +50,20 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'admin'])->prefix('content-management')->name('content-management.')->group(function () {
     Route::get('/dashboard', ContentManagementDashboard::class)->name('dashboard');
     
-    // Hotel Contacts
-    Route::get('/contacts', ContentManagementContacts::class)->name('contacts');
+    // Hotel Contacts — UI lives under Settings → Contacts & Logo tab
+    Route::redirect('/contacts', '/setting#contacts')->name('contacts');
     Route::post('/contacts/update', [App\Http\Controllers\ContentManagementController::class, 'updateContacts'])->name('contacts.update');
     
     // About hotel content is managed under Settings; keep update endpoint for that form.
-    Route::redirect('/about', '/setting')->name('about');
+    Route::redirect('/about', '/setting#about')->name('about');
     Route::post('/about/update', [App\Http\Controllers\ContentManagementController::class, 'updateAbout'])->name('about.update');
     
     // Terms and Conditions
-    Route::get('/terms-conditions', ContentManagementTerms::class)->name('terms');
+    Route::redirect('/terms-conditions', '/setting#tab-terms')->name('terms');
     Route::post('/terms-conditions/update', [App\Http\Controllers\ContentManagementController::class, 'updateTermsConditions'])->name('terms.update');
     
     // SEO Data
-    Route::get('/seo-data', ContentManagementSeo::class)->name('seo');
+    Route::redirect('/seo-data', '/setting#seo-pages')->name('seo');
     Route::get('/seo-data/{id}', [App\Http\Controllers\ContentManagementController::class, 'showSeoData'])->name('seo.show');
     Route::post('/seo-data/update', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.update');
     Route::post('/seo-data/store', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.store');
@@ -153,10 +149,9 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::get('/page-heroes', ContentManagementPageHeroes::class)->name('page-heroes');
     Route::post('/page-heroes/{id}/update', [App\Http\Controllers\ContentManagementController::class, 'updatePageHero'])->name('page-heroes.update');
     
-    // Reservations (rooms + facilities, via tabs)
-    Route::get('/reservations', ContentManagementReservations::class)->name('reservations');
-    Route::get('/reservations/{id}', [App\Http\Controllers\ContentManagementController::class, 'showReservation'])->name('reservations.show');
-    Route::post('/reservations/{id}/reply', [App\Http\Controllers\ContentManagementController::class, 'replyReservation'])->name('reservations.reply');
+    // Reservations are handled via the external booking channel — not in this CMS.
+    Route::redirect('/reservations', '/content-management/dashboard')->name('reservations');
+    Route::redirect('/reservations/{id}', '/content-management/dashboard');
 });
 
 // Legacy Admin Routes (keeping for backward compatibility)
@@ -307,7 +302,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     // Gallery
-    Route::get('/slides', [App\Http\Controllers\SlidesController::class, 'index'])->name('slides');
+    Route::redirect('/slides', '/content-management/slideshow')->name('slides');
     Route::post('/saveSlide', [App\Http\Controllers\SlidesController::class, 'store'])->name('saveSlide');
     Route::get('/editSlide/{id}', [App\Http\Controllers\SlidesController::class, 'edit'])->name('editSlide');
     Route::post('/updateSlide/{id}', [App\Http\Controllers\SlidesController::class, 'update'])->name('updateSlide');

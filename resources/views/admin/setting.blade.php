@@ -53,6 +53,9 @@
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Keywords</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#seo-pages">SEO Pages</a>
+            </li>
             @if(!empty($canManageUsers))
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#users">Users</a>
@@ -226,6 +229,8 @@
                     </div>
                         </form>
                 </div>
+
+                @include('content-management.contacts.panel', ['contact' => $contact])
             </div>
 
             {{-- Tab: Booking.com, TripAdvisor, Google, WhatsApp (overrides .env defaults when filled) --}}
@@ -385,9 +390,23 @@
                                     <input type="text" class="form-control" name="subTitle" value="{{ optional($about)->subTitle ?? '' }}">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="founderDescription">About page narrative</label>
-                                    <p class="text-muted small mb-2">Story text for the public About / home sections. Legal policies belong under <strong>Terms &amp; Conditions</strong>.</p>
+                                    <label class="form-label" for="founderDescription">Leadership / CEO message</label>
+                                    <p class="text-muted small mb-2">Message from leadership shown on About and home sections. Legal policies belong under <strong>Terms &amp; Conditions</strong>.</p>
                                     <textarea class="form-control" name="founderDescription" rows="6" id="founderDescription">{{ optional($about)->founderDescription ?? '' }}</textarea>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="mission">Mission</label>
+                                        <textarea class="form-control" name="mission" rows="4" id="mission">{{ optional($about)->mission ?? '' }}</textarea>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="vision">Vision</label>
+                                        <textarea class="form-control" name="vision" rows="4" id="vision">{{ optional($about)->vision ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="mb-3 mt-3">
+                                    <label class="form-label" for="storyDescription">Story description</label>
+                                    <textarea class="form-control" name="storyDescription" rows="4" id="storyDescription">{{ optional($about)->storyDescription ?? '' }}</textarea>
                                 </div>
                             </fieldset>
                             <fieldset class="mb-0">
@@ -527,6 +546,11 @@
             </div>
             @endif
 
+            {{-- Tab: SEO by page --}}
+            <div id="seo-pages" class="tab-pane fade">
+                @include('content-management.seo.panel', ['seoData' => $seoData])
+            </div>
+
             {{-- Tab 3: SEO Keywords — one card, one form (only keywords textarea) --}}
             <div id="seo" class="tab-pane fade">
                 <div class="card shadow-sm border-0">
@@ -570,11 +594,27 @@ jQuery(function ($) {
             return;
         }
         $el.summernote({
-            placeholder: 'Intro and story shown on About / Home…',
+            placeholder: 'Leadership / CEO message shown on About / Home…',
             tabsize: 2,
             height: 300,
             disableResizeEditor: true,
             toolbar: settingsTermsToolbar
+        });
+    }
+
+    function initAboutTextareas() {
+        ['#mission', '#vision', '#storyDescription'].forEach(function (selector) {
+            var $el = $(selector);
+            if (!$el.length || $el.next('.note-editor').length) {
+                return;
+            }
+            $el.summernote({
+                placeholder: '',
+                tabsize: 2,
+                height: 180,
+                disableResizeEditor: true,
+                toolbar: settingsTermsToolbar
+            });
         });
     }
 
@@ -595,6 +635,7 @@ jQuery(function ($) {
     // Bootstrap 5
     $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"][href="#about"]', function () {
         initAboutEditor();
+        initAboutTextareas();
     });
     $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"][href="#tab-terms"]', function () {
         initTermsEditor();
@@ -602,6 +643,7 @@ jQuery(function ($) {
     // Bootstrap 4 (some admin JS still uses data-toggle)
     $(document).on('shown.bs.tab', 'a[data-toggle="tab"][href="#about"]', function () {
         initAboutEditor();
+        initAboutTextareas();
     });
     $(document).on('shown.bs.tab', 'a[data-toggle="tab"][href="#tab-terms"]', function () {
         initTermsEditor();
@@ -609,12 +651,14 @@ jQuery(function ($) {
 
     if (window.location.hash === '#about' || document.querySelector('.nav-link.active[href="#about"]')) {
         initAboutEditor();
+        initAboutTextareas();
     }
     if (window.location.hash === '#tab-terms' || window.location.hash === '#terms' || document.querySelector('.nav-link.active[href="#tab-terms"]')) {
         initTermsEditor();
     }
     if ($('#about').hasClass('active') || $('#about').hasClass('show')) {
         initAboutEditor();
+        initAboutTextareas();
     }
     if ($('#tab-terms').hasClass('active') || $('#tab-terms').hasClass('show')) {
         initTermsEditor();
@@ -639,10 +683,12 @@ jQuery(function ($) {
     });
 
     $(document).on('submit', '.settings-about-form', function () {
-        var $el = $('#founderDescription');
-        if ($el.length && $el.next('.note-editor').length) {
-            $el.val($el.summernote('code'));
-        }
+        ['#founderDescription', '#mission', '#vision', '#storyDescription'].forEach(function (selector) {
+            var $el = $(selector);
+            if ($el.length && $el.next('.note-editor').length) {
+                $el.val($el.summernote('code'));
+            }
+        });
     });
 });
 </script>

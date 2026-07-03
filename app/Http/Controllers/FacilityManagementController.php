@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Facility;
 use App\Models\Facilityimage;
-use App\Models\Booking;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,12 +13,8 @@ class FacilityManagementController extends Controller
     public function index()
     {
         $facilities = Facility::with('images')->latest()->get();
-        $facilityReservations = Booking::where('reservation_type', 'facility')
-            ->with('facility')
-            ->latest()
-            ->get();
 
-        return view('content-management.facilities.index', compact('facilities', 'facilityReservations'));
+        return view('content-management.facilities.index', compact('facilities'));
     }
 
     public function store(Request $request)

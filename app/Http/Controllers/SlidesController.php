@@ -37,7 +37,7 @@ class SlidesController extends Controller
         $stored = $data->save();
 
         if($stored){
-            return redirect('slides')->with('success', 'New Image has been added successfuly');
+            return redirect()->route('content-management.slideshow')->with('success', 'New Image has been added successfuly');
         }
 
         return redirect()->back()->with('error','Failed to add new Image');
@@ -73,7 +73,7 @@ class SlidesController extends Controller
 
         $data->update();
 
-        return redirect('slides')->with('success','Image has been updated');
+        return redirect()->route('content-management.slideshow')->with('success','Image has been updated');
     }
 
     public function destroy($id)

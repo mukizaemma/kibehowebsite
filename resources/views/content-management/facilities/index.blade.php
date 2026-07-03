@@ -51,45 +51,6 @@
                     </tbody>
                 </table>
             </div>
-
-            @if(isset($facilityReservations) && $facilityReservations->count() > 0)
-            <hr class="my-4">
-            <h5 class="mb-3">Facility Reservations</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Facility</th>
-                            <th>Guest Name</th>
-                            <th>Date</th>
-                            <th>People</th>
-                            <th>Phone</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($facilityReservations as $reservation)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $reservation->facility->title ?? 'N/A' }}</td>
-                            <td>{{ $reservation->names }}</td>
-                            <td>{{ optional($reservation->checkin_date)->format('Y-m-d') }}</td>
-                            <td>{{ $reservation->adults ?? $reservation->guests ?? '-' }}</td>
-                            <td>{{ $reservation->phone }}</td>
-                            <td>{{ $reservation->email }}</td>
-                            <td>
-                                <span class="badge bg-{{ $reservation->status === 'confirmed' ? 'success' : ($reservation->status === 'cancelled' ? 'danger' : 'secondary') }}">
-                                    {{ ucfirst($reservation->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            @endif
         </div>
     </div>
 

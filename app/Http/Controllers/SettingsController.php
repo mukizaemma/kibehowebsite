@@ -8,6 +8,8 @@ use App\Models\About;
 use App\Models\Aboutus;
 use App\Models\Setting;
 use App\Models\TermsCondition;
+use App\Models\HotelContact;
+use App\Models\SeoData;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Getinvolved;
@@ -34,11 +36,14 @@ class SettingsController extends Controller
 
         $about = About::first();
         $terms = TermsCondition::first();
+        $contact = HotelContact::firstOrNew([]);
+        $seoData = SeoData::all();
 
         $canEditDelivery = Auth::check()
             && strtolower((string) Auth::user()->email) === 'admin@iremetech.com';
 
-        $canManageUsers = $canEditDelivery;
+        $canManageUsers = Auth::check()
+            && (Auth::user()->isSuperAdmin() || strtolower((string) Auth::user()->email) === 'admin@iremetech.com');
         $isManager = false;
         $users = collect();
         $roles = collect();
@@ -56,6 +61,8 @@ class SettingsController extends Controller
             'setting',
             'about',
             'terms',
+            'contact',
+            'seoData',
             'canEditDelivery',
             'canManageUsers',
             'isManager',

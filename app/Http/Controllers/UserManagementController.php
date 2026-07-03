@@ -15,7 +15,10 @@ class UserManagementController extends Controller
 {
     private function canManageAllUsers(): bool
     {
-        return auth()->check() && strtolower((string) auth()->user()->email) === 'admin@iremetech.com';
+        return auth()->check() && (
+            auth()->user()->isSuperAdmin()
+            || strtolower((string) auth()->user()->email) === 'admin@iremetech.com'
+        );
     }
 
     private function ensureManageAllUsersOrAbort(): void
