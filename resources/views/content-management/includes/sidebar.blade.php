@@ -65,14 +65,14 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-pen-nib me-2"></i>Updates
             </a>
             <a href="{{ route('staff') }}" class="nav-item nav-link {{ $isTeamAdmin ? 'active' : '' }}">
-                <i class="fas fa-user-friends me-2"></i>Team Members
+                <i class="fas fa-user-friends me-2"></i>Team
             </a>
 
             <a href="{{ route('content-management.gallery') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.gallery') ? 'active' : '' }}">
                 <i class="fas fa-images me-2"></i>Gallery
             </a>
             <a href="{{ route('content-management.slideshow') }}" class="nav-item nav-link {{ $isSlidesAdmin ? 'active' : '' }}">
-                <i class="fas fa-images me-2"></i>Home Slideshow
+                <i class="fas fa-images me-2"></i>Slideshow
             </a>
             <a href="{{ route('content-management.page-heroes') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.page-heroes') ? 'active' : '' }}">
                 <i class="fas fa-image me-2"></i>Page Heroes
