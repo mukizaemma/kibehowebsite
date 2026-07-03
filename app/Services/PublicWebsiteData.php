@@ -200,6 +200,67 @@ class PublicWebsiteData
         return $data;
     }
 
+    public static function exploreSanctuary(): array
+    {
+        $facility = Facility::with('images')
+            ->where('slug', Facility::EXPLORE_KIBEHO_SLUG)
+            ->firstOrFail();
+
+        $images = $facility->images;
+        $facilities = Facility::oldest()->get();
+        $setting = Setting::first();
+        $about = About::first();
+        $pageHero = PageHero::getBySlug('explore-kibeho');
+
+        $sanctuaryEvents = \App\Models\SanctuaryEvent::query()
+            ->active()
+            ->ordered()
+            ->get();
+
+        $facilityImages = collect();
+        if ($facility->cover_image) {
+            $facilityImages->push((object) [
+                'url' => asset('storage/' . $facility->cover_image),
+                'caption' => $facility->title,
+            ]);
+        }
+        foreach ($images as $img) {
+            $facilityImages->push((object) [
+                'url' => asset('storage/' . $img->image),
+                'caption' => $facility->title,
+            ]);
+        }
+
+        $galleryImages = Gallery::query()
+            ->where(function ($query) {
+                $query->whereRaw('LOWER(category) = ?', ['kibeho sanctuary'])
+                    ->orWhereRaw('LOWER(category) = ?', ['sanctuary']);
+            })
+            ->where('media_type', 'image')
+            ->oldest()
+            ->get()
+            ->map(fn ($item) => (object) [
+                'url' => asset('storage/' . $item->image),
+                'caption' => $item->caption ?: $item->category,
+            ]);
+
+        $allGalleryImages = $facilityImages->concat($galleryImages)->unique('url')->values();
+
+        return [
+            'facility' => $facility,
+            'images' => $images,
+            'facilities' => $facilities,
+            'setting' => $setting,
+            'about' => $about,
+            'pageHero' => $pageHero,
+            'sanctuaryEvents' => $sanctuaryEvents,
+            'sanctuaryGallery' => $allGalleryImages,
+            'officialWebsiteUrl' => filled(trim((string) $facility->official_website_url))
+                ? trim((string) $facility->official_website_url)
+                : null,
+        ];
+    }
+
     public static function facility(string $slug): array
     {
         $facility = Facility::with('images')->where('slug', $slug)->firstOrFail();

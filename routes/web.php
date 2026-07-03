@@ -138,6 +138,12 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::get('/attractions/{id}', [App\Http\Controllers\AttractionController::class, 'show'])->name('attractions.show');
     Route::post('/attractions/{id}/update', [App\Http\Controllers\AttractionController::class, 'update'])->name('attractions.update');
     Route::delete('/attractions/{id}', [App\Http\Controllers\AttractionController::class, 'destroy'])->name('attractions.destroy');
+
+    Route::get('/sanctuary-events', [App\Http\Controllers\SanctuaryEventController::class, 'index'])->name('sanctuary-events.index');
+    Route::post('/sanctuary-events/store', [App\Http\Controllers\SanctuaryEventController::class, 'store'])->name('sanctuary-events.store');
+    Route::get('/sanctuary-events/{id}', [App\Http\Controllers\SanctuaryEventController::class, 'show'])->name('sanctuary-events.show');
+    Route::post('/sanctuary-events/{id}/update', [App\Http\Controllers\SanctuaryEventController::class, 'update'])->name('sanctuary-events.update');
+    Route::delete('/sanctuary-events/{id}', [App\Http\Controllers\SanctuaryEventController::class, 'destroy'])->name('sanctuary-events.destroy');
     
     // Gallery
     Route::get('/gallery', ContentManagementGallery::class)->name('gallery');

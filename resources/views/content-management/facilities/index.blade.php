@@ -76,6 +76,11 @@
                         <textarea class="form-control" id="facility_description" name="description" rows="6"></textarea>
                         <small class="text-muted">Optional</small>
                     </div>
+                    <div class="mb-3" id="facility_official_url_wrap">
+                        <label class="form-label" for="facility_official_website_url">Official website URL</label>
+                        <input type="url" class="form-control" id="facility_official_website_url" name="official_website_url" placeholder="https://www.example.org/">
+                        <small class="text-muted">Shown on the Explore Kibeho Sanctuary page (sanctuary facility only).</small>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Cover Image</label>
                         <input type="file" class="form-control" id="facility_cover_image" name="cover_image" accept="image/*">
@@ -175,6 +180,7 @@ function editFacility(id) {
             currentFacilityId = id;
             document.getElementById('facility_id').value = data.id;
             document.getElementById('facility_title').value = data.title;
+            document.getElementById('facility_official_website_url').value = data.official_website_url || '';
             // Set Summernote content
             $('#facility_description').summernote('code', data.description || '');
             document.getElementById('facility_status').value = data.status;
