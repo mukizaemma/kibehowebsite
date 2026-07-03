@@ -70,9 +70,9 @@
     $footerMainMenuLinks = [
         ['route' => 'home', 'label' => site_trans('nav.home')],
         ['route' => 'about', 'label' => site_trans('nav.about')],
-        ['route' => 'rooms', 'label' => site_trans('nav.rooms')],
-        ['route' => 'dining', 'label' => site_trans('nav.dining')],
-        ['route' => 'meetings-events', 'label' => site_trans('nav.meetings_events')],
+        ['route' => 'rooms', 'label' => site_trans('footer.link_accommodation')],
+        ['route' => 'dining', 'label' => site_trans('footer.link_bar_restaurant')],
+        ['route' => 'meetings-events', 'label' => site_trans('footer.link_meetings_workshops')],
         ['route' => 'gallery', 'label' => site_trans('nav.gallery')],
         ['route' => 'contact', 'label' => site_trans('nav.contact')],
     ];

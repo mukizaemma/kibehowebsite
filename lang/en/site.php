@@ -57,6 +57,9 @@ return [
     ],
     'footer' => [
         'quick_links' => 'Quick Links',
+        'link_accommodation' => 'Accommodation',
+        'link_bar_restaurant' => 'Bar & Restaurant',
+        'link_meetings_workshops' => 'Meetings & Workshops',
         'contact_info' => 'Contact Info',
         'follow_us' => 'Follow Us',
         'all_rights' => 'All rights reserved.',
