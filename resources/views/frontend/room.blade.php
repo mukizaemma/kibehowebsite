@@ -151,7 +151,7 @@
                         </span>
                     </div>
                     <p class="text-muted text-center small mb-4">
-                        Reserve this room type on our <strong>online booking channel</strong>. For questions about this room, use WhatsApp or email.
+                        {{ site_trans('booking.book_now_lead') }}
                     </p>
                     @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' Room: '.$room->title])
                 </div>

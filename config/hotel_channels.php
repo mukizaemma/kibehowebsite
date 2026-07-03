@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'reservation_url' => env('HOTEL_RESERVATION_URL', env('HOTEL_BOOKING_COM_URL', '')),
+    'reservation_url' => env('HOTEL_RESERVATION_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -17,6 +17,8 @@ return [
     */
 
     'booking_com_url' => env('HOTEL_BOOKING_COM_URL', ''),
+
+    'expedia_url' => env('HOTEL_EXPEDIA_URL', ''),
 
     /*
     |--------------------------------------------------------------------------

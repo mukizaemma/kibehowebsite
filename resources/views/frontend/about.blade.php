@@ -131,9 +131,6 @@
 <x-booking-cta
     :rooms="$allRooms"
     :show-children-field="true"
-    eyebrow="Visit & stay"
-    title="Find us & book your stay"
-    lead="Visit us in person or reserve your room — we’ll confirm your request shortly."
     heading-id="about-booking-cta"
     id-suffix="-about"
 />

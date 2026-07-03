@@ -21,9 +21,6 @@
                         <span>Contact us</span>
                     </div>
                     <h3 class="mb-10 section__title section__title--compact">We’re here to help</h3>
-                    <p class="text-muted mb-4">
-                        For reservations we use our <strong>online booking channel</strong>. For other questions — events, facilities, or special arrangements — message us on WhatsApp or send an email directly (no web form).
-                    </p>
                     @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' (contact page)'])
                 </div>
             </div>

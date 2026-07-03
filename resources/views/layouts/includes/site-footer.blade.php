@@ -60,21 +60,21 @@
     $footerStars = isset($setting?->star_rating) ? (int) $setting->star_rating : 0;
 
     $footerAmenities = [
-        ['label' => '24/7 Security', 'icon' => 'fa-solid fa-shield-halved'],
-        ['label' => 'Free Parking', 'icon' => 'fa-solid fa-square-parking'],
-        ['label' => 'Free Wi-Fi', 'icon' => 'fa-solid fa-wifi'],
-        ['label' => 'Transport', 'icon' => 'fa-solid fa-shuttle-van'],
-        ['label' => 'Meeting Rooms', 'icon' => 'fa-solid fa-people-group'],
+        ['label' => site_trans('footer.amenity_security'), 'icon' => 'fa-solid fa-shield-halved'],
+        ['label' => site_trans('footer.amenity_parking'), 'icon' => 'fa-solid fa-square-parking'],
+        ['label' => site_trans('footer.amenity_wifi'), 'icon' => 'fa-solid fa-wifi'],
+        ['label' => site_trans('footer.amenity_transport'), 'icon' => 'fa-solid fa-shuttle-van'],
+        ['label' => site_trans('footer.amenity_meeting_rooms'), 'icon' => 'fa-solid fa-people-group'],
     ];
 
     $footerExploreLinks = [
-        ['label' => 'Home', 'route' => 'home', 'icon' => 'fa-solid fa-house'],
-        ['label' => 'About', 'route' => 'about', 'icon' => 'fa-solid fa-book-open'],
-        ['label' => 'Rooms', 'route' => 'rooms', 'icon' => 'fa-solid fa-bed'],
-        ['label' => 'Dining', 'route' => 'dining', 'icon' => 'fa-solid fa-utensils'],
-        ['label' => 'Events', 'route' => 'meetings-events', 'icon' => 'fa-solid fa-calendar-days'],
-        ['label' => 'Gallery', 'route' => 'gallery', 'icon' => 'fa-solid fa-images'],
-        ['label' => 'Contact', 'route' => 'contact', 'icon' => 'fa-solid fa-envelope'],
+        ['label' => site_trans('nav.home'), 'route' => 'home', 'icon' => 'fa-solid fa-house'],
+        ['label' => site_trans('nav.about'), 'route' => 'about', 'icon' => 'fa-solid fa-book-open'],
+        ['label' => site_trans('nav.rooms'), 'route' => 'rooms', 'icon' => 'fa-solid fa-bed'],
+        ['label' => site_trans('nav.dining'), 'route' => 'dining', 'icon' => 'fa-solid fa-utensils'],
+        ['label' => site_trans('footer.events'), 'route' => 'meetings-events', 'icon' => 'fa-solid fa-calendar-days'],
+        ['label' => site_trans('nav.gallery'), 'route' => 'gallery', 'icon' => 'fa-solid fa-images'],
+        ['label' => site_trans('nav.contact'), 'route' => 'contact', 'icon' => 'fa-solid fa-envelope'],
     ];
 @endphp
 
@@ -84,10 +84,10 @@
     <div class="container site-footer__body">
         <div class="site-footer__layout">
             <aside class="site-footer__brand">
-                <a wire:navigate href="{{ route('home') }}" class="site-footer__logo-link">
+                <a wire:navigate href="{{ localized_route('home') }}" class="site-footer__logo-link">
                     <img class="site-footer__logo" src="{{ $footerLogoUrl }}" alt="{{ $setting?->company ?? 'Kibeho Magnificat Hotel' }}" width="180" height="80" loading="lazy" decoding="async">
                 </a>
-                <p class="site-footer__tagline">Faith &middot; Hospitality &middot; Peace</p>
+                <p class="site-footer__tagline">{{ site_trans('footer.tagline') }}</p>
 
                 @if($footerStars >= 1 && $footerStars <= 5)
                     <div class="site-footer__stars" role="img" aria-label="{{ $footerStars }} out of 5 stars">
@@ -121,11 +121,11 @@
             <div class="site-footer__panels">
                 <div class="site-footer__link-panels">
                     <div class="site-footer__panel site-footer__panel--explore">
-                        <h2 class="site-footer__panel-title">Explore the hotel</h2>
+                        <h2 class="site-footer__panel-title">{{ site_trans('footer.explore_hotel') }}</h2>
                         <ul class="site-footer__nav-grid" role="list">
                             @foreach($footerExploreLinks as $link)
                                 <li>
-                                    <a wire:navigate href="{{ route($link['route']) }}" class="site-footer__nav-link">
+                                    <a wire:navigate href="{{ localized_route($link['route']) }}" class="site-footer__nav-link">
                                         <span class="site-footer__nav-icon" aria-hidden="true">
                                             <i class="{{ $link['icon'] }}"></i>
                                         </span>
@@ -138,11 +138,11 @@
 
                     @if(isset($facilities) && $facilities->isNotEmpty())
                         <div class="site-footer__panel site-footer__panel--facilities">
-                            <h2 class="site-footer__panel-title">Our facilities</h2>
+                            <h2 class="site-footer__panel-title">{{ site_trans('footer.our_facilities') }}</h2>
                             <ul class="site-footer__facility-tags" role="list">
                                 @foreach($facilities as $facility)
                                     <li>
-                                        <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="site-footer__facility-tag">
+                                        <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="site-footer__facility-tag">
                                             {{ $facility->title }}
                                         </a>
                                     </li>
@@ -153,7 +153,7 @@
                 </div>
 
                 <div class="site-footer__amenities-block">
-                    <h2 class="site-footer__panel-title">At your service</h2>
+                    <h2 class="site-footer__panel-title">{{ site_trans('footer.at_your_service') }}</h2>
                     <ul class="site-footer__amenity-grid" role="list">
                         @foreach($footerAmenities as $amenity)
                             <li class="site-footer__amenity">
@@ -173,7 +173,7 @@
                 <a href="tel:{{ preg_replace('/\s+/', '', $receptionPhone) }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
-                        <span class="site-footer__contact-label">Reception</span>
+                        <span class="site-footer__contact-label">{{ site_trans('footer.reception') }}</span>
                         <span>{{ $receptionPhone }}</span>
                     </span>
                 </a>
@@ -188,7 +188,7 @@
                 <a href="tel:{{ preg_replace('/\s+/', '', $managerPhone) }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
-                        <span class="site-footer__contact-label">Manager</span>
+                        <span class="site-footer__contact-label">{{ site_trans('footer.manager') }}</span>
                         <span>{{ $managerPhone }}</span>
                     </span>
                 </a>
@@ -198,7 +198,7 @@
                 <a href="tel:{{ preg_replace('/\s+/', '', $restaurantPhone) }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
-                        <span class="site-footer__contact-label">Restaurant</span>
+                        <span class="site-footer__contact-label">{{ site_trans('footer.restaurant') }}</span>
                         <span>{{ $restaurantPhone }}</span>
                     </span>
                 </a>
@@ -229,7 +229,7 @@
                 @include('frontend.includes.reservation-link', [
                     'style' => 'fill',
                     'class' => 'site-footer__book-btn footer__book-cta',
-                    'label' => 'Book your stay',
+                    'label' => site_trans('buttons.book_your_stay'),
                 ])
             </div>
         </div>
@@ -238,9 +238,9 @@
     <div class="site-footer__copyright">
         <div class="container">
             <p class="site-footer__copyright-text mb-0">
-                &copy; {{ date('Y') }} {{ $setting?->company ?? 'Kibeho Magnificat MV Hôtel' }}. All rights reserved.
+                &copy; {{ date('Y') }} {{ $setting?->company ?? 'Kibeho Magnificat MV Hôtel' }}. {{ site_trans('footer.all_rights') }}
                 @if($setting?->footer_delivered_by_enabled && filled(trim((string) ($setting->footer_delivered_by_company ?? ''))))
-                    Delivered by
+                    {{ site_trans('footer.delivered_by') }}
                     @php
                         $creditUrl = trim((string) ($setting->footer_delivered_by_url ?? ''));
                         $creditName = trim((string) $setting->footer_delivered_by_company);

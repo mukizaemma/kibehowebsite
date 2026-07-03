@@ -30,10 +30,12 @@ class Setting extends Model
         'youtube',
         'linkedin',
         'linktree',
+        'booking_channel_enabled',
         'quote',
         'google_map_embed',
         'star_rating',
         'booking_com_url',
+        'expedia_url',
         'booking_com_review_score',
         'booking_com_review_count',
         'booking_com_review_summary',
@@ -56,11 +58,14 @@ class Setting extends Model
         'ga4_measurement_id',
         'ga4_reports_url',
         'price_currency',
+        'translations_enabled',
     ];
 
     protected $casts = [
         'star_rating' => 'integer',
         'footer_delivered_by_enabled' => 'boolean',
+        'translations_enabled' => 'boolean',
+        'booking_channel_enabled' => 'boolean',
         'booking_com_review_score' => 'decimal:1',
         'booking_com_review_count' => 'integer',
         'tripadvisor_review_score' => 'decimal:1',

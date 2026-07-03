@@ -1,14 +1,15 @@
 {{--
-  External reservation link — uses Settings → Online reservation URL.
+  Book Now — external channel when enabled & configured, otherwise contact page.
   Props: $class, $label (default "Book Now"), $style (fill|border|sm-btn), $icon (optional FA class)
 --}}
 @php
-    $reservationUrl = hotel_reservation_url($setting ?? null);
+    $bookUrl = hotel_book_now_url($setting ?? null);
+    $bookExternal = hotel_book_now_is_external($setting ?? null);
     $btnClass = trim('theme-btn btn-style ' . ($style ?? 'sm-btn fill') . ' ' . ($class ?? ''));
-    $btnLabel = $label ?? 'Book Now';
+    $btnLabel = $label ?? site_trans('buttons.book_now');
 @endphp
-@if(filled($reservationUrl))
-    <a href="{{ $reservationUrl }}"
+@if($bookExternal)
+    <a href="{{ $bookUrl }}"
        class="{{ $btnClass }}"
        target="_blank"
        rel="noopener noreferrer"
@@ -19,7 +20,7 @@
         <span>{{ $btnLabel }}</span>
     </a>
 @else
-    <a wire:navigate href="{{ route('connect') }}" class="{{ $btnClass }}">
+    <a wire:navigate href="{{ $bookUrl }}" class="{{ $btnClass }}">
         @if(!empty($icon))
             <i class="{{ $icon }} me-2" aria-hidden="true"></i>
         @endif

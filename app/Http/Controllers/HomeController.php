@@ -468,6 +468,9 @@ class HomeController extends Controller
         if ($validated['enquiry_type'] === 'general') {
             $payload['subject'] = $validated['subject'];
             $payload['message'] = $validated['message'];
+            if ($request->filled('enquiry_context')) {
+                $payload['message'] = trim($payload['message']."\n\n[Context:".trim((string) $request->input('enquiry_context')).']');
+            }
         } else {
             $room = Room::find($validated['room_id']);
             $payload['room_id'] = (int) $validated['room_id'];
@@ -501,13 +504,13 @@ class HomeController extends Controller
         $guestSent = SiteNotificationMail::sendToGuest($message->email, new ContactEnquiryGuestMail($message));
 
         return $this->redirectBackWithContactEmailSwal(
-            redirect()->back(),
+            redirect()->back()->withFragment('enquiry-contacts'),
             $adminSent,
             $guestSent,
             true,
             'Message received',
             'Thank you for reaching out — we will get back to you soon.'
-        );
+        )->with('show_enquiry_contacts', true);
     }
 
     public function submitProposal(Request $request)

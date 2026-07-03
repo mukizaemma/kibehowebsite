@@ -7,7 +7,7 @@ $isUpdatesAdmin = in_array($currentRoute, ['getBlogs', 'saveBlog', 'editBlog', '
 $isTeamAdmin = in_array($currentRoute, ['staff', 'saveStaff', 'editStaff', 'updateStaff', 'deleteStaff'], true);
 $isSlidesAdmin = str_contains($currentRoute, 'content-management.slideshow');
 $isPartnersAdmin = in_array($currentRoute, ['getPartners', 'savePartner', 'editPartner', 'updatePartner', 'destroyPartner'], true);
-$isSettingsAdmin = in_array($currentRoute, ['setting', 'saveSetting', 'homePage', 'saveHome', 'aboutPage', 'saveAbout'], true) || str_starts_with((string) $currentRoute, 'setting.');
+$isSettingsAdmin = in_array($currentRoute, ['setting', 'saveSetting', 'homePage', 'saveHome', 'aboutPage', 'saveAbout'], true) || str_starts_with((string) $currentRoute, 'setting.') || str_contains($currentRoute, 'content-management.site-translations');
 $isDiningAdmin = $currentRoute === 'resto' || str_contains(strtolower((string) $currentRoute), 'resto');
 $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((string) $currentRoute), 'event') || str_contains(strtolower((string) $currentRoute), 'meeting');
 @endphp
@@ -85,6 +85,9 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
 
             <a href="{{ route('setting') }}" class="nav-item nav-link {{ $isSettingsAdmin ? 'active' : '' }}">
                 <i class="fas fa-cog me-2"></i>Settings
+            </a>
+            <a href="{{ route('content-management.site-translations.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.site-translations') ? 'active' : '' }}">
+                <i class="fas fa-language me-2"></i>Translations
             </a>
             <a href="{{ route('logouts') }}" class="nav-item nav-link">
                 <i class="fas fa-sign-out-alt me-2"></i>Logout

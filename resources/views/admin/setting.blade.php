@@ -63,6 +63,9 @@
             @endif
             @if(!empty($canEditDelivery))
             <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#translations">Translations</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#footer-delivered-by">Delivered by (footer)</a>
             </li>
             @endif
@@ -71,10 +74,17 @@
         <div class="tab-content admin-settings-tab-content">
             {{-- Tab 1: Contacts & Logo — one card, one form --}}
             <div id="contacts" class="tab-pane fade show active">
+                @php
+                    $contactValue = function (string $key) use ($data, $contact) {
+                        $fromSetting = $data->{$key} ?? null;
+
+                        return old($key, filled($fromSetting) ? $fromSetting : ($contact->{$key} ?? ''));
+                    };
+                @endphp
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-1">Contacts & Logo</h5>
-                        <p class="text-muted small mb-0">Contact details and logos used across the site.</p>
+                        <p class="text-muted small mb-0">One place for contact details, location, social links, and logos used across the site.</p>
                     </div>
                         <form action="{{ route('saveSetting', $data->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -84,19 +94,40 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="company" class="form-label">Website title</label>
-                                        <input type="text" class="form-control" id="company" name="company" value="{{ $data->company }}">
+                                        <input type="text" class="form-control" id="company" name="company" value="{{ old('company', $data->company) }}">
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="address" class="form-label">Address</label>
-                                        <input type="text" class="form-control" id="address" name="address" value="{{ $data->address }}">
+                                        <label for="website" class="form-label">Website URL</label>
+                                        <input type="url" class="form-control" id="website" name="website" value="{{ old('website', $contact->website ?? '') }}" placeholder="https://example.com">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="address" class="form-label">Street address</label>
+                                        <input type="text" class="form-control" id="address" name="address" value="{{ $contactValue('address') }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="city" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="city" name="city" value="{{ old('city', $contact->city ?? '') }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="country" class="form-label">Country</label>
+                                        <input type="text" class="form-control" id="country" name="country" value="{{ old('country', $contact->country ?? '') }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="postal_code" class="form-label">Postal code</label>
+                                        <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ old('postal_code', $contact->postal_code ?? '') }}">
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="phone" class="form-label">Phone</label>
-                                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $data->phone }}">
+                                        <label for="phone" class="form-label">Main phone</label>
+                                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $contactValue('phone') }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="{{ $data->email }}">
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ $contactValue('email') }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="whatsapp" class="form-label">WhatsApp (display)</label>
+                                        <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $contact->whatsapp ?? '') }}" placeholder="+250 ...">
+                                        <p class="text-muted small mb-0 mt-1">Shown on the contact page. For booking CTAs use <strong>Booking &amp; review links</strong>.</p>
                                     </div>
                                 </div>
                                 <div class="row g-3 mt-1">
@@ -130,10 +161,20 @@
                                 </div>
                             </fieldset>
                             <fieldset class="mb-4">
-                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Google Map</legend>
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Location &amp; map</legend>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="latitude" class="form-label">Latitude</label>
+                                        <input type="number" step="any" class="form-control" id="latitude" name="latitude" value="{{ old('latitude', $contact->latitude ?? '') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="longitude" class="form-label">Longitude</label>
+                                        <input type="number" step="any" class="form-control" id="longitude" name="longitude" value="{{ old('longitude', $contact->longitude ?? '') }}">
+                                    </div>
+                                </div>
                                 <p class="text-muted small mb-2">Paste the embed code from Google Maps (Share → Embed a map). Used on Home, Contact, and About pages.</p>
                                 <div class="mb-0">
-                                    <label for="google_map_embed" class="form-label">Embed code (iframe)</label>
+                                    <label for="google_map_embed" class="form-label">Google Maps embed (iframe)</label>
                                     <textarea class="form-control font-monospace" id="google_map_embed" name="google_map_embed" rows="6" placeholder="<iframe src=&quot;https://www.google.com/maps/embed?pb=...&quot; ...></iframe>">{{ $data->google_map_embed ?? '' }}</textarea>
                                 </div>
                             </fieldset>
@@ -142,19 +183,23 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="facebook" class="form-label">Facebook</label>
-                                        <input type="text" class="form-control" id="facebook" name="facebook" value="{{ $data->facebook }}">
+                                        <input type="text" class="form-control" id="facebook" name="facebook" value="{{ $contactValue('facebook') }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="instagram" class="form-label">Instagram</label>
-                                        <input type="text" class="form-control" id="instagram" name="instagram" value="{{ $data->instagram }}">
+                                        <input type="text" class="form-control" id="instagram" name="instagram" value="{{ $contactValue('instagram') }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="youtube" class="form-label">YouTube</label>
-                                        <input type="text" class="form-control" id="youtube" name="youtube" value="{{ $data->youtube }}">
+                                        <input type="text" class="form-control" id="youtube" name="youtube" value="{{ old('youtube', $data->youtube ?? '') }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="linkedin" class="form-label">LinkedIn</label>
-                                        <input type="text" class="form-control" id="linkedin" name="linkedin" value="{{ $data->linkedin }}">
+                                        <input type="text" class="form-control" id="linkedin" name="linkedin" value="{{ $contactValue('linkedin') }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="twitter" class="form-label">Twitter / X</label>
+                                        <input type="text" class="form-control" id="twitter" name="twitter" value="{{ old('twitter', $contact->twitter ?? $data->twitter ?? '') }}">
                                     </div>
                                 </div>
                             </fieldset>
@@ -225,16 +270,43 @@
                             </fieldset>
                     </div>
                     <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
-                        <button type="submit" class="btn btn-primary">Save Contacts &amp; Logo</button>
+                        <button type="submit" class="btn btn-primary">Save contacts &amp; logo</button>
                     </div>
                         </form>
                 </div>
-
-                @include('content-management.contacts.panel', ['contact' => $contact])
             </div>
 
             {{-- Tab: Booking.com, TripAdvisor, Google, WhatsApp (overrides .env defaults when filled) --}}
             <div id="channel-links" class="tab-pane fade">
+                @if(!empty($canManageUsers))
+                <div class="card shadow-sm border-0 border-start border-primary border-3 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Online booking channel</h5>
+                        <p class="text-muted small mb-0">When enabled, <strong>Book Now</strong> opens your reservation URL. When disabled, guests are sent to the contact page instead.</p>
+                    </div>
+                    <form action="{{ route('setting.booking-channel-toggle.update') }}" method="POST">
+                        @csrf
+                        <div class="card-body pb-4">
+                            <div class="form-check form-switch mb-2">
+                                <input type="hidden" name="booking_channel_enabled" value="0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="booking_channel_enabled"
+                                    id="booking_channel_enabled"
+                                    value="1"
+                                    @checked(old('booking_channel_enabled', $data->booking_channel_enabled ?? true))
+                                >
+                                <label class="form-check-label" for="booking_channel_enabled">Enable online booking channel on the public site</label>
+                            </div>
+                            <p class="text-muted small mb-0">Set the reservation URL below. Partner links (Booking.com, Expedia) still appear when configured.</p>
+                        </div>
+                        <div class="card-footer bg-light border-top py-3 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save booking channel</button>
+                        </div>
+                    </form>
+                </div>
+                @endif
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-1">Booking &amp; review links</h5>
@@ -251,15 +323,14 @@
                                 <label class="form-label" for="channel_linktree">Online reservation URL (channel manager)</label>
                                 <input type="url" class="form-control font-monospace small" id="channel_linktree" name="linktree" value="{{ old('linktree', $data->linktree ?? '') }}" placeholder="https://your-channel-manager.com/book/...">
                                 <p class="text-muted small mt-1 mb-0">
-                                    Powers every <strong>Book Now</strong> button on the public site (header, hero, rooms, footer).
-                                    Guests complete booking on your external reservation system — this dashboard does not manage room inventory or reservations.
+                                    Used when the <strong>online booking channel</strong> is enabled (see toggle above). Powers every <strong>Book Now</strong> button on the public site.
                                 </p>
                             </fieldset>
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">Booking.com</legend>
                                 <label class="form-label" for="booking_com_url">Booking.com property URL</label>
                                 <input type="url" class="form-control font-monospace small" id="booking_com_url" name="booking_com_url" value="{{ old('booking_com_url', $data->booking_com_url ?? '') }}" placeholder="https://www.booking.com/hotel/...">
-                                <p class="text-muted small mt-1 mb-3">Used for the public site — book / read guest scores shown on the property page.</p>
+                                <p class="text-muted small mt-1 mb-3">Shown as a booking partner on the public site (optional).</p>
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label class="form-label" for="booking_com_review_score">Review score (display)</label>
@@ -280,6 +351,12 @@
                                         <p class="text-muted small mb-0 mt-1">Booking.com normally invites verified guests by email. If you don’t have a direct URL, leave empty — the reviews page will only show “View on Booking.com”.</p>
                                     </div>
                                 </div>
+                            </fieldset>
+                            <fieldset class="mb-4">
+                                <legend class="h6 text-secondary border-bottom pb-2 mb-3">Expedia</legend>
+                                <label class="form-label" for="expedia_url">Expedia property URL</label>
+                                <input type="url" class="form-control font-monospace small" id="expedia_url" name="expedia_url" value="{{ old('expedia_url', $data->expedia_url ?? '') }}" placeholder="https://www.expedia.com/...">
+                                <p class="text-muted small mt-1 mb-0">Shown as a booking partner on the public site (optional).</p>
                             </fieldset>
                             <fieldset class="mb-4">
                                 <legend class="h6 text-secondary border-bottom pb-2 mb-3">TripAdvisor</legend>
@@ -482,6 +559,40 @@
             </div>
 
             @if(!empty($canEditDelivery))
+            {{-- Tab: Public translations feature flag --}}
+            <div id="translations" class="tab-pane fade">
+                <div class="card shadow-sm border-0 border-start border-primary border-3">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Public translations (EN / FR)</h5>
+                        <p class="text-muted small mb-0">When enabled, visitors can switch between English and French on the public website. English remains the default.</p>
+                    </div>
+                    <form action="{{ route('setting.translations-toggle.update') }}" method="POST">
+                        @csrf
+                        <div class="card-body pb-4">
+                            <div class="form-check form-switch mb-3">
+                                <input type="hidden" name="translations_enabled" value="0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="translations_enabled"
+                                    id="translations_enabled"
+                                    value="1"
+                                    @checked(old('translations_enabled', $data->translations_enabled ?? false))
+                                >
+                                <label class="form-check-label" for="translations_enabled">Show language switcher and French pages on the public site</label>
+                            </div>
+                            <p class="text-muted small mb-2">While disabled, the site stays English-only and <code>/fr/...</code> URLs redirect to English.</p>
+                            <a href="{{ route('content-management.site-translations.index') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-language me-1"></i> Edit website translation strings
+                            </a>
+                        </div>
+                        <div class="card-footer bg-light border-top py-3 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save translation settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {{-- Tab: Footer “Delivered by” — only for admin@iremetech.com --}}
             <div id="footer-delivered-by" class="tab-pane fade">
                 <div class="card shadow-sm border-0 border-start border-primary border-3">

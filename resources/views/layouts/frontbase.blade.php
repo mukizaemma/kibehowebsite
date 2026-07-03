@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="{{ site_locale() }}">
 <base href='/public'>
 <head>
     <meta charset="UTF-8">
@@ -35,6 +35,21 @@
     <!-- title -->
     <title>@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif</title>
     @stack('head')
+    @if(translations_enabled())
+        @php
+            $currentPath = ltrim(request()->path(), '/');
+            if (str_starts_with($currentPath, 'fr/')) {
+                $currentPath = substr($currentPath, 3);
+            } elseif ($currentPath === 'fr') {
+                $currentPath = '';
+            }
+            $enUrl = url($currentPath === '' ? '/' : '/'.$currentPath);
+            $frUrl = url($currentPath === '' ? '/fr' : '/fr/'.$currentPath);
+        @endphp
+        <link rel="alternate" hreflang="en" href="{{ $enUrl }}">
+        <link rel="alternate" hreflang="fr" href="{{ $frUrl }}">
+        <link rel="alternate" hreflang="x-default" href="{{ $enUrl }}">
+    @endif
     @php
         $gaMeasurementId = strtoupper(trim((string) ($setting->ga4_measurement_id ?? '')));
         $gaMeasurementId = preg_match('/^G-[A-Z0-9]+$/', $gaMeasurementId) === 1 ? $gaMeasurementId : null;
@@ -149,9 +164,7 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
         }
         .main__header .navigation__menu--item__link {
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.02em;
             color: #111111;
         }
         .main__header .navigation__menu--item__link:hover {
@@ -189,6 +202,7 @@
             max-width: 100%;
             vertical-align: bottom;
         }
+        /* Language switcher + nav sizing: see kibeho-theme.css */
         /* Home hero: full viewport height, same for every slide */
         .livewire-home-page .banner__area.is__home__one.banner__height {
             min-height: 100vh;
@@ -424,9 +438,12 @@
                     </div>
                 </div>
                 <div class="col-lg-5 col-md-12 mt-2 mt-lg-0">
-                    <div class="location text-lg-end text-md-start">
+                    <div class="d-flex flex-wrap align-items-center justify-content-lg-end gap-3">
+                        @include('frontend.includes.language-switcher')
                         @if(filled($headerAddress))
+                        <div class="location text-md-start">
                         <a class="link__item gap-10" href="{{ $headerMapUrl }}" target="_blank" rel="noopener noreferrer"><i class="flaticon-marker"></i>{{ $headerAddress }}</a>
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -439,7 +456,7 @@
                 <div class="main__header__wrapper">
                     <div class="d-flex align-items-center min-w-0 flex-shrink-1 gap-2">
                         <div class="main__logo">
-                            <a wire:navigate href="{{ route('home')}}"><img class="logo__class" src="{{ $headerLogoUrl }}" alt="{{ $setting?->company ?? 'Kibeho Magnificat Hotel' }}"></a>
+                            <a wire:navigate href="{{ localized_route('home')}}"><img class="logo__class" src="{{ $headerLogoUrl }}" alt="{{ $setting?->company ?? 'Kibeho Magnificat Hotel' }}"></a>
                         </div>
                         @if((filled($headerPhone) || filled($headerEmail)))
                         <div class="main__header__contacts d-flex d-sm-none flex-column justify-content-center gap-1 text-start min-w-0" aria-label="Contact shortcuts">
@@ -464,42 +481,42 @@
                                 <ul class="list-unstyled">
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('home') }}" class="navigation__menu--item__link">Home</a>
+                                        <a wire:navigate.hover href="{{ localized_route('home') }}" class="navigation__menu--item__link">{{ site_trans('nav.home') }}</a>
                                     </li>
 
                                     <li class="navigation__menu--item has-child">
-                                        <a wire:navigate.hover href="{{ route('about') }}" class="navigation__menu--item__link">About</a>
+                                        <a wire:navigate.hover href="{{ localized_route('about') }}" class="navigation__menu--item__link">{{ site_trans('nav.about') }}</a>
                                         <ul class="submenu sub__style" role="menu">
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('about')}}#background">Our History</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('our-services') }}">Our Services</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('terms')}}">Terms & Conditions</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('our-team') }}">Our Team</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('updates') }}">Updates</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ route('contact')}}">Contacts</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('about')}}#background">{{ site_trans('nav.our_history') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('terms')}}">{{ site_trans('nav.terms') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('contact')}}">{{ site_trans('nav.contacts') }}</a></li>
                                         </ul>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('rooms')}}" class="navigation__menu--item__link"> Rooms</a>
+                                        <a wire:navigate.hover href="{{ localized_route('rooms')}}" class="navigation__menu--item__link">{{ site_trans('nav.rooms') }}</a>
                                     </li>
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('dining')}}" class="navigation__menu--item__link">Bar & Restaurant</a>
+                                        <a wire:navigate.hover href="{{ localized_route('dining')}}" class="navigation__menu--item__link">{{ site_trans('nav.dining') }}</a>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('meetings-events')}}" class="navigation__menu--item__link">Meetings & Events</a>
+                                        <a wire:navigate.hover href="{{ localized_route('meetings-events')}}" class="navigation__menu--item__link">{{ site_trans('nav.meetings_events') }}</a>
                                     </li>
 
                                     {{-- <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('spa-wellness')}}" class="navigation__menu--item__link">SPA & Wellness</a>
+                                        <a wire:navigate.hover href="{{ localized_route('spa-wellness')}}" class="navigation__menu--item__link">SPA & Wellness</a>
                                     </li> --}}
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('gallery')}}" class="navigation__menu--item__link">Gallery</a>
+                                        <a wire:navigate.hover href="{{ localized_route('gallery')}}" class="navigation__menu--item__link">{{ site_trans('nav.gallery') }}</a>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ route('contact')}}" class="navigation__menu--item__link">Contact</a>
+                                        <a wire:navigate.hover href="{{ localized_route('contact')}}" class="navigation__menu--item__link">{{ site_trans('nav.contact') }}</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -511,17 +528,17 @@
                         @auth
                             @if(auth()->user()->isGuest())
                                 <a wire:navigate href="{{ route('account.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
-                                    <span>My account</span>
+                                    <span>{{ site_trans('buttons.my_account') }}</span>
                                 </a>
                             @elseif(auth()->user()->isAdmin())
                                 <a wire:navigate href="{{ route('content-management.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
-                                    <span>Admin</span>
+                                    <span>{{ site_trans('buttons.admin') }}</span>
                                 </a>
                             @endif
                             <form method="POST" action="{{ route('logout') }}" class="d-inline m-0">
                                 @csrf
                                 <button type="submit" class="theme-btn btn-style sm-btn outline border-0" style="font-size: 14px; font-weight: 600; padding: 10px 20px; background: transparent;">
-                                    Logout
+                                    {{ site_trans('buttons.logout') }}
                                 </button>
                             </form>
                         @endauth
@@ -694,7 +711,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     <div class="offcanvase__top">
                         <div class="offcanvase__logo">
-                            <a wire:navigate href="{{ route('home')}}">
+                            <a wire:navigate href="{{ localized_route('home') }}">
                                 <img src="{{ asset('storage/images') . $setting?->logo }}" alt="logo" height="90px">
                             </a>
                         </div>
@@ -730,41 +747,41 @@
                         <nav class="desktop__menu offcanvas__menu">
                             <ul class="list-unstyled">
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('home') }}">Home
+                                    <a class="slide__menu__item" href="{{ localized_route('home') }}">{{ site_trans('nav.home') }}
                                         <span class="toggle"></span>
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('about') }}">About us
+                                    <a class="slide__menu__item" href="{{ localized_route('about') }}">{{ site_trans('nav.about') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
-                                        <li><a wire:navigate href="{{ route('about') }}#background">Background</a></li>
-                                        <li><a wire:navigate href="{{ route('our-services') }}">Our Services</a></li>
-                                        <li><a wire:navigate href="{{ route('terms') }}">Terms & Conditions</a></li>
-                                        <li><a wire:navigate href="{{ route('our-team') }}">Our Team</a></li>
-                                        <li><a wire:navigate href="{{ route('contact') }}">Contacts</a></li>
-                                        <li><a wire:navigate href="{{ route('updates') }}">Updates</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('about') }}#background">{{ site_trans('nav.our_history') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('terms') }}">{{ site_trans('nav.terms') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('contact') }}">{{ site_trans('nav.contacts') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('rooms') }}">Rooms
+                                    <a class="slide__menu__item" href="{{ localized_route('rooms') }}">{{ site_trans('nav.rooms') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
                                       @foreach ($rooms as $room)
-                                        <li><a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}">{{ $room->title }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}">{{ $room->title }}</a></li>
                                       @endforeach
                                         
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('facilities') }}">Facilities
+                                    <a class="slide__menu__item" href="{{ localized_route('facilities') }}">{{ site_trans('nav.our_services') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
                                       @foreach ($facilities as $facility)
-                                        <li><a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}">{{ $facility->title }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('facility',['slug'=>$facility->slug]) }}">{{ $facility->title }}</a></li>
                                       @endforeach
                                         
                                     </ul>
@@ -774,16 +791,16 @@
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('gallery') }}">Gallery
+                                    <a class="slide__menu__item" href="{{ localized_route('gallery') }}">{{ site_trans('nav.gallery') }}
                                         <span class="toggle"></span>
                                     </a>
                                 </li>
                                 <li class="slide">
-                                    <a class="slide__menu__item" href="{{ route('contact') }}">Contact
+                                    <a class="slide__menu__item" href="{{ localized_route('contact') }}">{{ site_trans('nav.contact') }}
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ route('connect') }}">Contact Us
+                                    <a class="slide__menu__item" href="{{ localized_route('connect') }}">{{ site_trans('buttons.contact_us') }}
                                     </a>
 
                                 </li>
@@ -963,6 +980,7 @@
 
     // Home page Swiper carousels — run on first load and after Livewire navigations
     document.addEventListener('DOMContentLoaded', function () {
+        initHomeHeroSwiper();
         initHomeRoomAndFacilitySwipers();
         initPageGalleries();
     });
@@ -1023,7 +1041,36 @@
         });
     }
 
+    function initHomeHeroSwiper() {
+        if (typeof Swiper === 'undefined') return;
+        var heroSliderEl = document.querySelector('.livewire-home-page .banner__slider');
+        if (!heroSliderEl) return;
+        if (heroSliderEl.swiper) {
+            try { heroSliderEl.swiper.destroy(true, true); } catch (e) {}
+        }
+        var heroDelay = 7500;
+        heroSliderEl.style.setProperty('--hero-ken-duration', (heroDelay / 1000) + 's');
+        new Swiper(heroSliderEl, {
+            direction: 'horizontal',
+            slidesPerView: 1,
+            loop: true,
+            effect: 'fade',
+            fadeEffect: { crossFade: true },
+            speed: 1400,
+            watchSlidesProgress: true,
+            navigation: {
+                nextEl: heroSliderEl.querySelector('.next'),
+                prevEl: heroSliderEl.querySelector('.prev'),
+            },
+            autoplay: {
+                delay: heroDelay,
+                disableOnInteraction: false,
+            },
+        });
+    }
+
     document.addEventListener('livewire:navigated', function () {
+        initHomeHeroSwiper();
         initHomeRoomAndFacilitySwipers();
         initPageGalleries();
     });

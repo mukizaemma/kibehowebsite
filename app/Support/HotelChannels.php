@@ -66,13 +66,13 @@ final class HotelChannels
 
         self::$cache = [
             'reservation_url' => $reservationFromSetting
-                ?? ($base['reservation_url'] ?? null)
-                ?? ($str($s->booking_com_url ?? null)
-                    ? trim((string) $s->booking_com_url)
-                    : ($base['booking_com_url'] ?? null)),
+                ?? ($base['reservation_url'] ?? null),
             'booking_com_url' => $str($s->booking_com_url ?? null)
                 ? trim((string) $s->booking_com_url)
                 : ($base['booking_com_url'] ?? null),
+            'expedia_url' => $str($s->expedia_url ?? null)
+                ? trim((string) $s->expedia_url)
+                : ($base['expedia_url'] ?? null),
             'booking_com_review_score' => $floatOrNull($s->booking_com_review_score ?? null),
             'booking_com_review_count' => $intOrNull($s->booking_com_review_count ?? null),
             'booking_com_review_summary' => $str($s->booking_com_review_summary ?? null)

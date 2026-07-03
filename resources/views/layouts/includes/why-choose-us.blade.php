@@ -40,18 +40,18 @@
             @if($wcuLayout === 'meetings')
                 <div class="row text-center text-lg-start mb-3 mb-lg-4">
                     <div class="col-12">
-                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title mb-2">Why Choose Us</h2>
+                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title mb-2">{{ site_trans('home.why_choose_title') }}</h2>
                         <p class="site-why-choose__lead font-sm mb-0 site-why-choose__lead--meetings">
-                            Hover for details; on phones we show a short excerpt under each title.
+                            {{ site_trans('home.why_choose_lead') }}
                         </p>
                     </div>
                 </div>
             @else
                 <div class="row justify-content-center text-center mb-50 mb-lg-60">
                     <div class="col-lg-8">
-                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title">Why Choose Us</h2>
+                        <h2 id="site-why-choose-heading" class="site-why-choose__heading section__title">{{ site_trans('home.why_choose_title') }}</h2>
                         <p class="site-why-choose__lead font-sm mb-0">
-                            Hover for details; on phones we show a short excerpt under each title.
+                            {{ site_trans('home.why_choose_lead') }}
                         </p>
                     </div>
                 </div>

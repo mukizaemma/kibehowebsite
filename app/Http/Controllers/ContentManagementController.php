@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\HotelContact;
+use App\Support\SyncHotelContact;
 use App\Models\About;
 use App\Models\TermsCondition;
 use App\Models\SeoData;
@@ -162,11 +163,19 @@ class ContentManagementController extends Controller
 
     public function updateContacts(Request $request)
     {
-        $contact = HotelContact::firstOrNew();
-        $contact->fill($request->all());
-        $contact->save();
+        SyncHotelContact::fromRequest($request);
 
-        return redirect()->to(route('setting').'#contacts')->with('success', 'Hotel contacts updated successfully');
+        $setting = \App\Models\Setting::first();
+        if ($setting) {
+            foreach (['phone', 'email', 'address', 'facebook', 'instagram', 'linkedin', 'twitter'] as $field) {
+                if ($request->has($field)) {
+                    $setting->{$field} = $request->input($field);
+                }
+            }
+            $setting->save();
+        }
+
+        return redirect()->to(route('setting').'#contacts')->with('success', 'Contacts updated successfully');
     }
 
     // About Us Management

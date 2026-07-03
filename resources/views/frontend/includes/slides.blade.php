@@ -1,5 +1,5 @@
     <div class="rts__section banner__area is__home__one banner__height banner__center">
-        <div class="banner__slider overflow-hidden">
+        <div class="banner__slider banner__slider--cinematic overflow-hidden">
             <div class="swiper-wrapper">
                 <!-- single slider item -->
                 @foreach ($slides as $index => $slide )

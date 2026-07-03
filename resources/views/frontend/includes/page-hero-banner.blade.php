@@ -28,6 +28,12 @@
                     @endif
 
                     @if($showHeroContacts ?? false)
+                        <div class="page__hero__cta wow fadeInUp" data-wow-delay="0.08s">
+                            @include('frontend.includes.reservation-link', [
+                                'style' => 'fill',
+                                'class' => 'page__hero__book-btn',
+                            ])
+                        </div>
                         @php
                             $hcHero = $hotelContact ?? \App\Models\HotelContact::first();
                             $stHero = $setting ?? \App\Models\Setting::first();

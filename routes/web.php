@@ -79,6 +79,10 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/users/{id}/verify-email', [App\Http\Controllers\UserManagementController::class, 'verifyEmail'])->name('users.verify-email');
     Route::post('/users/{id}/resend-verification', [App\Http\Controllers\UserManagementController::class, 'resendVerification'])->name('users.resend-verification');
     Route::post('/users/{id}/reset-password', [App\Http\Controllers\UserManagementController::class, 'resetPassword'])->name('users.reset-password');
+
+    Route::get('/site-translations', [App\Http\Controllers\SiteTranslationController::class, 'index'])->name('site-translations.index');
+    Route::post('/site-translations/update', [App\Http\Controllers\SiteTranslationController::class, 'update'])->name('site-translations.update');
+    Route::post('/site-translations/reset', [App\Http\Controllers\SiteTranslationController::class, 'reset'])->name('site-translations.reset');
     
     // Services - Full CRUD
     Route::get('/services', ServiceManagementIndex::class)->name('services');
@@ -182,6 +186,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/setting/footer-delivered-by',[App\Http\Controllers\SettingsController::class,'updateFooterDeliveredBy'])->name('setting.footer-delivered-by.update');
     Route::post('/setting/channel-links', [App\Http\Controllers\SettingsController::class, 'saveChannelLinks'])->name('setting.channel-links.update');
     Route::post('/setting/keywords',[App\Http\Controllers\SettingsController::class,'updateKeywords'])->name('setting.keywords.update');
+    Route::post('/setting/translations-toggle',[App\Http\Controllers\SettingsController::class,'updateTranslationsToggle'])->name('setting.translations-toggle.update');
+    Route::post('/setting/booking-channel-toggle',[App\Http\Controllers\SettingsController::class,'updateBookingChannelToggle'])->name('setting.booking-channel-toggle.update');
     
     Route::get('/homePage',[App\Http\Controllers\SettingsController::class,'homePage'])->name('homePage');
     Route::post('/saveHome',[App\Http\Controllers\SettingsController::class,'saveHome'])->name('saveHome');
@@ -332,6 +338,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // Public site: Livewire full-page components + Livewire navigate (see layouts.frontbase)
+Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 'switch'])
+    ->whereIn('locale', ['en', 'fr'])
+    ->name('locale.switch');
+
+Route::middleware('set.locale')->prefix('{locale?}')->where(['locale' => 'fr'])->group(function () {
 Route::get('/', HomePage::class)->name('home');
 Route::get('/about-us', AboutPage::class)->name('about');
 Route::get('/our-services', OurServicesPage::class)->name('our-services');
@@ -347,7 +358,6 @@ Route::get('/tour/{slug}', TourShowPage::class)->name('tour');
 Route::get('/gallery', GalleryPage::class)->name('gallery');
 Route::get('/contact', ContactPage::class)->name('contact');
 Route::get('/promotions', PromotionsPage::class)->name('promotions');
-// Public booking/enquiry forms removed — use Booking.com + WhatsApp (see config/hotel_channels.php)
 Route::get('/apartment', ApartmentLandingPage::class)->name('apartment');
 Route::get('/guesthouse', GuesthousePage::class)->name('guesthouse');
 Route::get('/facilities', FacilitiesPage::class)->name('facilities');
@@ -364,14 +374,16 @@ Route::get('/terms-and-conditions', TermsPage::class)->name('terms');
 Route::get('/reviews', ReviewsPage::class)->name('reviews');
 Route::get('/reviews/{id}', ReviewShowPage::class)->name('review');
 
-/** Client handover & user guide (noindex; not a Livewire page) */
 Route::view('/handover', 'frontend.handover')->name('handover');
+
+Route::get('/book-now', BookNowPage::class)->name('connect');
+
+Route::post('/enquiry', [App\Http\Controllers\HomeController::class, 'sendMessage'])->name('enquiry.submit');
+});
 
 Route::get('/admin/login', [App\Http\Controllers\HomeController::class, 'adminLogin'])->name('adminLogin');
 Route::get('/user/account', [App\Http\Controllers\HomeController::class, 'newAccount'])->name('newAccount');
 Route::post('/createAccount', [App\Http\Controllers\HomeController::class, 'createAccount'])->name('createAccount');
-
-Route::get('/book-now', BookNowPage::class)->name('connect');
 
 // Normal user (guest role) account — bookings & profile
 Route::middleware(['auth', 'normaluser'])->prefix('account')->name('account.')->group(function () {

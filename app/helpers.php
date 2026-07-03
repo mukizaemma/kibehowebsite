@@ -18,13 +18,16 @@ if (! function_exists('hotel_price')) {
     }
 }
 
-if (! function_exists('hotel_reservation_url')) {
-    /**
-     * Global online reservation URL (channel manager).
-     * Settings → Booking & review links → "Online reservation URL" (stored as linktree).
-     * Falls back to HOTEL_RESERVATION_URL / booking_com_url when unset.
-     */
-    function hotel_reservation_url(?object $setting = null): ?string
+if (! function_exists('booking_channel_enabled')) {
+    function booking_channel_enabled(): bool
+    {
+        return \App\Support\BookingChannel::enabled();
+    }
+}
+
+if (! function_exists('hotel_reservation_url_configured')) {
+    /** Reservation URL from settings / env (ignores enable flag). */
+    function hotel_reservation_url_configured(?object $setting = null): ?string
     {
         $setting = $setting ?? \App\Models\Setting::first();
         $fromSetting = trim((string) ($setting?->linktree ?? ''));
@@ -36,6 +39,56 @@ if (! function_exists('hotel_reservation_url')) {
         $fromChannels = trim((string) ($channels['reservation_url'] ?? ''));
 
         return $fromChannels !== '' ? $fromChannels : null;
+    }
+}
+
+if (! function_exists('hotel_reservation_url')) {
+    /** Active reservation URL — only when the booking channel is enabled and configured. */
+    function hotel_reservation_url(?object $setting = null): ?string
+    {
+        if (! booking_channel_enabled()) {
+            return null;
+        }
+
+        return hotel_reservation_url_configured($setting);
+    }
+}
+
+if (! function_exists('hotel_book_now_url')) {
+    /** External booking URL when channel is active, otherwise the contact page. */
+    function hotel_book_now_url(?object $setting = null): string
+    {
+        $url = hotel_reservation_url($setting);
+
+        return filled($url) ? $url : localized_route('contact');
+    }
+}
+
+if (! function_exists('hotel_book_now_is_external')) {
+    function hotel_book_now_is_external(?object $setting = null): bool
+    {
+        return booking_channel_enabled() && filled(hotel_reservation_url_configured($setting));
+    }
+}
+
+if (! function_exists('hotel_public_phone')) {
+    function hotel_public_phone(?object $setting = null): ?string
+    {
+        $setting = $setting ?? \App\Models\Setting::first();
+        $reception = trim((string) ($setting?->reception_phone ?? ''));
+        if ($reception !== '') {
+            return $reception;
+        }
+
+        $contact = \App\Models\HotelContact::first();
+        $fromContact = trim((string) ($contact?->phone ?? ''));
+        if ($fromContact !== '') {
+            return $fromContact;
+        }
+
+        $main = trim((string) ($setting?->phone ?? ''));
+
+        return $main !== '' ? $main : null;
     }
 }
 
@@ -93,5 +146,48 @@ if (! function_exists('store_optimized_image')) {
     function store_optimized_image(\Illuminate\Http\UploadedFile $file, string $directory, string $disk = 'public'): string
     {
         return app(\App\Services\OptimizedImageStorage::class)->store($file, $directory, $disk);
+    }
+}
+
+if (! function_exists('site_trans')) {
+    /** UI string: DB override → lang file → English fallback. */
+    function site_trans(string $key, array $replace = []): string
+    {
+        return app(\App\Services\SiteTranslationService::class)->get($key, $replace);
+    }
+}
+
+if (! function_exists('translations_enabled')) {
+    function translations_enabled(): bool
+    {
+        return \App\Support\SiteLocale::translationsEnabled();
+    }
+}
+
+if (! function_exists('site_locale')) {
+    function site_locale(): string
+    {
+        return \App\Support\SiteLocale::normalize(app()->getLocale());
+    }
+}
+
+if (! function_exists('localized_route')) {
+    function localized_route(string $name, array $parameters = [], bool $absolute = true): string
+    {
+        if (site_locale() === \App\Support\SiteLocale::FRENCH && translations_enabled()) {
+            $parameters = array_merge(['locale' => 'fr'], $parameters);
+        }
+
+        return route($name, $parameters, $absolute);
+    }
+}
+
+if (! function_exists('locale_switch_url')) {
+    function locale_switch_url(string $targetLocale): string
+    {
+        return route('locale.switch', [
+            'locale' => $targetLocale,
+            'redirect' => '/'.ltrim(request()->path(), '/'),
+        ]);
     }
 }

@@ -1,9 +1,9 @@
 @props([
     'rooms',
     'setting' => null,
-    'eyebrow' => 'Book your stay',
-    'title' => 'Reserve with Booking.com',
-    'lead' => 'All room reservations go through Booking.com for secure payment and instant availability. For questions, WhatsApp or email us.',
+    'eyebrow' => null,
+    'title' => null,
+    'lead' => null,
     'headingId' => 'booking-cta-heading',
     'idSuffix' => '',
     'showChildrenField' => false,
@@ -11,6 +11,9 @@
 
 @php
     $setting = $setting ?? \App\Models\Setting::first();
+    $eyebrow = $eyebrow ?? site_trans('booking.eyebrow');
+    $title = $title ?? site_trans('booking.title');
+    $lead = $lead ?? site_trans('booking.lead');
 @endphp
 
 <section class="home-cta rts__section section__padding" aria-labelledby="{{ $headingId }}">
@@ -30,7 +33,7 @@
                 <div class="home-cta__panel home-cta__panel--form w-100">
                     <div class="home-cta__form-badge">
                         <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-                        <span>Book &amp; enquire</span>
+                        <span>{{ site_trans('booking.badge') }}</span>
                     </div>
                     @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' (home CTA)'])
                 </div>

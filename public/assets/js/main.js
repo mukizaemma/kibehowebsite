@@ -60,22 +60,7 @@
       },
       swiperActivation: function(){
         $(document).ready(function(){
-          // HERO SLIDER 
-          var swiper = new Swiper(".banner__slider", {
-            direction: "horizontal",
-            slidesPerView: 1,
-            loop: true,
-            navigation: {
-              nextEl: ".next",
-              prevEl: ".prev",
-            },
-            speed: 1000,
-            effect: "slide",
-            autoplay: {
-              delay: 5000,
-              disableOnInteraction: false,
-            }
-          });
+          // Home hero slider: initialized in layouts/frontbase.blade.php (fade + Ken Burns)
 
           var swiper = new Swiper(".apartment__slider", {
             slidesPerView: "3",

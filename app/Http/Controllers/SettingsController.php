@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Getinvolved;
 use App\Support\HotelChannels;
+use App\Support\SyncHotelContact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -83,6 +84,8 @@ class SettingsController extends Controller
             'ga4_measurement_id' => 'nullable|string|max:32',
             'ga4_reports_url' => 'nullable|url|max:4000',
             'price_currency' => 'nullable|in:usd,rwf',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         $data = Setting::first();
@@ -97,6 +100,7 @@ class SettingsController extends Controller
         $data->instagram = $request->input('instagram');
         $data->youtube = $request->input('youtube');
         $data->linkedin = $request->input('linkedin');
+        $data->twitter = $request->input('twitter');
         $data->keywords = $request->input('keywords');
         $data->quote = $request->input('quote');
         $data->google_map_embed = $request->input('google_map_embed');
@@ -135,8 +139,10 @@ class SettingsController extends Controller
 
         $saved = $data->update();
 
-        if($saved){
-            return redirect()->back()->with('success', 'Setting has been updated successfully');
+        if ($saved) {
+            SyncHotelContact::fromRequest($request);
+
+            return redirect()->to(route('setting').'#contacts')->with('success', 'Contacts and logo updated successfully');
         }
         else{
             abort(404);
@@ -185,6 +191,7 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'linktree' => 'nullable|string|max:4000',
             'booking_com_url' => 'nullable|string|max:4000',
+            'expedia_url' => 'nullable|string|max:4000',
             'booking_com_review_score' => 'nullable|numeric|min:0|max:10',
             'booking_com_review_count' => 'nullable|integer|min:0|max:99999999',
             'booking_com_review_summary' => 'nullable|string|max:2000',
@@ -214,6 +221,7 @@ class SettingsController extends Controller
         foreach ([
             'linktree',
             'booking_com_url',
+            'expedia_url',
             'booking_com_review_score',
             'booking_com_review_count',
             'booking_com_review_summary',
@@ -246,8 +254,33 @@ class SettingsController extends Controller
 
         $setting->save();
         HotelChannels::forgetCache();
+        \App\Support\BookingChannel::forgetEnabledCache();
 
         return redirect()->back()->with('success', 'Booking & review links updated successfully.');
+    }
+
+    public function updateBookingChannelToggle(Request $request)
+    {
+        if (! Auth::check() || ! (Auth::user()->isSuperAdmin() || strtolower((string) Auth::user()->email) === 'admin@iremetech.com')) {
+            abort(403);
+        }
+
+        $setting = Setting::first();
+        if (! $setting) {
+            return redirect()->back()->with('error', 'No settings record found.');
+        }
+
+        $setting->booking_channel_enabled = $request->boolean('booking_channel_enabled');
+        $setting->save();
+
+        \App\Support\BookingChannel::forgetEnabledCache();
+
+        return redirect()->to(route('setting').'#channel-links')->with(
+            'success',
+            $setting->booking_channel_enabled
+                ? 'Online booking channel is now enabled on the public site.'
+                : 'Online booking channel is disabled — Book Now buttons go to the contact page.'
+        );
     }
 
     /**
@@ -263,6 +296,31 @@ class SettingsController extends Controller
         $setting->keywords = $request->input('keywords', '');
         $setting->save();
         return redirect()->back()->with('success', 'Header keywords updated successfully.');
+    }
+
+    public function updateTranslationsToggle(Request $request)
+    {
+        if (! Auth::check() || strtolower((string) Auth::user()->email) !== 'admin@iremetech.com') {
+            abort(403);
+        }
+
+        $setting = Setting::first();
+        if (! $setting) {
+            return redirect()->back()->with('error', 'No settings record found.');
+        }
+
+        $setting->translations_enabled = $request->boolean('translations_enabled');
+        $setting->save();
+
+        \App\Support\SiteLocale::forgetEnabledCache();
+        app(\App\Services\SiteTranslationService::class)->forgetAll();
+
+        return redirect()->to(route('setting').'#translations')->with(
+            'success',
+            $setting->translations_enabled
+                ? 'Public translations are now enabled.'
+                : 'Public translations are now disabled (English only).'
+        );
     }
 
     public function aboutPage(){
