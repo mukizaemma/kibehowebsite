@@ -22,9 +22,6 @@ class AppServiceProvider extends ServiceProvider
         require_once base_path('app/helpers.php');
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Paginator::useBootstrapFive();
