@@ -10,21 +10,10 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * The path to your application's "home" route.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
-     */
+
     public const HOME = '/dashboard';
 
-    /**
-     * Get the dashboard route based on user role_id
-     * role_id = 1: Super Admin (default: content management)
-     * role_id = 2: Admin (content-management dashboard only)
-     * role_id = 3: Guest (no admin dashboard)
-     */
+
     public static function getDashboardRoute($user)
     {
         if (!$user) {
