@@ -1,8 +1,4 @@
 <div class="public-livewire-page">
-<style>
-    .gallery__link:hover img { opacity: 0.9; }
-    .gallery__link:focus { outline: 2px solid rgba(3, 86, 183, 0.5); outline-offset: 2px; }
-</style>
 @php
     $heroImage = '';
     $heroCaption = 'Gallery';
@@ -21,7 +17,6 @@
     } else {
         $heroImage = asset('storage/images/about/default.jpg');
     }
-    $galleryImageList = $galleryImages;
 @endphp
     <div class="rts__section page__hero__height page__hero__bg" style="background-image: url({{ $heroImage }}); background-size: cover; background-position: center; background-repeat: no-repeat;">
         <div class="container">
@@ -36,37 +31,28 @@
         </div>
     </div>
 
-    <div class="rts__section section__padding">
+    <div class="rts__section section__padding gallery-page__section">
         <div class="container">
-            <div class="row g-4" id="galleryImagesRow">
+            <div class="gallery-page__grid" id="galleryImagesRow" role="list">
                 @forelse ($galleryImages as $index => $image)
-                    <div class="col-lg-4 col-md-6" wire:key="gallery-img-{{ $image['key'] }}">
-                        <div class="gallery__item h-100">
-                            <a href="{{ $image['url'] }}" class="gallery__link d-block rounded-2 overflow-hidden gallery-image-trigger" data-index="{{ $index }}" role="button" style="cursor: pointer;" title="View full size">
-                                <img class="img-fluid w-100" src="{{ $image['url'] }}" alt="{{ $image['caption'] ?: 'Gallery image' }}" loading="lazy" decoding="async" style="height: 260px; object-fit: cover; transition: opacity 0.2s;">
-                            </a>
-                            @if(!empty($image['caption']) || !empty($image['source_label']))
-                                <p class="mt-2 small text-muted mb-0">
-                                    @if(!empty($image['caption']))
-                                        {{ $image['caption'] }}
-                                    @endif
-                                    @if(!empty($image['source_label']))
-                                        <span class="d-block">{{ $image['source_label'] }}</span>
-                                    @endif
-                                </p>
-                            @endif
-                        </div>
-                    </div>
+                    <button type="button"
+                        class="gallery-page__item gallery-image-trigger"
+                        wire:key="gallery-img-{{ $image['key'] }}"
+                        data-index="{{ $index }}"
+                        aria-label="View image {{ $index + 1 }}">
+                        <img src="{{ $image['url'] }}" alt="" loading="lazy" decoding="async">
+                        <span class="gallery-page__item-overlay" aria-hidden="true">
+                            <span class="gallery-page__item-icon"><i class="fa-solid fa-expand"></i></span>
+                        </span>
+                    </button>
                 @empty
-                    <div class="col-12 text-center py-5">
-                        <p class="text-muted mb-0">No images in the gallery yet. Add photos to your rooms and services in the admin.</p>
-                    </div>
+                    <p class="gallery-page__empty mb-0">No images in the gallery yet. Add photos to your rooms and services in the admin.</p>
                 @endforelse
             </div>
 
             @if($galleryHasMore)
-                <div class="text-center mt-4 pt-2">
-                    <button type="button" class="btn btn-outline-primary" wire:click="loadMoreGalleryImages" wire:loading.attr="disabled" wire:target="loadMoreGalleryImages">
+                <div class="gallery-page__load-more">
+                    <button type="button" class="gallery-page__load-btn" wire:click="loadMoreGalleryImages" wire:loading.attr="disabled" wire:target="loadMoreGalleryImages">
                         <span wire:loading.remove wire:target="loadMoreGalleryImages">Load more images</span>
                         <span wire:loading wire:target="loadMoreGalleryImages">Loading…</span>
                     </button>
@@ -76,120 +62,209 @@
         </div>
     </div>
 
-    <div id="gallery-images-payload" class="d-none" aria-hidden="true">@json($galleryImageList)</div>
+    <div id="gallery-images-payload" class="d-none" aria-hidden="true">@json($galleryImages)</div>
 
-    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-labelledby="imageLightboxLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
-                <div class="modal-header border-0 py-2 px-3 bg-dark text-white d-flex justify-content-between align-items-center flex-nowrap">
-                    <button type="button" class="btn btn-link text-white text-decoration-none p-2 gallery-lightbox-prev" aria-label="Previous image"><i class="fas fa-chevron-left fa-2x"></i></button>
-                    <h5 class="modal-title mb-0 mx-2 text-nowrap" id="imageLightboxLabel">Image</h5>
-                    <div class="d-flex align-items-center flex-nowrap">
-                        <span class="gallery-lightbox-counter me-3 small"></span>
-                        <button type="button" class="btn btn-link text-white text-decoration-none p-2 gallery-lightbox-close" aria-label="Close"><i class="fas fa-times fa-2x"></i></button>
-                    </div>
-                    <button type="button" class="btn btn-link text-white text-decoration-none p-2 gallery-lightbox-next" aria-label="Next image"><i class="fas fa-chevron-right fa-2x"></i></button>
-                </div>
-                <div class="modal-body p-0 bg-dark text-center position-relative">
-                    <img class="gallery-lightbox-image img-fluid" src="" alt="" style="max-height: 80vh; width: auto; display: block; margin: 0 auto;">
-                    <p class="gallery-lightbox-caption text-white small p-2 mb-0"></p>
-                </div>
-            </div>
+    <div id="gallery-lightbox" class="gallery-lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Image viewer" wire:ignore>
+        <button type="button" class="gallery-lightbox__close" aria-label="Close gallery">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="gallery-lightbox__nav gallery-lightbox__nav--prev" aria-label="Previous image">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="gallery-lightbox__nav gallery-lightbox__nav--next" aria-label="Next image">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <div class="gallery-lightbox__stage">
+            <img class="gallery-lightbox__image" src="" alt="">
         </div>
+        <p class="gallery-lightbox__counter" aria-live="polite"></p>
     </div>
 
     <script>
-    (function() {
+    (function () {
+        var lightbox = document.getElementById('gallery-lightbox');
+        if (!lightbox) {
+            return;
+        }
+
+        var imageEl = lightbox.querySelector('.gallery-lightbox__image');
+        var counterEl = lightbox.querySelector('.gallery-lightbox__counter');
+        var closeBtn = lightbox.querySelector('.gallery-lightbox__close');
+        var prevBtn = lightbox.querySelector('.gallery-lightbox__nav--prev');
+        var nextBtn = lightbox.querySelector('.gallery-lightbox__nav--next');
+        var stageEl = lightbox.querySelector('.gallery-lightbox__stage');
+        var currentIndex = 0;
+
         function getGalleryImages() {
             var el = document.getElementById('gallery-images-payload');
-            if (!el) return [];
-            try { return JSON.parse(el.textContent || '[]'); } catch (e) { return []; }
+            if (!el) {
+                return [];
+            }
+            try {
+                return JSON.parse(el.textContent || '[]');
+            } catch (error) {
+                return [];
+            }
         }
 
-        var currentImageIndex = 0;
-        var imageModalEl = document.getElementById('imageLightboxModal');
-        var imageModal = imageModalEl ? new bootstrap.Modal(imageModalEl) : null;
+        function updateLightboxImage() {
+            var images = getGalleryImages();
+            var item = images[currentIndex];
+            if (!item || !imageEl) {
+                return;
+            }
 
-        function updateMainImage() {
-            var galleryImages = getGalleryImages();
-            var item = galleryImages[currentImageIndex];
-            if (!item) return;
-            var imgEl = document.querySelector('.gallery-lightbox-image');
-            var capEl = document.querySelector('.gallery-lightbox-caption');
-            var counterEl = document.querySelector('.gallery-lightbox-counter');
-            if (imgEl) imgEl.src = item.url;
-            if (imgEl) imgEl.alt = item.caption || 'Gallery image';
-            if (capEl) capEl.textContent = item.caption || '';
-            if (counterEl) counterEl.textContent = (currentImageIndex + 1) + ' / ' + galleryImages.length;
+            imageEl.src = item.url;
+            imageEl.alt = '';
+            if (counterEl) {
+                counterEl.textContent = (currentIndex + 1) + ' / ' + images.length;
+            }
+            if (prevBtn) {
+                prevBtn.style.visibility = images.length > 1 ? 'visible' : 'hidden';
+            }
+            if (nextBtn) {
+                nextBtn.style.visibility = images.length > 1 ? 'visible' : 'hidden';
+            }
         }
 
-        function openImageLightbox(index) {
-            var galleryImages = getGalleryImages();
-            if (!galleryImages.length || !imageModal) return;
-            currentImageIndex = (index + galleryImages.length) % galleryImages.length;
-            updateMainImage();
-            imageModal.show();
+        function openLightbox(index) {
+            var images = getGalleryImages();
+            if (!images.length) {
+                return;
+            }
+
+            currentIndex = ((index % images.length) + images.length) % images.length;
+            updateLightboxImage();
+            lightbox.hidden = false;
+            lightbox.setAttribute('aria-hidden', 'false');
+            lightbox.classList.add('is-open');
+            document.body.classList.add('gallery-lightbox-open');
+            if (closeBtn) {
+                closeBtn.focus();
+            }
         }
 
-        function showPrevImage() {
-            var galleryImages = getGalleryImages();
-            if (!galleryImages.length) return;
-            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-            updateMainImage();
+        function closeLightbox() {
+            lightbox.classList.remove('is-open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('gallery-lightbox-open');
+            window.setTimeout(function () {
+                if (!lightbox.classList.contains('is-open')) {
+                    lightbox.hidden = true;
+                    if (imageEl) {
+                        imageEl.removeAttribute('src');
+                    }
+                }
+            }, 260);
         }
 
-        function showNextImage() {
-            var galleryImages = getGalleryImages();
-            if (!galleryImages.length) return;
-            currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-            updateMainImage();
+        function showPrevious() {
+            var images = getGalleryImages();
+            if (images.length < 2) {
+                return;
+            }
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateLightboxImage();
         }
 
-        document.addEventListener('click', function(e) {
-            var trigger = e.target.closest('.gallery-image-trigger');
-            if (!trigger) return;
-            e.preventDefault();
-            var index = parseInt(trigger.getAttribute('data-index'), 10);
-            if (!isNaN(index)) openImageLightbox(index);
-        }, true);
+        function showNext() {
+            var images = getGalleryImages();
+            if (images.length < 2) {
+                return;
+            }
+            currentIndex = (currentIndex + 1) % images.length;
+            updateLightboxImage();
+        }
 
-        var prevBtn = document.querySelector('.gallery-lightbox-prev');
-        var nextBtn = document.querySelector('.gallery-lightbox-next');
-        var closeBtn = document.querySelector('.gallery-lightbox-close');
-        if (prevBtn) prevBtn.addEventListener('click', function(e) { e.preventDefault(); showPrevImage(); });
-        if (nextBtn) nextBtn.addEventListener('click', function(e) { e.preventDefault(); showNextImage(); });
-        if (closeBtn) closeBtn.addEventListener('click', function() { if (imageModal) imageModal.hide(); });
+        function onKeydown(event) {
+            if (!lightbox.classList.contains('is-open')) {
+                return;
+            }
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeLightbox();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                showPrevious();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                showNext();
+            }
+        }
 
-        if (imageModalEl) {
-            imageModalEl.addEventListener('shown.bs.modal', function() {
-                document.addEventListener('keydown', galleryKeydown);
+        document.addEventListener('click', function (event) {
+            var trigger = event.target.closest('.gallery-image-trigger');
+            if (trigger) {
+                event.preventDefault();
+                var index = parseInt(trigger.getAttribute('data-index'), 10);
+                if (!isNaN(index)) {
+                    openLightbox(index);
+                }
+                return;
+            }
+
+            if (event.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeLightbox();
             });
-            imageModalEl.addEventListener('hidden.bs.modal', function() {
-                document.removeEventListener('keydown', galleryKeydown);
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                showPrevious();
             });
         }
 
-        function galleryKeydown(e) {
-            if (e.key === 'ArrowLeft') { e.preventDefault(); showPrevImage(); }
-            if (e.key === 'ArrowRight') { e.preventDefault(); showNextImage(); }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                showNext();
+            });
         }
+
+        if (stageEl) {
+            stageEl.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        }
+
+        document.addEventListener('keydown', onKeydown);
 
         var galleryScrollObserver = null;
         var morphDebounce = null;
+
         function setupGalleryInfiniteScroll() {
             var sentinel = document.getElementById('gallery-infinite-sentinel');
-            if (!sentinel || !window.Livewire) return;
+            if (!sentinel || !window.Livewire) {
+                return;
+            }
             var root = sentinel.closest('[wire\\:id]');
-            if (!root) return;
+            if (!root) {
+                return;
+            }
             var wireId = root.getAttribute('wire:id');
-            if (!wireId) return;
+            if (!wireId) {
+                return;
+            }
             if (galleryScrollObserver) {
                 galleryScrollObserver.disconnect();
                 galleryScrollObserver = null;
             }
-            galleryScrollObserver = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (!entry.isIntersecting) return;
+            galleryScrollObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
                     var wire = window.Livewire.find(wireId);
                     if (wire && typeof wire.call === 'function') {
                         wire.call('loadMoreGalleryImages');
@@ -198,18 +273,23 @@
             }, { rootMargin: '400px', threshold: 0 });
             galleryScrollObserver.observe(sentinel);
         }
+
         function registerMorphHook() {
-            if (typeof Livewire === 'undefined' || typeof Livewire.hook !== 'function') return;
-            Livewire.hook('morph.updated', function() {
+            if (typeof Livewire === 'undefined' || typeof Livewire.hook !== 'function') {
+                return;
+            }
+            Livewire.hook('morph.updated', function () {
                 clearTimeout(morphDebounce);
-                morphDebounce = setTimeout(setupGalleryInfiniteScroll, 120);
+                morphDebounce = window.setTimeout(setupGalleryInfiniteScroll, 120);
             });
         }
+
         if (typeof Livewire !== 'undefined' && Livewire.hook) {
             registerMorphHook();
         } else {
             document.addEventListener('livewire:init', registerMorphHook);
         }
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', setupGalleryInfiniteScroll);
         } else {
