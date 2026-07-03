@@ -124,7 +124,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 40px;">
-                    <a wire:navigate href="{{ route('contact') }}" class="theme-btn btn-style fill" style="display: inline-block; padding: 15px 40px; font-size: 16px; font-weight: 600;">
+                    <a wire:navigate href="{{ localized_route('contact') }}" class="theme-btn btn-style fill" style="display: inline-block; padding: 15px 40px; font-size: 16px; font-weight: 600;">
                         <span>Contact Us</span>
                     </a>
         </div>

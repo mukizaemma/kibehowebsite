@@ -4,7 +4,6 @@ use App\Livewire\Public\AboutPage;
 use App\Livewire\Public\ActivitiesPage;
 use App\Livewire\Public\ActivityShowPage;
 use App\Livewire\Public\ApartmentLandingPage;
-use App\Livewire\Public\ApartmentsPage;
 use App\Livewire\Public\BlogPostPage;
 use App\Livewire\Public\BookNowPage;
 use App\Livewire\Public\ContactPage;
@@ -17,6 +16,7 @@ use App\Livewire\Public\GalleryPage;
 use App\Livewire\Public\OurServicesPage;
 use App\Livewire\Public\OurTeamPage;
 use App\Livewire\Public\GuesthousePage;
+use App\Livewire\Public\HandoverPage;
 use App\Livewire\Public\HomePage;
 use App\Livewire\Public\PromotionsPage;
 use App\Livewire\Public\RestaurantPage;
@@ -354,6 +354,9 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
 Route::redirect('/facilities/explore-kibeho', '/explore-kibeho', 301);
 Route::redirect('/fr/facilities/explore-kibeho', '/fr/explore-kibeho', 301);
 
+Route::redirect('/our-apartments', '/our-rooms', 301);
+Route::redirect('/fr/our-apartments', '/fr/our-rooms', 301);
+
 $registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
     $named = static function ($route, string $routeName) use ($nameRoutes) {
         if ($nameRoutes) {
@@ -367,7 +370,6 @@ $registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
     $named(Route::get('/about-us', AboutPage::class), 'about');
     $named(Route::get('/our-services', OurServicesPage::class), 'our-services');
     $named(Route::get('/our-rooms', RoomsPage::class), 'rooms');
-    $named(Route::get('/our-apartments', ApartmentsPage::class), 'apartments');
     $named(Route::get('/our-rooms/{slug}', RoomShowPage::class), 'room');
     $named(Route::get('/dining', RestaurantPage::class), 'dining');
     $named(Route::get('/our-team', OurTeamPage::class), 'our-team');
@@ -395,7 +397,7 @@ $registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
     $named(Route::get('/terms-and-conditions', TermsPage::class), 'terms');
     $named(Route::get('/reviews', ReviewsPage::class), 'reviews');
     $named(Route::get('/reviews/{id}', ReviewShowPage::class), 'review');
-    $named(Route::view('/handover', 'frontend.handover'), 'handover');
+    $named(Route::get('/handover', HandoverPage::class), 'handover');
     $named(Route::get('/book-now', BookNowPage::class), 'connect');
     $named(Route::post('/enquiry', [App\Http\Controllers\HomeController::class, 'sendMessage']), 'enquiry.submit');
 };

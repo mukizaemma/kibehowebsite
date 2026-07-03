@@ -64,7 +64,7 @@
                                         <span>Book Now</span>
                                     </a>
                                     @else
-                                    <a wire:navigate href="{{ route('connect') }}" class="theme-btn btn-style fill no-border">
+                                    <a wire:navigate href="{{ localized_route('connect') }}" class="theme-btn btn-style fill no-border">
                                         <span>Book Now</span>
                                     </a>
                                     @endif

@@ -44,7 +44,7 @@
                             <div class="swiper-slide">
                             <div class="room__slider__box vh-100">
                                 <div class="room__slider__thumb">
-                                    <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}" class="link__item">
+                                    <a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}" class="link__item">
                                         <figure>
                                             <img src="{{ asset('storage/' . ($room->cover_image ?? 'rooms/default.jpg')) }}" alt="{{ $room->title ?? 'Room' }}" loading="lazy">
                                         </figure>
@@ -52,7 +52,7 @@
                                 </div>
                                 <div class="room__slide__content">
                                     <div class="slider__meta">
-                                        <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}" class="room__title">
+                                        <a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}" class="room__title">
                                             <h5>{{ $room->title }}</h5>
                                         </a>
                                     {{-- <div class="room__content__meta" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px;">
@@ -70,7 +70,7 @@
                                 <div class="price h4 d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
                                     <span>{{ hotel_price($room->price ?? 0, $setting) }}<span class="h6 fw-normal">/ night</span></span>
                                     <div class="main__right d-flex align-items-center flex-wrap" style="gap: 8px;">
-                                        <a wire:navigate href="{{ route('room',['slug'=>$room->slug]) }}"
+                                        <a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}"
                                         class="theme-btn btn-style sm-btn border"
                                         style="padding: 6px 12px; font-size: 16px;">
                                             <span>View Details</span>

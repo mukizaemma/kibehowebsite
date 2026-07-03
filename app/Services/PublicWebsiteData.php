@@ -89,11 +89,6 @@ class PublicWebsiteData
             ->where('room_type', 'room')
             ->oldest()
             ->get();
-        $apartments = Room::with(['amenities', 'images'])
-            ->where('status', 'Active')
-            ->where('room_type', 'apartment')
-            ->oldest()
-            ->get();
         $setting = Setting::first();
         $about = About::first();
         $facilities = Facility::where('status', 'Active')->oldest()->get();
@@ -101,12 +96,10 @@ class PublicWebsiteData
 
         return [
             'rooms' => $rooms,
-            'apartments' => $apartments,
             'setting' => $setting,
             'about' => $about,
             'facilities' => $facilities,
             'pageHero' => $pageHero,
-            'activeType' => 'room',
         ];
     }
 

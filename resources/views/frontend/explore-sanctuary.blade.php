@@ -130,7 +130,7 @@
         </div>
 
         <div class="text-center mt-4 pt-2">
-            <a wire:navigate href="{{ localized_route('gallery') }}" class="explore-sanctuary-btn explore-sanctuary-btn--outline">
+            <a wire:navigate href="{{ localized_localized_route('gallery') }}" class="explore-sanctuary-btn explore-sanctuary-btn--outline">
                 {{ site_trans('sanctuary.view_full_gallery') }}
             </a>
         </div>

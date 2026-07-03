@@ -39,7 +39,7 @@
                     Whether you are looking to relax after a day of activities or enjoy a full wellness retreat,
                     our team will help you feel renewed and refreshed.
                 </p>
-                <a wire:navigate href="{{ route('contact') }}" class="theme-btn btn-style fill mt-3">
+                <a wire:navigate href="{{ localized_route('contact') }}" class="theme-btn btn-style fill mt-3">
                     <span>Contact Us for Reservations</span>
                 </a>
             </div>

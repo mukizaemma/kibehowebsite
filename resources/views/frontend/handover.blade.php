@@ -1,9 +1,3 @@
-@extends('layouts.frontbase')
-
-@section('meta_robots', 'noindex, nofollow')
-
-@section('document_title', 'Client handover & user guide — Lucerna Kabgayi Hotel')
-
 @push('head')
 <style>
     .handover-doc { max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -26,7 +20,7 @@
 </style>
 @endpush
 
-@section('content')
+<div class="public-livewire-page">
 <div class="rts__section section__padding handover-doc text-start">
     <div class="container py-3 py-lg-4">
         <div class="handover-no-print d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4 pb-3 border-bottom">
@@ -248,4 +242,4 @@
         <p class="small text-muted mb-0">This document is part of your project handover. Save or print it from your browser for your internal records.</p>
     </div>
 </div>
-@endsection
+</div>

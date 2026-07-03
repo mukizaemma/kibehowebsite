@@ -33,41 +33,17 @@
     </div>
 </div>
 
-<!-- Tabs: Rooms | Apartments -->
+<!-- Rooms listing -->
 <div class="rts__section section__padding pt-50 pb-120">
     <div class="container">
-        <ul class="nav nav-tabs border-0 justify-content-center gap-2 mb-4 kibeho-room-tabs" id="roomsApartmentsTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded px-4 py-2 {{ ($activeType ?? 'room') === 'room' ? 'active' : '' }}" id="tab-rooms" data-bs-toggle="tab" data-bs-target="#panel-rooms" type="button" role="tab">Rooms</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded px-4 py-2 {{ ($activeType ?? 'room') === 'apartment' ? 'active' : '' }}" id="tab-apartments" data-bs-toggle="tab" data-bs-target="#panel-apartments" type="button" role="tab">Apartments</button>
-            </li>
-        </ul>
-
-        <div class="tab-content pt-4" id="roomsApartmentsContent">
-            <div class="tab-pane fade {{ ($activeType ?? 'room') === 'room' ? 'show active' : '' }}" id="panel-rooms" role="tabpanel">
-                <div class="row g-4">
-                    @forelse($rooms as $room)
-                        @include('frontend.includes.room-listing-card', ['room' => $room, 'colClass' => 'col-lg-4 col-md-6'])
-                    @empty
-                    <div class="col-12 text-center py-5 text-muted">
-                        <p class="mb-0">No rooms available at the moment.</p>
-                    </div>
-                    @endforelse
-                </div>
+        <div class="row g-4">
+            @forelse($rooms as $room)
+                @include('frontend.includes.room-listing-card', ['room' => $room, 'colClass' => 'col-lg-6 col-md-6'])
+            @empty
+            <div class="col-12 text-center py-5 text-muted">
+                <p class="mb-0">No rooms available at the moment.</p>
             </div>
-            <div class="tab-pane fade {{ ($activeType ?? 'room') === 'apartment' ? 'show active' : '' }}" id="panel-apartments" role="tabpanel">
-                <div class="row g-4">
-                    @forelse($apartments as $room)
-                        @include('frontend.includes.room-listing-card', ['room' => $room, 'colClass' => 'col-lg-4 col-md-6'])
-                    @empty
-                    <div class="col-12 text-center py-5 text-muted">
-                        <p class="mb-0">No apartments available at the moment.</p>
-                    </div>
-                    @endforelse
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </div>

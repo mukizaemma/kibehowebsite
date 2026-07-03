@@ -246,7 +246,7 @@
                 <li style="display: flex; align-items: center; margin-bottom: 15px; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
                     <!-- Image on the left -->
                     <div style="flex-shrink: 0; margin-right: 15px;">
-                        <a wire:navigate href="{{ route('tour',['slug'=>$rs->slug]) }}">
+                        <a wire:navigate href="{{ localized_route('tour',['slug'=>$rs->slug]) }}">
                             <img src="{{ asset('storage/images/trips/' .$rs->image) }}" alt="Single Room with Balcony" style="width: 80px; height: 60px; object-fit: cover; border-radius: 8px;">
                         </a>
                     </div>
@@ -254,7 +254,7 @@
                     <div style="flex-grow: 1; display: flex; justify-content: space-between; align-items: left;">
                         <div>
 
-                            <a wire:navigate href="{{ route('tour',['slug'=>$rs->slug]) }}" style="font-size: 18px; color: #333; margin: 0;">{{ $rs->title }}</a>
+                            <a wire:navigate href="{{ localized_route('tour',['slug'=>$rs->slug]) }}" style="font-size: 18px; color: #333; margin: 0;">{{ $rs->title }}</a>
                             {{-- <span style="font-size: 16px; font-weight: bold; color: #007bff;">$120/night</span> --}}
                         </div>
 

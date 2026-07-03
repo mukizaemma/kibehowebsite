@@ -5,7 +5,7 @@
             @forelse ($facilities as $facility)
             <div class="col-12 col-md-6">
                 <article class="home-room-card">
-                    <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__media">
+                    <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__media">
                         <img src="{{ asset('storage/' . ($facility->cover_image ?? 'facilities/default.jpg')) }}"
                             alt="{{ $facility->title }}"
                             loading="lazy"
@@ -14,16 +14,16 @@
                     </a>
                     <div class="home-room-card__body">
                         <div class="home-room-card__head home-room-card__head--title-only">
-                            <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__title">{{ $facility->title }}</a>
+                            <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__title">{{ $facility->title }}</a>
                         </div>
                         <p class="home-room-card__excerpt">
                             {!! Str::words(strip_tags($facility->description ?? ''), 28, '…') !!}
                         </p>
                         <div class="home-room-card__actions">
-                            <a wire:navigate href="{{ route('facility', ['slug' => $facility->slug]) }}" class="theme-btn btn-style sm-btn border">
+                            <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="theme-btn btn-style sm-btn border">
                                 <span>View details</span>
                             </a>
-                            <a wire:navigate href="{{ route('contact') }}" class="theme-btn btn-style sm-btn fill">
+                            <a wire:navigate href="{{ localized_route('contact') }}" class="theme-btn btn-style sm-btn fill">
                                 <span>Contact us</span>
                             </a>
                         </div>

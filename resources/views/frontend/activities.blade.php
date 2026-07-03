@@ -45,16 +45,16 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="h-100 d-flex flex-column rounded-3 overflow-hidden shadow-sm border" style="background: #fff; border-color: #eee !important;">
                             <div class="flex-grow-0">
-                                <a wire:navigate href="{{ route('activity', ['slug' => $activity->slug]) }}">
+                                <a wire:navigate href="{{ localized_route('activity', ['slug' => $activity->slug]) }}">
                                     <img src="{{ $coverUrl }}" alt="{{ $activity->title }}" loading="lazy" style="width: 100%; height: 260px; object-fit: cover;">
                                 </a>
                             </div>
                             <div class="p-4 d-flex flex-column flex-grow-1">
-                                <a wire:navigate href="{{ route('activity', ['slug' => $activity->slug]) }}" class="h5 mb-2 text-dark text-decoration-none">{{ $activity->title }}</a>
+                                <a wire:navigate href="{{ localized_route('activity', ['slug' => $activity->slug]) }}" class="h5 mb-2 text-dark text-decoration-none">{{ $activity->title }}</a>
                                 <div class="flex-grow-1 mb-3">
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($activity->description ?? ''), 22, '...') !!}</p>
                                 </div>
-                                <a wire:navigate href="{{ route('activity', ['slug' => $activity->slug]) }}" class="theme-btn btn-style fill align-self-start">
+                                <a wire:navigate href="{{ localized_route('activity', ['slug' => $activity->slug]) }}" class="theme-btn btn-style fill align-self-start">
                                     <span>View more</span>
                                 </a>
                             </div>

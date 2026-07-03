@@ -96,12 +96,12 @@
                     @endphp
                     <div class="col-lg-4 col-md-6">
                         <div class="h-100 rounded-3 overflow-hidden shadow-sm bg-white">
-                            <a wire:navigate href="{{ route('activity', ['slug' => $other->slug]) }}">
+                            <a wire:navigate href="{{ localized_route('activity', ['slug' => $other->slug]) }}">
                                 <img src="{{ $otherCover }}" alt="{{ $other->title }}" loading="lazy" style="width: 100%; height: 220px; object-fit: cover;">
                             </a>
                             <div class="p-3">
-                                <a wire:navigate href="{{ route('activity', ['slug' => $other->slug]) }}" class="h6 text-dark text-decoration-none">{{ $other->title }}</a>
-                                <a wire:navigate href="{{ route('activity', ['slug' => $other->slug]) }}" class="d-block mt-2 small text-primary">View more</a>
+                                <a wire:navigate href="{{ localized_route('activity', ['slug' => $other->slug]) }}" class="h6 text-dark text-decoration-none">{{ $other->title }}</a>
+                                <a wire:navigate href="{{ localized_route('activity', ['slug' => $other->slug]) }}" class="d-block mt-2 small text-primary">View more</a>
                             </div>
                         </div>
                     </div>

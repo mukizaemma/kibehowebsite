@@ -53,7 +53,7 @@
                         {!! nl2br(e($review->testimony)) !!}
                     </div>
                     <div class="mt-40 text-center">
-                        <a wire:navigate href="{{ route('reviews') }}" class="theme-btn btn-style border">
+                        <a wire:navigate href="{{ localized_route('reviews') }}" class="theme-btn btn-style border">
                             <span>Back to All Reviews</span>
                         </a>
                     </div>
@@ -81,7 +81,7 @@
                     <p style="color: #666; margin-bottom: 15px;">
                         {{ Str::words($otherReview->testimony, 30, '...') }}
                     </p>
-                    <a wire:navigate href="{{ route('review', ['id' => $otherReview->id]) }}" class="theme-btn btn-style sm-btn border">
+                    <a wire:navigate href="{{ localized_route('review', ['id' => $otherReview->id]) }}" class="theme-btn btn-style sm-btn border">
                         <span>Read More</span>
                     </a>
                 </div>

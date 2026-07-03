@@ -8,9 +8,9 @@
 <section class="meeting-room-detail rts__section section__padding pt-4">
     <div class="container">
         <nav class="meeting-room-detail__breadcrumb small text-muted mb-4" aria-label="Breadcrumb">
-            <a wire:navigate href="{{ route('home') }}">Home</a>
+            <a wire:navigate href="{{ localized_route('home') }}">Home</a>
             <span class="mx-1">/</span>
-            <a wire:navigate href="{{ route('meetings-events') }}">Meetings &amp; Events</a>
+            <a wire:navigate href="{{ localized_route('meetings-events') }}">Meetings &amp; Events</a>
             <span class="mx-1">/</span>
             <span class="text-body">{{ $room->title }}</span>
         </nav>
@@ -60,7 +60,7 @@
         @endif
 
         <p class="mt-4 mb-0 text-center">
-            <a wire:navigate href="{{ route('meetings-events') }}" class="btn btn-outline-secondary btn-sm">← Back to Meetings &amp; Events</a>
+            <a wire:navigate href="{{ localized_route('meetings-events') }}" class="btn btn-outline-secondary btn-sm">← Back to Meetings &amp; Events</a>
         </p>
     </div>
 </section>

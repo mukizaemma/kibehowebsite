@@ -177,7 +177,7 @@
             <div class="col-lg-4 col-md-6">
                 <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
                     <div>
-                        <a wire:navigate href="{{ route('room',['slug'=>$similarRoom->slug]) }}">
+                        <a wire:navigate href="{{ localized_route('room',['slug'=>$similarRoom->slug]) }}">
                             <img src="{{ $similarRoom->publicThumbnailUrl() }}"
                                  alt="{{ $similarRoom->title }}"
                                  style="width: 100%; height: 250px; object-fit: cover;"
@@ -185,14 +185,14 @@
                         </a>
                     </div>
                     <div style="padding: 20px;">
-                        <a wire:navigate href="{{ route('room',['slug'=>$similarRoom->slug]) }}" 
+                        <a wire:navigate href="{{ localized_route('room',['slug'=>$similarRoom->slug]) }}" 
                            style="font-size: 20px; font-weight: 600; color: #222; text-decoration: none; display: block; margin-bottom: 10px;">
                             {{ $similarRoom->title }}
                         </a>
                         <div class="home-room-card__price-line text-brand" style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">
                             {{ hotel_price($similarRoom->price, $setting) }}/Night
                         </div>
-                        <a wire:navigate href="{{ route('room',['slug'=>$similarRoom->slug]) }}" 
+                        <a wire:navigate href="{{ localized_route('room',['slug'=>$similarRoom->slug]) }}" 
                            class="theme-btn btn-style sm-btn border" 
                            style="width: 100%; text-align: center;">
                             <span>View Details</span>

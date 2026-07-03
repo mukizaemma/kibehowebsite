@@ -412,6 +412,7 @@
             }
         ));
     @endphp
+    @persist('site-header')
     <div class="header__top">
         <div class="container">
             <div class="row justify-content-between align-items-center">
@@ -552,6 +553,7 @@
         </div>
     </header>
     <!-- header area end -->
+    @endpersist
 
 
     <div class="container-fluid">
@@ -747,12 +749,12 @@
                         <nav class="desktop__menu offcanvas__menu">
                             <ul class="list-unstyled">
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('home') }}">{{ site_trans('nav.home') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('home') }}">{{ site_trans('nav.home') }}
                                         <span class="toggle"></span>
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('about') }}">{{ site_trans('nav.about') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('about') }}">{{ site_trans('nav.about') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
@@ -765,7 +767,7 @@
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('rooms') }}">{{ site_trans('nav.rooms') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('rooms') }}">{{ site_trans('nav.rooms') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
@@ -776,7 +778,7 @@
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('facilities') }}">{{ site_trans('nav.our_services') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('facilities') }}">{{ site_trans('nav.our_services') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
@@ -787,20 +789,20 @@
                                     </ul>
                                 </li>
                                 <li class="slide">
-                                    <a class="slide__menu__item" href="{{ route('activities') }}">Tour Activities
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('activities') }}">Tour Activities
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('gallery') }}">{{ site_trans('nav.gallery') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('gallery') }}">{{ site_trans('nav.gallery') }}
                                         <span class="toggle"></span>
                                     </a>
                                 </li>
                                 <li class="slide">
-                                    <a class="slide__menu__item" href="{{ localized_route('contact') }}">{{ site_trans('nav.contact') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('contact') }}">{{ site_trans('nav.contact') }}
                                     </a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" href="{{ localized_route('connect') }}">{{ site_trans('buttons.contact_us') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('connect') }}">{{ site_trans('buttons.contact_us') }}
                                     </a>
 
                                 </li>
@@ -817,6 +819,7 @@
         @include('layouts.includes.why-choose-us')
     @endif
 
+    @persist('site-footer')
     @include('layouts.includes.site-footer')
     <!-- back to top -->
     <button type="button" class="rts__back__top" id="rts-back-to-top">
@@ -827,6 +830,7 @@
 
     </button>
     <!-- back to top end -->
+    @endpersist
 
 
     <!-- Custom preloader: animated logo -->
@@ -1127,6 +1131,7 @@
 
     @livewireScriptConfig
     @livewireScripts
+    <script src="assets/js/spa-navigation.js"></script>
 
 </body>
 

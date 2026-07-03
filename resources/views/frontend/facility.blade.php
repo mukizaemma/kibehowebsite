@@ -136,14 +136,14 @@
             <div class="col-lg-4 col-md-6" style="flex: 0 0 auto;">
                 <div style="background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05); transition: all 0.3s ease;">
                     <div>
-                        <a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}">
+                        <a wire:navigate href="{{ localized_route('facility',['slug'=>$facility->slug]) }}">
                             <img src="{{ asset('storage/' . ($facility->cover_image ?? 'facilities/default.jpg')) }}" alt="{{ $facility->title }}" loading="lazy" style="width: 100%; height: 210px; object-fit: cover;">
                         </a>
                     </div>
                     <div style="padding: 15px;">
-                        <a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}" style="font-size: 20px; font-weight: 600; color: #222; text-decoration: none;">{{ $facility->title }}</a>
+                        <a wire:navigate href="{{ localized_route('facility',['slug'=>$facility->slug]) }}" style="font-size: 20px; font-weight: 600; color: #222; text-decoration: none;">{{ $facility->title }}</a>
                         <p class="font-sm">{!! Str::words($facility->description, 20, '...') !!}</p>
-                        <a wire:navigate href="{{ route('facility',['slug'=>$facility->slug]) }}" style="display: inline-block; margin-top: 10px; font-size: 14px; color: #0356b7; text-decoration: underline;">Discover More</a>
+                        <a wire:navigate href="{{ localized_route('facility',['slug'=>$facility->slug]) }}" style="display: inline-block; margin-top: 10px; font-size: 14px; color: #0356b7; text-decoration: underline;">Discover More</a>
                     </div>
                 </div>
             </div>
