@@ -18,6 +18,25 @@
                 </a>
             </div>
 
+            <div class="cms-subresource-config d-none" data-scope="kibeho-event"
+                data-page-form="kibehoPageForm"
+                data-page-update="{{ route('content-management.kibeho-page.update', [], false) }}"
+                data-image-destroy-base="{{ str_replace('/0', '', route('content-management.kibeho-page.images.destroy', ['id' => 0], false)) }}"
+                data-item-form="kibehoEventForm"
+                data-item-modal="kibehoEventModal"
+                data-item-title="kibehoEventModalTitle"
+                data-item-active="kibeho_event_active"
+                data-item-errors="kibehoEventFormErrors"
+                data-item-image-wrap="kibeho_event_image_wrap"
+                data-item-store="{{ route('content-management.kibeho-page.events.store', [], false) }}"
+                data-item-show="{{ route('content-management.kibeho-page.events.show', ['id' => '__ID__'], false) }}"
+                data-item-update="{{ route('content-management.kibeho-page.events.update', ['id' => '__ID__'], false) }}"
+                data-item-destroy="{{ route('content-management.kibeho-page.events.destroy', ['id' => '__ID__'], false) }}"
+                data-storage-base="{{ asset('storage') }}"
+                data-summernote-field="#kibeho_description"
+                data-add-label="Add activity"
+            ></div>
+
             <ul class="nav nav-tabs mb-4" id="kibehoPageTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="kibeho-tab-page" data-bs-toggle="tab" data-bs-target="#kibeho-panel-page" type="button" role="tab">Page content</button>
@@ -76,7 +95,7 @@
                                 @foreach($page->images as $image)
                                     <div class="col-6 col-md-4 col-lg-3 position-relative" data-image-id="{{ $image->id }}">
                                         <img src="{{ asset('storage/'.$image->image) }}" class="img-fluid rounded border" style="height:120px;width:100%;object-fit:cover;" alt="">
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="deleteKibehoImage({{ $image->id }})" title="Remove">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" data-cms-gallery-delete="{{ $image->id }}" data-cms-gallery-scope="kibeho-event" title="Remove">
                                             <i class="fa fa-times"></i>
                                         </button>
                                     </div>
@@ -96,7 +115,7 @@
                 <div class="tab-pane fade" id="kibeho-panel-events" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Things to do</h5>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#kibehoEventModal" onclick="resetKibehoEventForm()">
+                        <button type="button" class="btn btn-primary btn-sm" data-cms-subitem-action="add" data-cms-subitem-scope="kibeho-event" data-toggle="modal" data-target="#kibehoEventModal" data-bs-toggle="modal" data-bs-target="#kibehoEventModal">
                             <i class="fa fa-plus me-1"></i> Add activity
                         </button>
                     </div>
@@ -125,8 +144,8 @@
                                     <td>{{ $row->event_date?->format('M j, Y') ?? '—' }}</td>
                                     <td><span class="badge bg-{{ $row->is_active ? 'success' : 'secondary' }}">{{ $row->is_active ? 'Active' : 'Hidden' }}</span></td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning" onclick="editKibehoEvent({{ $row->id }})"><i class="fa fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteKibehoEvent({{ $row->id }})"><i class="fa fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-warning" data-cms-subitem-action="edit" data-cms-subitem-scope="kibeho-event" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-edit"></i></button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-cms-subitem-action="delete" data-cms-subitem-scope="kibeho-event" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 @empty
@@ -147,7 +166,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="kibehoEventModalTitle">Add activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="kibehoEventForm" enctype="multipart/form-data">
                 <div class="modal-body">
@@ -188,7 +207,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -196,101 +215,15 @@
     </div>
 </div>
 
-<script>
-let currentKibehoEventId = null;
-const kibehoEventBase = @json(url('content-management/kibeho-page/events'));
-
-document.getElementById('kibehoPageForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (window.CmsSummernote) {
-        CmsSummernote.syncFormData(formData, '#kibeho_description');
-    }
-    fetch(@json(route('content-management.kibeho-page.update')), {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => {
-        if (data.success) location.reload();
-    });
-});
-
-function deleteKibehoImage(id) {
-    if (!confirm('Remove this image?')) return;
-    fetch(@json(url('content-management/kibeho-page/images')) + '/' + id, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            document.querySelector('[data-image-id="' + id + '"]')?.remove();
-        }
-    });
-}
-
-function resetKibehoEventForm() {
-    currentKibehoEventId = null;
-    document.getElementById('kibehoEventForm').reset();
-    document.getElementById('kibeho_event_active').checked = true;
-    document.getElementById('kibehoEventModalTitle').textContent = 'Add activity';
-    document.getElementById('kibeho_event_image_wrap').style.display = 'none';
-}
-
-function editKibehoEvent(id) {
-    fetch(`${kibehoEventBase}/${id}`)
-        .then(r => r.json())
-        .then(data => {
-            currentKibehoEventId = id;
-            document.getElementById('kibeho_event_title').value = data.title || '';
-            document.getElementById('kibeho_event_description').value = data.description || '';
-            document.getElementById('kibeho_event_date').value = data.event_date ? data.event_date.substring(0, 10) : '';
-            document.getElementById('kibeho_event_sort').value = data.sort_order ?? 0;
-            document.getElementById('kibeho_event_url').value = data.external_url || '';
-            document.getElementById('kibeho_event_active').checked = !!data.is_active;
-            document.getElementById('kibeho_event_image').value = '';
-            const wrap = document.getElementById('kibeho_event_image_wrap');
-            const img = document.getElementById('kibeho_event_image_preview');
-            if (data.image) {
-                img.src = '{{ asset('storage') }}/' + data.image;
-                wrap.style.display = 'block';
-            } else {
-                wrap.style.display = 'none';
-            }
-            document.getElementById('kibehoEventModalTitle').textContent = 'Edit activity';
-            CmsAdmin.showModal('kibehoEventModal');
-        });
-}
-
-function deleteKibehoEvent(id) {
-    if (!confirm('Delete this activity?')) return;
-    fetch(`${kibehoEventBase}/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-    }).then(r => r.json()).then(data => { if (data.success) location.reload(); });
-}
-
-document.getElementById('kibehoEventForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (!document.getElementById('kibeho_event_active').checked) formData.delete('is_active');
-    else formData.set('is_active', '1');
-    const url = currentKibehoEventId ? `${kibehoEventBase}/${currentKibehoEventId}/update` : @json(route('content-management.kibeho-page.events.store', [], false));
-    CmsAdmin.clearErrors('kibehoEventFormErrors');
-    CmsAdmin.submitFormData(url, formData, {
-        modalId: 'kibehoEventModal',
-        errorsEl: 'kibehoEventFormErrors',
-        defaultError: 'Could not save activity. Please check the form and try again.',
-    });
-});
-
-</script>
-
 @push('scripts')
 <script>
 jQuery(function () {
-    CmsSummernote.initOnReady('#kibeho_description', {
-        height: 220,
-        initialHtml: @json($page->description ?? '')
-    });
+    if (window.CmsSummernote) {
+        CmsSummernote.initOnReady('#kibeho_description', {
+            height: 220,
+            initialHtml: @json($page->description ?? '')
+        });
+    }
 });
 </script>
 @endpush

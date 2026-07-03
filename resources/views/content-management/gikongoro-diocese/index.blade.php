@@ -18,6 +18,22 @@
                 </a>
             </div>
 
+            <div class="cms-subresource-config d-none" data-scope="gikongoro-stat"
+                data-page-form="gikongoroPageForm"
+                data-page-update="{{ route('content-management.gikongoro-diocese-page.update', [], false) }}"
+                data-item-form="gikongoroStatForm"
+                data-item-modal="gikongoroStatModal"
+                data-item-title="gikongoroStatModalTitle"
+                data-item-active="gikongoro_stat_active"
+                data-item-errors="gikongoroStatFormErrors"
+                data-item-store="{{ route('content-management.gikongoro-diocese-page.stats.store', [], false) }}"
+                data-item-show="{{ route('content-management.gikongoro-diocese-page.stats.show', ['id' => '__ID__'], false) }}"
+                data-item-update="{{ route('content-management.gikongoro-diocese-page.stats.update', ['id' => '__ID__'], false) }}"
+                data-item-destroy="{{ route('content-management.gikongoro-diocese-page.stats.destroy', ['id' => '__ID__'], false) }}"
+                data-summernote-field="#gikongoro_description"
+                data-add-label="Add statistic"
+            ></div>
+
             <ul class="nav nav-tabs mb-4" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#gikongoro-panel-page" type="button" role="tab">Page content</button>
@@ -81,7 +97,7 @@
                 <div class="tab-pane fade" id="gikongoro-panel-stats" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Diocese statistics</h5>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gikongoroStatModal" onclick="resetGikongoroStatForm()">
+                        <button type="button" class="btn btn-primary btn-sm" data-cms-subitem-action="add" data-cms-subitem-scope="gikongoro-stat" data-toggle="modal" data-target="#gikongoroStatModal" data-bs-toggle="modal" data-bs-target="#gikongoroStatModal">
                             <i class="fa fa-plus me-1"></i> Add item
                         </button>
                     </div>
@@ -107,8 +123,8 @@
                                     <td>{{ $row->sort_order }}</td>
                                     <td><span class="badge bg-{{ $row->is_active ? 'success' : 'secondary' }}">{{ $row->is_active ? 'Active' : 'Hidden' }}</span></td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning" onclick="editGikongoroStat({{ $row->id }})"><i class="fa fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteGikongoroStat({{ $row->id }})"><i class="fa fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-warning" data-cms-subitem-action="edit" data-cms-subitem-scope="gikongoro-stat" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-edit"></i></button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-cms-subitem-action="delete" data-cms-subitem-scope="gikongoro-stat" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 @empty
@@ -129,7 +145,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="gikongoroStatModalTitle">Add statistic</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="gikongoroStatForm">
                 <div class="modal-body">
@@ -156,7 +172,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -164,75 +180,15 @@
     </div>
 </div>
 
-<script>
-let currentGikongoroStatId = null;
-const gikongoroStatBase = @json(url('content-management/gikongoro-diocese-page/stats'));
-
-document.getElementById('gikongoroPageForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (window.CmsSummernote) {
-        CmsSummernote.syncFormData(formData, '#gikongoro_description');
-    }
-    fetch(@json(route('content-management.gikongoro-diocese-page.update')), {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-        body: formData
-    }).then(r => r.json()).then(data => { if (data.success) location.reload(); });
-});
-
-function resetGikongoroStatForm() {
-    currentGikongoroStatId = null;
-    document.getElementById('gikongoroStatForm').reset();
-    document.getElementById('gikongoro_stat_active').checked = true;
-    document.getElementById('gikongoroStatModalTitle').textContent = 'Add statistic';
-}
-
-function editGikongoroStat(id) {
-    fetch(`${gikongoroStatBase}/${id}`).then(r => r.json()).then(data => {
-        currentGikongoroStatId = id;
-        document.getElementById('gikongoro_stat_label').value = data.label || '';
-        document.getElementById('gikongoro_stat_value').value = data.value || '';
-        document.getElementById('gikongoro_stat_icon').value = data.icon || '';
-        document.getElementById('gikongoro_stat_sort').value = data.sort_order ?? 0;
-        document.getElementById('gikongoro_stat_active').checked = !!data.is_active;
-        document.getElementById('gikongoroStatModalTitle').textContent = 'Edit statistic';
-        CmsAdmin.showModal('gikongoroStatModal');
-    });
-}
-
-function deleteGikongoroStat(id) {
-    if (!confirm('Delete this statistic?')) return;
-    fetch(`${gikongoroStatBase}/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-    }).then(r => r.json()).then(data => { if (data.success) location.reload(); });
-}
-
-document.getElementById('gikongoroStatForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    if (!document.getElementById('gikongoro_stat_active').checked) formData.delete('is_active');
-    else formData.set('is_active', '1');
-    const url = currentGikongoroStatId
-        ? `${gikongoroStatBase}/${currentGikongoroStatId}/update`
-        : @json(route('content-management.gikongoro-diocese-page.stats.store', [], false));
-    CmsAdmin.clearErrors('gikongoroStatFormErrors');
-    CmsAdmin.submitFormData(url, formData, {
-        modalId: 'gikongoroStatModal',
-        errorsEl: 'gikongoroStatFormErrors',
-        defaultError: 'Could not save statistic. Please check the form and try again.',
-    });
-});
-</script>
-
 @push('scripts')
 <script>
 jQuery(function () {
-    CmsSummernote.initOnReady('#gikongoro_description', {
-        height: 220,
-        initialHtml: @json($page->description ?? '')
-    });
+    if (window.CmsSummernote) {
+        CmsSummernote.initOnReady('#gikongoro_description', {
+            height: 220,
+            initialHtml: @json($page->description ?? '')
+        });
+    }
 });
 </script>
 @endpush

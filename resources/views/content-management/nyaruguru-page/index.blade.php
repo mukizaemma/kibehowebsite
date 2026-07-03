@@ -18,13 +18,23 @@
                 </a>
             </div>
 
-            <div id="nyaruguru-page-config" class="d-none"
+            <div class="cms-subresource-config d-none" data-scope="nyaruguru-activity"
+                data-page-form="nyaruguruPageForm"
                 data-page-update="{{ route('content-management.nyaruguru-page.update', [], false) }}"
                 data-image-destroy-base="{{ str_replace('/0', '', route('content-management.nyaruguru-page.images.destroy', ['id' => 0], false)) }}"
-                data-activity-store="{{ route('content-management.nyaruguru-page.activities.store', [], false) }}"
-                data-activity-show="{{ route('content-management.nyaruguru-page.activities.show', ['id' => '__ID__'], false) }}"
-                data-activity-update="{{ route('content-management.nyaruguru-page.activities.update', ['id' => '__ID__'], false) }}"
-                data-activity-destroy="{{ route('content-management.nyaruguru-page.activities.destroy', ['id' => '__ID__'], false) }}"
+                data-item-form="nyaruguruActivityForm"
+                data-item-modal="nyaruguruActivityModal"
+                data-item-title="nyaruguruActivityModalTitle"
+                data-item-active="nyaruguru_activity_active"
+                data-item-errors="nyaruguruActivityFormErrors"
+                data-item-image-wrap="nyaruguru_activity_image_wrap"
+                data-item-store="{{ route('content-management.nyaruguru-page.activities.store', [], false) }}"
+                data-item-show="{{ route('content-management.nyaruguru-page.activities.show', ['id' => '__ID__'], false) }}"
+                data-item-update="{{ route('content-management.nyaruguru-page.activities.update', ['id' => '__ID__'], false) }}"
+                data-item-destroy="{{ route('content-management.nyaruguru-page.activities.destroy', ['id' => '__ID__'], false) }}"
+                data-storage-base="{{ asset('storage') }}"
+                data-summernote-field="#nyaruguru_description"
+                data-add-label="Add activity"
             ></div>
 
             <ul class="nav nav-tabs mb-4" role="tablist">
@@ -80,7 +90,7 @@
                                 @foreach($page->images as $image)
                                     <div class="col-6 col-md-4 col-lg-3 position-relative" data-image-id="{{ $image->id }}">
                                         <img src="{{ asset('storage/'.$image->image) }}" class="img-fluid rounded border" style="height:120px;width:100%;object-fit:cover;" alt="">
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="deleteNyaruguruImage({{ $image->id }})" title="Remove">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" data-cms-gallery-delete="{{ $image->id }}" data-cms-gallery-scope="nyaruguru-activity" title="Remove">
                                             <i class="fa fa-times"></i>
                                         </button>
                                     </div>
@@ -100,7 +110,7 @@
                 <div class="tab-pane fade" id="nyaruguru-panel-activities" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">Things to do</h5>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nyaruguruActivityModal" onclick="resetNyaruguruActivityForm()">
+                        <button type="button" class="btn btn-primary btn-sm" data-cms-subitem-action="add" data-cms-subitem-scope="nyaruguru-activity" data-toggle="modal" data-target="#nyaruguruActivityModal" data-bs-toggle="modal" data-bs-target="#nyaruguruActivityModal">
                             <i class="fa fa-plus me-1"></i> Add activity
                         </button>
                     </div>
@@ -127,8 +137,8 @@
                                     <td><strong>{{ $row->title }}</strong></td>
                                     <td><span class="badge bg-{{ $row->is_active ? 'success' : 'secondary' }}">{{ $row->is_active ? 'Active' : 'Hidden' }}</span></td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning" onclick="editNyaruguruActivity({{ $row->id }})"><i class="fa fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteNyaruguruActivity({{ $row->id }})"><i class="fa fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-warning" data-cms-subitem-action="edit" data-cms-subitem-scope="nyaruguru-activity" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-edit"></i></button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-cms-subitem-action="delete" data-cms-subitem-scope="nyaruguru-activity" data-cms-subitem-id="{{ $row->id }}"><i class="fa fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 @empty
@@ -149,7 +159,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="nyaruguruActivityModalTitle">Add activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="nyaruguruActivityForm" enctype="multipart/form-data">
                 <div class="modal-body">
@@ -184,7 +194,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -194,129 +204,13 @@
 
 @push('scripts')
 <script>
-(function () {
-    var cfg = document.getElementById('nyaruguru-page-config');
-    var Cms = window.CmsAdmin;
-    if (!cfg || !Cms) {
-        return;
-    }
-
-    var currentNyaruguruActivityId = null;
-
-    window.resetNyaruguruActivityForm = function () {
-        currentNyaruguruActivityId = null;
-        var form = document.getElementById('nyaruguruActivityForm');
-        if (!form) {
-            return;
-        }
-        form.reset();
-        document.getElementById('nyaruguru_activity_active').checked = true;
-        document.getElementById('nyaruguruActivityModalTitle').textContent = 'Add activity';
-        document.getElementById('nyaruguru_activity_image_wrap').style.display = 'none';
-        Cms.clearErrors('nyaruguruActivityFormErrors');
-    };
-
-    window.deleteNyaruguruImage = function (id) {
-        if (!window.confirm('Remove this image?')) {
-            return;
-        }
-        Cms.fetchJson(Cms.appUrl(cfg.dataset.imageDestroyBase + '/' + id), {
-            method: 'DELETE',
-        }).then(function (result) {
-            if (result.ok && result.data.success) {
-                document.querySelector('[data-image-id="' + id + '"]')?.remove();
-            }
-        });
-    };
-
-    window.editNyaruguruActivity = function (id) {
-        Cms.fetchJson(Cms.templateUrl(cfg.dataset.activityShow, id)).then(function (result) {
-            if (!result.ok) {
-                window.alert('Could not load this activity. Please refresh and try again.');
-                return;
-            }
-
-            var data = result.data;
-            currentNyaruguruActivityId = id;
-            document.getElementById('nyaruguru_activity_title').value = data.title || '';
-            document.getElementById('nyaruguru_activity_description').value = data.description || '';
-            document.getElementById('nyaruguru_activity_sort').value = data.sort_order ?? 0;
-            document.getElementById('nyaruguru_activity_url').value = data.external_url || '';
-            document.getElementById('nyaruguru_activity_active').checked = !!data.is_active;
-            document.getElementById('nyaruguru_activity_image').value = '';
-            var wrap = document.getElementById('nyaruguru_activity_image_wrap');
-            var img = document.getElementById('nyaruguru_activity_image_preview');
-            if (data.image) {
-                img.src = @json(asset('storage')) + '/' + data.image;
-                wrap.style.display = 'block';
-            } else {
-                wrap.style.display = 'none';
-            }
-            document.getElementById('nyaruguruActivityModalTitle').textContent = 'Edit activity';
-            Cms.clearErrors('nyaruguruActivityFormErrors');
-            Cms.showModal('nyaruguruActivityModal');
-        });
-    };
-
-    window.deleteNyaruguruActivity = function (id) {
-        if (!window.confirm('Delete this activity?')) {
-            return;
-        }
-        Cms.fetchJson(Cms.templateUrl(cfg.dataset.activityDestroy, id), {
-            method: 'DELETE',
-        }).then(function (result) {
-            if (result.ok && result.data.success) {
-                window.location.reload();
-            }
-        });
-    };
-
-    var pageForm = document.getElementById('nyaruguruPageForm');
-    if (pageForm) {
-        pageForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-            if (window.CmsSummernote) {
-                CmsSummernote.syncFormData(formData, '#nyaruguru_description');
-            }
-            Cms.submitFormData(Cms.appUrl(cfg.dataset.pageUpdate), formData, {
-                defaultError: 'Could not save page content.',
-            });
-        });
-    }
-
-    var activityForm = document.getElementById('nyaruguruActivityForm');
-    if (activityForm) {
-        activityForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            Cms.clearErrors('nyaruguruActivityFormErrors');
-
-            var formData = new FormData(this);
-            if (!document.getElementById('nyaruguru_activity_active').checked) {
-                formData.delete('is_active');
-            } else {
-                formData.set('is_active', '1');
-            }
-
-            var url = currentNyaruguruActivityId
-                ? Cms.templateUrl(cfg.dataset.activityUpdate, currentNyaruguruActivityId)
-                : Cms.appUrl(cfg.dataset.activityStore);
-
-            Cms.submitFormData(url, formData, {
-                modalId: 'nyaruguruActivityModal',
-                errorsEl: 'nyaruguruActivityFormErrors',
-                defaultError: 'Could not save activity. Please check the form and try again.',
-            });
-        });
-    }
-})();
-</script>
-<script>
 jQuery(function () {
-    CmsSummernote.initOnReady('#nyaruguru_description', {
-        height: 220,
-        initialHtml: @json($page->description ?? '')
-    });
+    if (window.CmsSummernote) {
+        CmsSummernote.initOnReady('#nyaruguru_description', {
+            height: 220,
+            initialHtml: @json($page->description ?? '')
+        });
+    }
 });
 </script>
 @endpush

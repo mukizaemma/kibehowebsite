@@ -16,21 +16,25 @@
         return meta ? meta.getAttribute('content') : '';
     }
 
+    function appBaseUrl() {
+        var meta = document.querySelector('meta[name="app-base-url"]');
+        return meta ? String(meta.getAttribute('content') || '').replace(/\/$/, '') : window.location.origin;
+    }
+
     function appUrl(path) {
         if (!path) {
             return window.location.href;
         }
 
         try {
+            var base = appBaseUrl();
+
             if (/^https?:\/\//i.test(path)) {
                 var parsed = new URL(path);
-                if (parsed.origin !== window.location.origin) {
-                    return window.location.origin + parsed.pathname + parsed.search;
-                }
-                return path;
+                return base + parsed.pathname + parsed.search;
             }
 
-            return window.location.origin + (path.charAt(0) === '/' ? path : '/' + path);
+            return base + (path.charAt(0) === '/' ? path : '/' + path);
         } catch (error) {
             return path;
         }
@@ -117,14 +121,14 @@
             return;
         }
 
-        var instance = getModalInstance(el);
-        if (instance && typeof instance.show === 'function') {
-            instance.show();
+        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            jQuery(el).modal('show');
             return;
         }
 
-        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
-            jQuery(el).modal('show');
+        var instance = getModalInstance(el);
+        if (instance && typeof instance.show === 'function') {
+            instance.show();
         }
     }
 
@@ -134,14 +138,14 @@
             return;
         }
 
-        var instance = getModalInstance(el);
-        if (instance && typeof instance.hide === 'function') {
-            instance.hide();
+        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
+            jQuery(el).modal('hide');
             return;
         }
 
-        if (typeof jQuery !== 'undefined' && jQuery.fn.modal) {
-            jQuery(el).modal('hide');
+        var instance = getModalInstance(el);
+        if (instance && typeof instance.hide === 'function') {
+            instance.hide();
             return;
         }
 
