@@ -67,16 +67,15 @@
         ['label' => site_trans('footer.amenity_meeting_rooms'), 'icon' => 'fa-solid fa-people-group'],
     ];
 
-    $footerFacilityUrl = function ($facility) {
-        $slug = strtolower((string) $facility->slug);
-        $title = strtolower((string) $facility->title);
-
-        if ($slug === 'accommodation' || str_contains($title, 'accommodation')) {
-            return localized_route('rooms');
-        }
-
-        return localized_route('facility', ['slug' => $facility->slug]);
-    };
+    $footerMainMenuLinks = [
+        ['route' => 'home', 'label' => site_trans('nav.home')],
+        ['route' => 'about', 'label' => site_trans('nav.about')],
+        ['route' => 'rooms', 'label' => site_trans('nav.rooms')],
+        ['route' => 'dining', 'label' => site_trans('nav.dining')],
+        ['route' => 'meetings-events', 'label' => site_trans('nav.meetings_events')],
+        ['route' => 'gallery', 'label' => site_trans('nav.gallery')],
+        ['route' => 'contact', 'label' => site_trans('nav.contact')],
+    ];
 @endphp
 
 <footer class="site-footer site-footer--kibeho" aria-label="Site footer">
@@ -119,43 +118,39 @@
                 @endif
             </aside>
 
-            <div class="site-footer__columns">
-                @if(isset($facilities) && $facilities->isNotEmpty())
-                    <nav class="site-footer__column" aria-label="{{ site_trans('footer.our_facilities') }}">
-                        <h2 class="site-footer__heading">{{ site_trans('footer.our_facilities') }}</h2>
-                        <ul class="site-footer__link-list" role="list">
-                            @foreach($facilities as $facility)
-                                <li>
-                                    <a wire:navigate href="{{ $footerFacilityUrl($facility) }}">
-                                        {{ $facility->title }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </nav>
-                @endif
+            <nav class="site-footer__column site-footer__main-menu" aria-label="{{ site_trans('footer.quick_links') }}">
+                <h2 class="site-footer__heading">{{ site_trans('footer.quick_links') }}</h2>
+                <ul class="site-footer__link-list" role="list">
+                    @foreach($footerMainMenuLinks as $item)
+                        <li>
+                            <a wire:navigate href="{{ localized_route($item['route']) }}">
+                                {{ $item['label'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </nav>
 
-                <nav class="site-footer__column" aria-label="{{ site_trans('footer.discover_region') }}">
-                    <h2 class="site-footer__heading">{{ site_trans('footer.discover_region') }}</h2>
-                    <ul class="site-footer__link-list" role="list">
-                        <li>
-                            <a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">
-                                {{ site_trans('footer.discover_gikongoro_link') }}
-                            </a>
-                        </li>
-                        <li>
-                            <a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">
-                                {{ site_trans('footer.discover_nyaruguru_link') }}
-                            </a>
-                        </li>
-                        <li>
-                            <a wire:navigate href="{{ localized_route('explore-kibeho') }}">
-                                {{ site_trans('footer.explore_sanctuary') }}
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            <nav class="site-footer__column site-footer__discover" aria-label="{{ site_trans('footer.discover_region') }}">
+                <h2 class="site-footer__heading">{{ site_trans('footer.discover_region') }}</h2>
+                <ul class="site-footer__link-list" role="list">
+                    <li>
+                        <a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">
+                            {{ site_trans('footer.discover_gikongoro_link') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">
+                            {{ site_trans('footer.discover_nyaruguru_link') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a wire:navigate href="{{ localized_route('explore-kibeho') }}">
+                            {{ site_trans('footer.explore_sanctuary') }}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
 
         <div class="site-footer__services">
