@@ -120,7 +120,7 @@ class PublicWebsiteData
         $setting = Setting::first();
         $about = About::first();
         $facilities = Facility::where('status', 'Active')->oldest()->get();
-        $pageHero = PageHero::getBySlug('apartments');
+        $pageHero = PageHero::getBySlug('rooms');
 
         return [
             'rooms' => $rooms,

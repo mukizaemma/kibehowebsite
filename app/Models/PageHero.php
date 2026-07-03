@@ -32,19 +32,19 @@ class PageHero extends Model
                 return null;
             }
             
+            $definitions = config('page_heroes', []);
+            if (! array_key_exists($slug, $definitions)) {
+                return null;
+            }
+
             $hero = self::where('page_slug', $slug)->first();
             
             // If hero doesn't exist, create it
             if (!$hero) {
-                $definitions = config('page_heroes', []);
-                $pageNames = collect($definitions)
-                    ->mapWithKeys(fn ($meta, $key) => [$key => $meta['label']])
-                    ->all();
-
                 try {
                     $hero = self::create([
                         'page_slug' => $slug,
-                        'page_name' => $pageNames[$slug] ?? ucfirst(str_replace('-', ' ', $slug)),
+                        'page_name' => $definitions[$slug]['label'],
                         'is_active' => true,
                     ]);
                 } catch (\Exception $e) {

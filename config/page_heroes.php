@@ -1,76 +1,89 @@
 <?php
 
 /**
- * Page hero sections: slug => display name + public URL path (for CMS).
- * Order matches main navigation where possible.
+ * Page hero backgrounds — one entry per public page that uses PageHero::getBySlug().
+ * Keys are internal slugs; labels match what admins see in the CMS.
  */
 return [
     'about' => [
-        'label' => 'About Us',
+        'label' => 'About us',
         'path' => '/about-us',
     ],
     'rooms' => [
-        'label' => 'Our Rooms',
+        'label' => 'Rooms',
         'path' => '/our-rooms',
-    ],
-    'apartments' => [
-        'label' => 'Our Apartments',
-        'path' => '/our-apartments',
-    ],
-    'facilities' => [
-        'label' => 'Facilities',
-        'path' => '/facilities',
     ],
     'dining' => [
         'label' => 'Dining',
         'path' => '/dining',
     ],
     'meetings-events' => [
-        'label' => 'Meetings & Events',
+        'label' => 'Meetings & events',
         'path' => '/meetings-events',
     ],
     'spa-wellness' => [
-        'label' => 'SPA & Wellness',
+        'label' => 'SPA & wellness',
         'path' => '/spa-wellness',
-    ],
-    'activities' => [
-        'label' => 'Tour Activities',
-        'path' => '/activities',
     ],
     'gallery' => [
         'label' => 'Gallery',
         'path' => '/gallery',
     ],
-    'our-team' => [
-        'label' => 'Our Team',
-        'path' => '/our-team',
-    ],
-    'updates' => [
-        'label' => 'Updates / Blog',
-        'path' => '/our-updates',
-    ],
     'contact' => [
         'label' => 'Contact',
         'path' => '/contact',
     ],
-    'book-now' => [
-        'label' => 'Book Now',
-        'path' => '/book-now',
+    'explore-kibeho' => [
+        'label' => 'Visit Kibeho',
+        'path' => '/explore-kibeho',
     ],
-    'terms' => [
-        'label' => 'Terms & Conditions',
-        'path' => '/terms-and-conditions',
+    'discover-nyaruguru' => [
+        'label' => 'Discover Nyaruguru',
+        'path' => '/discover-nyaruguru',
+    ],
+    'discover-gikongoro-diocese' => [
+        'label' => 'Gikongoro Diocese',
+        'path' => '/discover-gikongoro-diocese',
+    ],
+    'our-services' => [
+        'label' => 'Our services',
+        'path' => '/our-services',
+    ],
+    'facilities' => [
+        'label' => 'Facilities',
+        'path' => '/facilities',
+    ],
+    'activities' => [
+        'label' => 'Activities',
+        'path' => '/activities',
+    ],
+    'tours' => [
+        'label' => 'Tours',
+        'path' => '/tours',
+    ],
+    'our-team' => [
+        'label' => 'Our team',
+        'path' => '/our-team',
+    ],
+    'updates' => [
+        'label' => 'News & updates',
+        'path' => '/our-updates',
     ],
     'promotions' => [
         'label' => 'Promotions',
         'path' => '/promotions',
     ],
     'reviews' => [
-        'label' => 'Guest Reviews',
+        'label' => 'Guest reviews',
         'path' => '/reviews',
     ],
-    'tours' => [
-        'label' => 'Tours',
-        'path' => '/tours',
+    'terms' => [
+        'label' => 'Terms & conditions',
+        'path' => '/terms-and-conditions',
+    ],
+    'book-now' => [
+        'label' => 'Book now',
+        'path' => '/book-now',
+        'note' => 'Uses the same page layout as Contact.',
     ],
 ];

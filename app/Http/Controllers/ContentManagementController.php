@@ -588,6 +588,7 @@ class ContentManagementController extends Controller
 
         $order = array_keys($definitions);
         $pageHeroes = PageHero::query()
+            ->whereIn('page_slug', $order)
             ->get()
             ->sortBy(function ($h) use ($order) {
                 $i = array_search($h->page_slug, $order, true);
@@ -596,9 +597,9 @@ class ContentManagementController extends Controller
             })
             ->values();
 
-        $heroPaths = collect($definitions)->map(fn ($m) => $m['path'])->all();
+        $heroDefinitions = $definitions;
 
-        return view('content-management.page-heroes.index', compact('pageHeroes', 'heroPaths'));
+        return view('content-management.page-heroes.index', compact('pageHeroes', 'heroDefinitions'));
     }
 
     public function updatePageHero(Request $request, $id)

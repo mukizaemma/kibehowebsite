@@ -8,7 +8,7 @@
             <div class="mb-4">
                 <h4 class="mb-2">Page hero backgrounds</h4>
                 <p class="text-muted small mb-0">
-                    Each entry matches a public page (same order as the main menu where possible). Upload a wide image (e.g. 1920×600), set caption/subtitle, or remove the image to fall back to the About page photo.
+                    Set the wide banner image and title text for each public page listed below. Upload a landscape image (about 1920×600&nbsp;px). If no image is set, the page falls back to a default photo from About.
                 </p>
             </div>
 
@@ -45,9 +45,13 @@
                         <div class="card-header d-flex justify-content-between align-items-start flex-wrap gap-2">
                             <div>
                                 <h5 class="mb-0">{{ $pageHero->page_name }}</h5>
-                                <small class="text-muted d-block">Slug: <code>{{ $pageHero->page_slug }}</code></small>
-                                @if(isset($heroPaths[$pageHero->page_slug]))
-                                    <small class="text-primary d-block">Public: <code>{{ $heroPaths[$pageHero->page_slug] }}</code></small>
+                                @php $heroMeta = $heroDefinitions[$pageHero->page_slug] ?? null; @endphp
+                                @if($heroMeta)
+                                    <small class="text-primary d-block mt-1">
+                                        <a href="{{ url($heroMeta['path']) }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                            View {{ $heroMeta['path'] }} <i class="fa fa-external-link-alt ms-1" style="font-size:0.7em" aria-hidden="true"></i>
+                                        </a>
+                                    </small>
                                 @endif
                             </div>
                             <span class="badge bg-{{ $pageHero->is_active ? 'success' : 'secondary' }}">
@@ -97,8 +101,15 @@
                                   id="heroForm{{ $pageHero->id }}">
                                 @csrf
                                 <div class="modal-body">
-                                    @if(isset($heroPaths[$pageHero->page_slug]))
-                                        <p class="small text-muted">This hero is used on <strong>{{ $heroPaths[$pageHero->page_slug] }}</strong></p>
+                                    @php $heroMeta = $heroDefinitions[$pageHero->page_slug] ?? null; @endphp
+                                    @if($heroMeta)
+                                        <p class="small text-muted">
+                                            This banner appears on <strong>{{ $pageHero->page_name }}</strong>
+                                            (<a href="{{ url($heroMeta['path']) }}" target="_blank" rel="noopener noreferrer">{{ $heroMeta['path'] }}</a>).
+                                            @if(!empty($heroMeta['note']))
+                                                {{ $heroMeta['note'] }}
+                                            @endif
+                                        </p>
                                     @endif
                                     <div class="mb-3">
                                         <label class="form-label">Background image</label>
