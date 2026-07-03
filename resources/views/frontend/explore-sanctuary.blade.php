@@ -1,12 +1,13 @@
 <div class="public-livewire-page explore-sanctuary-page">
 
 @php
-    $heroCaption = $facility->title ?? site_trans('sanctuary.title');
+    $page = $kibehoPage ?? $facility ?? null;
+    $heroCaption = $page->title ?? site_trans('sanctuary.title');
     $heroDescription = '';
     if ($pageHero && filled($pageHero->description)) {
         $heroDescription = $pageHero->description;
-    } elseif ($facility && filled(strip_tags((string) $facility->description))) {
-        $heroDescription = \Illuminate\Support\Str::words(strip_tags($facility->description), 28, '...');
+    } elseif ($page && filled(strip_tags((string) $page->description))) {
+        $heroDescription = \Illuminate\Support\Str::words(strip_tags($page->description), 28, '...');
     } else {
         $heroDescription = site_trans('sanctuary.hero_lead');
     }
@@ -15,8 +16,8 @@
     if ($pageHero && !empty($pageHero->background_image)) {
         $heroImage = asset('storage/' . $pageHero->background_image);
         $heroCaption = $pageHero->caption ?: $heroCaption;
-    } elseif ($facility && $facility->cover_image) {
-        $heroImage = asset('storage/' . $facility->cover_image);
+    } elseif ($page && $page->cover_image) {
+        $heroImage = asset('storage/' . $page->cover_image);
     } elseif ($about && $about->image2) {
         $heroImage = (strpos($about->image2, '/') !== false || strpos($about->image2, 'abouts') === 0)
             ? asset('storage/' . $about->image2)
@@ -55,8 +56,8 @@
             <div class="col-lg-10 col-xl-8 text-center">
                 <h2 class="explore-sanctuary-section__title">{{ site_trans('sanctuary.about_title') }}</h2>
                 <div class="explore-sanctuary-intro__prose content-richtext">
-                    @if(filled($facility->description ?? null))
-                        {!! $facility->description !!}
+                    @if(filled($page->description ?? null))
+                        {!! $page->description !!}
                     @else
                         <p class="text-muted mb-0">{{ site_trans('sanctuary.about_placeholder') }}</p>
                     @endif

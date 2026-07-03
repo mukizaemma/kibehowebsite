@@ -116,6 +116,10 @@
                         @endforeach
                     </div>
                 @endif
+
+                <div class="site-footer__lang-wrap">
+                    @include('frontend.includes.language-switcher', ['variant' => 'site-lang-switcher--footer'])
+                </div>
             </aside>
 
             <div class="site-footer__panels">
@@ -125,7 +129,7 @@
                         <ul class="site-footer__nav-grid" role="list">
                             @foreach($footerExploreLinks as $link)
                                 <li>
-                                    <a wire:navigate href="{{ localized_route($link['route']) }}" class="site-footer__nav-link">
+                                    <a wire:navigate href="{{ localized_route($link['route'], $link['params'] ?? []) }}" class="site-footer__nav-link">
                                         <span class="site-footer__nav-icon" aria-hidden="true">
                                             <i class="{{ $link['icon'] }}"></i>
                                         </span>
@@ -150,6 +154,17 @@
                             </ul>
                         </div>
                     @endif
+
+                    <div class="site-footer__panel site-footer__panel--kibeho">
+                        <h2 class="site-footer__panel-title">{{ site_trans('footer.kibeho_sanctuary') }}</h2>
+                        <ul class="site-footer__facility-tags" role="list">
+                            <li>
+                                <a wire:navigate href="{{ localized_route('explore-kibeho') }}" class="site-footer__facility-tag">
+                                    {{ site_trans('footer.explore_sanctuary') }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="site-footer__amenities-block">

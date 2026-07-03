@@ -12,23 +12,15 @@ class Facility extends Model
     use HasPublicThumbnail;
     protected $table='facilities';
 
-    public const EXPLORE_KIBEHO_SLUG = 'explore-kibeho';
-
     protected $fillable = [
         'title',
         'slug',
         'description',
-        'official_website_url',
         'image',
         'cover_image',
         'status',
         'added_by',
     ];
-
-    public function isExploreKibehoSanctuary(): bool
-    {
-        return $this->slug === self::EXPLORE_KIBEHO_SLUG;
-    }
 
     public function images(){
         return $this->hasMany(Facilityimage::class);

@@ -174,11 +174,22 @@ if (! function_exists('site_locale')) {
 if (! function_exists('localized_route')) {
     function localized_route(string $name, array $parameters = [], bool $absolute = true): string
     {
+        $url = route($name, $parameters, $absolute);
+
         if (site_locale() === \App\Support\SiteLocale::FRENCH && translations_enabled()) {
-            $parameters = array_merge(['locale' => 'fr'], $parameters);
+            $path = parse_url($url, PHP_URL_PATH) ?: '/';
+            if (! str_starts_with(ltrim($path, '/'), 'fr/') && ltrim($path, '/') !== 'fr') {
+                $path = '/fr'.($path === '/' ? '' : $path);
+            }
+
+            if ($absolute) {
+                return url($path);
+            }
+
+            return $path;
         }
 
-        return route($name, $parameters, $absolute);
+        return $url;
     }
 }
 

@@ -22,7 +22,6 @@ class FacilityManagementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'official_website_url' => 'nullable|url|max:500',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
             'images.*' => admin_image_validation_rule(),
@@ -32,7 +31,6 @@ class FacilityManagementController extends Controller
         $facility->title = $request->title;
         $facility->slug = Str::slug($request->title);
         $facility->description = $request->description;
-        $facility->official_website_url = $request->official_website_url;
         $facility->status = $request->status;
         $facility->added_by = auth()->id();
 
@@ -60,7 +58,6 @@ class FacilityManagementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'official_website_url' => 'nullable|url|max:500',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
             'images.*' => admin_image_validation_rule(),
@@ -68,11 +65,8 @@ class FacilityManagementController extends Controller
 
         $facility = Facility::findOrFail($id);
         $facility->title = $request->title;
-        if ($facility->slug !== Facility::EXPLORE_KIBEHO_SLUG) {
-            $facility->slug = Str::slug($request->title);
-        }
+        $facility->slug = Str::slug($request->title);
         $facility->description = $request->description;
-        $facility->official_website_url = $request->official_website_url;
         $facility->status = $request->status;
 
         if ($request->hasFile('cover_image')) {

@@ -10,6 +10,7 @@ use App\Livewire\Public\BookNowPage;
 use App\Livewire\Public\ContactPage;
 use App\Livewire\Public\EventsPage;
 use App\Livewire\Public\MeetingRoomShowPage;
+use App\Livewire\Public\ExploreKibehoPage;
 use App\Livewire\Public\FacilitiesPage;
 use App\Livewire\Public\FacilityShowPage;
 use App\Livewire\Public\GalleryPage;
@@ -139,11 +140,13 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/attractions/{id}/update', [App\Http\Controllers\AttractionController::class, 'update'])->name('attractions.update');
     Route::delete('/attractions/{id}', [App\Http\Controllers\AttractionController::class, 'destroy'])->name('attractions.destroy');
 
-    Route::get('/sanctuary-events', [App\Http\Controllers\SanctuaryEventController::class, 'index'])->name('sanctuary-events.index');
-    Route::post('/sanctuary-events/store', [App\Http\Controllers\SanctuaryEventController::class, 'store'])->name('sanctuary-events.store');
-    Route::get('/sanctuary-events/{id}', [App\Http\Controllers\SanctuaryEventController::class, 'show'])->name('sanctuary-events.show');
-    Route::post('/sanctuary-events/{id}/update', [App\Http\Controllers\SanctuaryEventController::class, 'update'])->name('sanctuary-events.update');
-    Route::delete('/sanctuary-events/{id}', [App\Http\Controllers\SanctuaryEventController::class, 'destroy'])->name('sanctuary-events.destroy');
+    Route::get('/kibeho-page', [App\Http\Controllers\KibehoPageController::class, 'index'])->name('kibeho-page.index');
+    Route::post('/kibeho-page/update', [App\Http\Controllers\KibehoPageController::class, 'updatePage'])->name('kibeho-page.update');
+    Route::delete('/kibeho-page/images/{id}', [App\Http\Controllers\KibehoPageController::class, 'deleteImage'])->name('kibeho-page.images.destroy');
+    Route::post('/kibeho-page/events/store', [App\Http\Controllers\KibehoPageController::class, 'storeEvent'])->name('kibeho-page.events.store');
+    Route::get('/kibeho-page/events/{id}', [App\Http\Controllers\KibehoPageController::class, 'showEvent'])->name('kibeho-page.events.show');
+    Route::post('/kibeho-page/events/{id}/update', [App\Http\Controllers\KibehoPageController::class, 'updateEvent'])->name('kibeho-page.events.update');
+    Route::delete('/kibeho-page/events/{id}', [App\Http\Controllers\KibehoPageController::class, 'destroyEvent'])->name('kibeho-page.events.destroy');
     
     // Gallery
     Route::get('/gallery', ContentManagementGallery::class)->name('gallery');
@@ -348,43 +351,61 @@ Route::get('/locale/{locale}', [App\Http\Controllers\LocaleController::class, 's
     ->whereIn('locale', ['en', 'fr'])
     ->name('locale.switch');
 
-Route::middleware('set.locale')->prefix('{locale?}')->where(['locale' => 'fr'])->group(function () {
-Route::get('/', HomePage::class)->name('home');
-Route::get('/about-us', AboutPage::class)->name('about');
-Route::get('/our-services', OurServicesPage::class)->name('our-services');
-Route::get('/our-rooms', RoomsPage::class)->name('rooms');
-Route::get('/our-apartments', ApartmentsPage::class)->name('apartments');
-Route::get('/our-rooms/{slug}', RoomShowPage::class)->name('room');
-Route::get('/dining', RestaurantPage::class)->name('dining');
-Route::get('/our-team', OurTeamPage::class)->name('our-team');
-Route::get('/our-updates', UpdatesPage::class)->name('updates');
-Route::get('/our-updates/{slug}', BlogPostPage::class)->name('update');
-Route::get('/tours', ToursPage::class)->name('tours');
-Route::get('/tour/{slug}', TourShowPage::class)->name('tour');
-Route::get('/gallery', GalleryPage::class)->name('gallery');
-Route::get('/contact', ContactPage::class)->name('contact');
-Route::get('/promotions', PromotionsPage::class)->name('promotions');
-Route::get('/apartment', ApartmentLandingPage::class)->name('apartment');
-Route::get('/guesthouse', GuesthousePage::class)->name('guesthouse');
-Route::get('/facilities', FacilitiesPage::class)->name('facilities');
-Route::get('/facilities/{slug}', FacilityShowPage::class)->name('facility');
-Route::get('/activities', ActivitiesPage::class)->name('activities');
-Route::get('/activities/{slug}', ActivityShowPage::class)->name('activity');
-Route::get('/meetings-events', EventsPage::class)->name('meetings-events');
-Route::get('/meetings-events/{slug}', MeetingRoomShowPage::class)
-    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
-    ->name('meetings-events.room');
-Route::get('/spa-wellness', SpaWellnessPage::class)->name('spa-wellness');
-Route::get('/terms-and-conditions', TermsPage::class)->name('terms');
+Route::redirect('/facilities/explore-kibeho', '/explore-kibeho', 301);
+Route::redirect('/fr/facilities/explore-kibeho', '/fr/explore-kibeho', 301);
 
-Route::get('/reviews', ReviewsPage::class)->name('reviews');
-Route::get('/reviews/{id}', ReviewShowPage::class)->name('review');
+$registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
+    $named = static function ($route, string $routeName) use ($nameRoutes) {
+        if ($nameRoutes) {
+            $route->name($routeName);
+        }
 
-Route::view('/handover', 'frontend.handover')->name('handover');
+        return $route;
+    };
 
-Route::get('/book-now', BookNowPage::class)->name('connect');
+    $named(Route::get('/', HomePage::class), 'home');
+    $named(Route::get('/about-us', AboutPage::class), 'about');
+    $named(Route::get('/our-services', OurServicesPage::class), 'our-services');
+    $named(Route::get('/our-rooms', RoomsPage::class), 'rooms');
+    $named(Route::get('/our-apartments', ApartmentsPage::class), 'apartments');
+    $named(Route::get('/our-rooms/{slug}', RoomShowPage::class), 'room');
+    $named(Route::get('/dining', RestaurantPage::class), 'dining');
+    $named(Route::get('/our-team', OurTeamPage::class), 'our-team');
+    $named(Route::get('/our-updates', UpdatesPage::class), 'updates');
+    $named(Route::get('/our-updates/{slug}', BlogPostPage::class), 'update');
+    $named(Route::get('/tours', ToursPage::class), 'tours');
+    $named(Route::get('/tour/{slug}', TourShowPage::class), 'tour');
+    $named(Route::get('/gallery', GalleryPage::class), 'gallery');
+    $named(Route::get('/contact', ContactPage::class), 'contact');
+    $named(Route::get('/promotions', PromotionsPage::class), 'promotions');
+    $named(Route::get('/apartment', ApartmentLandingPage::class), 'apartment');
+    $named(Route::get('/guesthouse', GuesthousePage::class), 'guesthouse');
+    $named(Route::get('/facilities', FacilitiesPage::class), 'facilities');
+    $named(Route::get('/facilities/{slug}', FacilityShowPage::class), 'facility');
+    $named(Route::get('/explore-kibeho', ExploreKibehoPage::class), 'explore-kibeho');
+    $named(Route::get('/activities', ActivitiesPage::class), 'activities');
+    $named(Route::get('/activities/{slug}', ActivityShowPage::class), 'activity');
+    $named(Route::get('/meetings-events', EventsPage::class), 'meetings-events');
+    $named(
+        Route::get('/meetings-events/{slug}', MeetingRoomShowPage::class)
+            ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*'),
+        'meetings-events.room'
+    );
+    $named(Route::get('/spa-wellness', SpaWellnessPage::class), 'spa-wellness');
+    $named(Route::get('/terms-and-conditions', TermsPage::class), 'terms');
+    $named(Route::get('/reviews', ReviewsPage::class), 'reviews');
+    $named(Route::get('/reviews/{id}', ReviewShowPage::class), 'review');
+    $named(Route::view('/handover', 'frontend.handover'), 'handover');
+    $named(Route::get('/book-now', BookNowPage::class), 'connect');
+    $named(Route::post('/enquiry', [App\Http\Controllers\HomeController::class, 'sendMessage']), 'enquiry.submit');
+};
 
-Route::post('/enquiry', [App\Http\Controllers\HomeController::class, 'sendMessage'])->name('enquiry.submit');
+Route::middleware('set.locale')->group(function () use ($registerPublicSiteRoutes) {
+    $registerPublicSiteRoutes(true);
+});
+
+Route::middleware('set.locale')->prefix('fr')->group(function () use ($registerPublicSiteRoutes) {
+    $registerPublicSiteRoutes(false);
 });
 
 Route::get('/admin/login', [App\Http\Controllers\HomeController::class, 'adminLogin'])->name('adminLogin');

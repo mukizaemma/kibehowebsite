@@ -8,6 +8,7 @@ use App\Models\BlogComment;
 use App\Models\Category;
 use App\Models\Eventpage;
 use App\Models\Facility;
+use App\Models\KibehoPage;
 use App\Models\MeetingRoom;
 use App\Models\Gallery;
 use App\Services\AggregatedGalleryService;
@@ -200,13 +201,9 @@ class PublicWebsiteData
         return $data;
     }
 
-    public static function exploreSanctuary(): array
+    public static function exploreKibeho(): array
     {
-        $facility = Facility::with('images')
-            ->where('slug', Facility::EXPLORE_KIBEHO_SLUG)
-            ->firstOrFail();
-
-        $images = $facility->images;
+        $kibehoPage = KibehoPage::current()->load('images');
         $facilities = Facility::oldest()->get();
         $setting = Setting::first();
         $about = About::first();
@@ -217,17 +214,17 @@ class PublicWebsiteData
             ->ordered()
             ->get();
 
-        $facilityImages = collect();
-        if ($facility->cover_image) {
-            $facilityImages->push((object) [
-                'url' => asset('storage/' . $facility->cover_image),
-                'caption' => $facility->title,
+        $pageImages = collect();
+        if ($kibehoPage->cover_image) {
+            $pageImages->push((object) [
+                'url' => asset('storage/' . $kibehoPage->cover_image),
+                'caption' => $kibehoPage->title,
             ]);
         }
-        foreach ($images as $img) {
-            $facilityImages->push((object) [
+        foreach ($kibehoPage->images as $img) {
+            $pageImages->push((object) [
                 'url' => asset('storage/' . $img->image),
-                'caption' => $facility->title,
+                'caption' => $img->caption ?: $kibehoPage->title,
             ]);
         }
 
@@ -244,19 +241,19 @@ class PublicWebsiteData
                 'caption' => $item->caption ?: $item->category,
             ]);
 
-        $allGalleryImages = $facilityImages->concat($galleryImages)->unique('url')->values();
+        $allGalleryImages = $pageImages->concat($galleryImages)->unique('url')->values();
 
         return [
-            'facility' => $facility,
-            'images' => $images,
+            'kibehoPage' => $kibehoPage,
+            'facility' => $kibehoPage,
             'facilities' => $facilities,
             'setting' => $setting,
             'about' => $about,
             'pageHero' => $pageHero,
             'sanctuaryEvents' => $sanctuaryEvents,
             'sanctuaryGallery' => $allGalleryImages,
-            'officialWebsiteUrl' => filled(trim((string) $facility->official_website_url))
-                ? trim((string) $facility->official_website_url)
+            'officialWebsiteUrl' => filled(trim((string) $kibehoPage->official_website_url))
+                ? trim((string) $kibehoPage->official_website_url)
                 : null,
         ];
     }

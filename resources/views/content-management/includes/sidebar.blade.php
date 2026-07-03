@@ -42,8 +42,8 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
             <a href="{{ route('content-management.facilities') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.facilities') ? 'active' : '' }}">
                 <i class="fas fa-building me-2"></i>Facilities
             </a>
-            <a href="{{ route('content-management.sanctuary-events.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.sanctuary-events') ? 'active' : '' }}">
-                <i class="fas fa-church me-2"></i>Sanctuary events
+            <a href="{{ route('content-management.kibeho-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.kibeho-page') ? 'active' : '' }}">
+                <i class="fas fa-church me-2"></i>Kibeho page
             </a>
             <a href="{{ route('resto') }}" class="nav-item nav-link {{ $isDiningAdmin ? 'active' : '' }}">
                 <i class="fas fa-utensils me-2"></i>Dining page

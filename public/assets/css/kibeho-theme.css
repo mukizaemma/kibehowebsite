@@ -1369,3 +1369,240 @@ a.text-primary {
     font-weight: 500;
 }
 
+/* Footer language switcher — same pill style as header */
+.site-footer__lang-wrap {
+    margin-top: 1.1rem;
+}
+
+.site-lang-switcher--footer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(184, 149, 106, 0.45);
+    border-radius: 999px;
+    padding: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
+.site-lang-switcher--footer .site-lang-switcher__btn {
+    color: rgba(244, 240, 232, 0.92);
+    text-decoration: none;
+    padding: 5px 11px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.site-lang-switcher--footer .site-lang-switcher__btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.site-lang-switcher--footer .site-lang-switcher__btn.is-active {
+    background: var(--brand-accent, #b8956a);
+    color: #1a2e26;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.site-lang-switcher--footer .site-lang-switcher__sep {
+    display: none;
+}
+
+/* Explore Kibeho Sanctuary page */
+.explore-sanctuary-hero {
+    position: relative;
+    background-size: cover !important;
+    background-position: center !important;
+}
+
+.explore-sanctuary-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12, 28, 22, 0.45) 0%, rgba(12, 28, 22, 0.72) 100%);
+}
+
+.explore-sanctuary-hero__content {
+    position: relative;
+    z-index: 1;
+}
+
+.explore-sanctuary-hero__eyebrow,
+.explore-sanctuary-section__eyebrow {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-accent, #b8956a);
+    margin-bottom: 0.65rem;
+}
+
+.explore-sanctuary-hero__cta {
+    margin-top: 1.5rem;
+}
+
+.explore-sanctuary-section__title {
+    color: var(--brand-primary, #1b4d3e);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.explore-sanctuary-section__lead {
+    max-width: 36rem;
+    color: #5a6b64;
+    margin-bottom: 0;
+}
+
+.explore-sanctuary-intro__prose {
+    color: #3d4f48;
+    line-height: 1.75;
+}
+
+.explore-sanctuary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.35rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.explore-sanctuary-btn--gold {
+    background: linear-gradient(135deg, #c9a66b 0%, #b8956a 100%);
+    color: #1a2e26;
+    border: none;
+    box-shadow: 0 8px 24px rgba(184, 149, 106, 0.35);
+}
+
+.explore-sanctuary-btn--gold:hover {
+    color: #0f1f19;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(184, 149, 106, 0.42);
+}
+
+.explore-sanctuary-btn--outline {
+    border: 1px solid rgba(27, 77, 62, 0.25);
+    color: var(--brand-primary, #1b4d3e);
+    background: #fff;
+}
+
+.explore-sanctuary-btn--outline:hover {
+    background: rgba(27, 77, 62, 0.06);
+    color: var(--brand-primary, #1b4d3e);
+}
+
+.explore-sanctuary-events {
+    background: linear-gradient(180deg, #f8faf8 0%, #fff 100%);
+}
+
+.explore-sanctuary-event-card {
+    background: #fff;
+    border: 1px solid rgba(27, 77, 62, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(27, 77, 62, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.explore-sanctuary-event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(27, 77, 62, 0.12);
+}
+
+.explore-sanctuary-event-card__media img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.explore-sanctuary-event-card__body {
+    padding: 1.25rem 1.35rem 1.35rem;
+}
+
+.explore-sanctuary-event-card__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--brand-accent, #b8956a);
+    margin-bottom: 0.5rem;
+}
+
+.explore-sanctuary-event-card__title {
+    font-size: 1.1rem;
+    color: var(--brand-primary, #1b4d3e);
+    margin-bottom: 0.5rem;
+}
+
+.explore-sanctuary-event-card__text {
+    color: #5a6b64;
+    font-size: 0.92rem;
+    margin-bottom: 0.75rem;
+}
+
+.explore-sanctuary-event-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--brand-primary, #1b4d3e);
+    text-decoration: none;
+}
+
+.explore-sanctuary-gallery__item {
+    aspect-ratio: 4 / 3;
+    box-shadow: 0 10px 24px rgba(27, 77, 62, 0.1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.explore-sanctuary-gallery__item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(27, 77, 62, 0.14);
+}
+
+.explore-sanctuary-gallery__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.explore-sanctuary-cta__card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(27, 77, 62, 0.96) 0%, rgba(18, 53, 40, 0.98) 100%);
+    color: #f4f7f5;
+    box-shadow: 0 18px 48px rgba(18, 53, 40, 0.22);
+}
+
+.explore-sanctuary-cta__icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(184, 149, 106, 0.2);
+    color: #d4af7a;
+    font-size: 1.35rem;
+}
+
+.explore-sanctuary-cta__title {
+    color: #fff;
+    margin-bottom: 0.65rem;
+}
+
+.explore-sanctuary-cta__lead {
+    max-width: 32rem;
+    margin: 0 auto 1.35rem;
+    color: rgba(244, 247, 245, 0.88);
+}

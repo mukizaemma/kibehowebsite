@@ -18,10 +18,6 @@ class FacilityShowPage extends Component
 
     public function render()
     {
-        if ($this->slug === \App\Models\Facility::EXPLORE_KIBEHO_SLUG) {
-            return view('frontend.explore-sanctuary', PublicWebsiteData::exploreSanctuary());
-        }
-
         return view('frontend.facility', PublicWebsiteData::facility($this->slug));
     }
 }

@@ -1,5 +1,8 @@
 @if(translations_enabled())
-<div class="site-lang-switcher d-flex align-items-center gap-1" aria-label="{{ site_trans('common.language') }}">
+@php
+    $switcherClass = trim('site-lang-switcher ' . ($variant ?? ''));
+@endphp
+<div class="{{ $switcherClass }} d-flex align-items-center gap-1" aria-label="{{ site_trans('common.language') }}">
     <a href="{{ locale_switch_url('en') }}"
        class="site-lang-switcher__btn {{ site_locale() === 'en' ? 'is-active' : '' }}"
        hreflang="en"
