@@ -46,6 +46,9 @@ use App\Livewire\Account\AccountPassword;
 use App\Livewire\Account\AccountProfile;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/robots.txt', [App\Http\Controllers\SeoController::class, 'robots']);
+Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap']);
+
 // ============================================
 // CONTENT MANAGEMENT DASHBOARD ROUTES
 // Access: Super Admin (role_id=1) & Content Manager (role_id=2)
@@ -66,10 +69,10 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/terms-conditions/update', [App\Http\Controllers\ContentManagementController::class, 'updateTermsConditions'])->name('terms.update');
     
     // SEO Data
-    Route::redirect('/seo-data', '/setting#seo-pages')->name('seo');
-    Route::get('/seo-data/{id}', [App\Http\Controllers\ContentManagementController::class, 'showSeoData'])->name('seo.show');
-    Route::post('/seo-data/update', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.update');
-    Route::post('/seo-data/store', [App\Http\Controllers\ContentManagementController::class, 'updateSeoData'])->name('seo.store');
+    Route::redirect('/seo-data', '/setting#seo')->name('seo');
+    Route::redirect('/seo-data/{id}', '/setting#seo');
+    Route::redirect('/seo-data/update', '/setting#seo');
+    Route::redirect('/seo-data/store', '/setting#seo');
     
     // System Users: only admin@iremetech.com — UI lives under Settings → Users tab.
     Route::get('/users', function () {

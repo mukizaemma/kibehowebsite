@@ -9,7 +9,6 @@ use App\Models\Aboutus;
 use App\Models\Setting;
 use App\Models\TermsCondition;
 use App\Models\HotelContact;
-use App\Models\SeoData;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Getinvolved;
@@ -38,7 +37,6 @@ class SettingsController extends Controller
         $about = About::first();
         $terms = TermsCondition::first();
         $contact = HotelContact::firstOrNew([]);
-        $seoData = SeoData::all();
 
         $canEditDelivery = Auth::check()
             && strtolower((string) Auth::user()->email) === 'admin@iremetech.com';
@@ -63,7 +61,6 @@ class SettingsController extends Controller
             'about',
             'terms',
             'contact',
-            'seoData',
             'canEditDelivery',
             'canManageUsers',
             'isManager',
@@ -286,18 +283,30 @@ class SettingsController extends Controller
     }
 
     /**
-     * Update only the header SEO keywords (used in meta name="keywords").
+     * Update site-wide SEO settings (keywords, description, verification).
      */
     public function updateKeywords(Request $request)
     {
-        $request->validate(['keywords' => 'nullable|string']);
+        $request->validate([
+            'keywords' => 'nullable|string',
+            'meta_description' => 'nullable|string|max:2000',
+            'google_site_verification' => 'nullable|string|max:128',
+        ]);
+
         $setting = Setting::first();
-        if (!$setting) {
+        if (! $setting) {
             return redirect()->back()->with('error', 'No settings record found.');
         }
+
         $setting->keywords = $request->input('keywords', '');
+        $setting->meta_description = $request->input('meta_description');
+        $verification = trim((string) $request->input('google_site_verification', ''));
+        $setting->google_site_verification = $verification !== '' ? $verification : null;
         $setting->save();
-        return redirect()->back()->with('success', 'Header keywords updated successfully.');
+
+        \Illuminate\Support\Facades\Cache::forget('seo.sitemap.xml');
+
+        return redirect()->back()->with('success', 'SEO settings updated successfully.');
     }
 
     public function updateTranslationsToggle(Request $request)

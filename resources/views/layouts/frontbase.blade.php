@@ -5,23 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="description" content="{{$setting?->company ?? ''}}">
+    <meta name="description" content="@yield('meta_description', site_meta_description($setting))">
     <meta name="keywords" content="{{$setting?->keywords ?? ''}}">
     <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- for open graph social media -->
-    <meta property="og:title" content="{{$setting?->company ?? ''}}">
-    <meta property="og:description" content="{{$setting?->company ?? ''}}">
-    <!-- for twitter sharing -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{$setting?->company ?? ''}}">
-    <meta name="twitter:description" content="{{$setting?->company ?? ''}}">
-    <!-- favicon -->
     @php
         $brandLogoFallback = asset('assets/images/brand/kibeho-magnificat-logo.png');
         $headerLogoUrl = filled(trim((string) ($setting?->logo ?? '')))
@@ -31,9 +24,26 @@
             ? asset('storage/images') . $setting->donate
             : $brandLogoFallback;
     @endphp
+    <!-- for open graph social media -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $setting?->company ?? config('app.name') }}">
+    <meta property="og:title" content="@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif">
+    <meta property="og:description" content="@yield('meta_description', site_meta_description($setting))">
+    <meta property="og:url" content="@yield('canonical_url', url()->current())">
+    <meta property="og:image" content="@yield('og_image', $headerLogoUrl)">
+    <meta property="og:locale" content="{{ site_locale() === 'fr' ? 'fr_RW' : 'en_RW' }}">
+    <!-- for twitter sharing -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif">
+    <meta name="twitter:description" content="@yield('meta_description', site_meta_description($setting))">
+    <meta name="twitter:image" content="@yield('og_image', $headerLogoUrl)">
+    @if(filled($setting?->google_site_verification))
+    <meta name="google-site-verification" content="{{ $setting->google_site_verification }}">
+    @endif
     <link rel="icon" href="{{ $headerLogoUrl }}" type="image/png">
     <!-- title -->
     <title>@hasSection('document_title')@yield('document_title')@else{{ $setting?->company ?? '' }}@endif</title>
+    <script type="application/ld+json">@json(site_hotel_schema($setting))</script>
     @stack('head')
     @if(translations_enabled())
         @php

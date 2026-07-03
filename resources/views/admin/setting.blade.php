@@ -51,10 +51,7 @@
                 <a class="nav-link" data-bs-toggle="tab" href="#tab-terms">Terms &amp; Conditions</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO Keywords</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#seo-pages">SEO Pages</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO &amp; discovery</a>
             </li>
             @if(!empty($canManageUsers))
             <li class="nav-item">
@@ -660,26 +657,54 @@
             </div>
             @endif
 
-            {{-- Tab: SEO by page --}}
-            <div id="seo-pages" class="tab-pane fade">
-                @include('content-management.seo.panel', ['seoData' => $seoData])
-            </div>
-
-            {{-- Tab 3: SEO Keywords — one card, one form (only keywords textarea) --}}
+            {{-- SEO & discovery --}}
             <div id="seo" class="tab-pane fade">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-1">Search engine files</h5>
+                        <p class="text-muted small mb-0">Generated automatically from your public pages and active content.</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <a href="{{ url('/sitemap.xml') }}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                                <i class="fa fa-sitemap me-1"></i> View sitemap.xml
+                            </a>
+                            <a href="{{ url('/robots.txt') }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+                                <i class="fa fa-robot me-1"></i> View robots.txt
+                            </a>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            Submit <code>{{ url('/sitemap.xml') }}</code> in
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console</a>
+                            and Bing Webmaster Tools after launch. The sitemap includes rooms, updates, tours, activities, facilities, and both English/French URLs when translations are enabled.
+                        </p>
+                    </div>
+                </div>
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
-                        <h5 class="mb-1">SEO Keywords</h5>
-                        <p class="text-muted small mb-0">Keywords used in the site header meta tag. Separate with commas.</p>
+                        <h5 class="mb-1">Site-wide SEO defaults</h5>
+                        <p class="text-muted small mb-0">Used in page meta tags and social previews unless a page overrides them.</p>
                     </div>
                         <form action="{{ route('setting.keywords.update') }}" method="POST">
                             @csrf
                     <div class="card-body border-bottom-0 pb-4">
-                            <label class="form-label" for="seoKeywords">Header keywords</label>
-                            <textarea class="form-control" name="keywords" rows="8" id="seoKeywords" placeholder="keyword1, keyword2, keyword3">{{ $data->keywords ?? '' }}</textarea>
+                            <div class="mb-3">
+                                <label class="form-label" for="seoMetaDescription">Meta description</label>
+                                <textarea class="form-control" name="meta_description" rows="3" id="seoMetaDescription" maxlength="2000" placeholder="A short summary of your hotel for Google and social sharing (150–320 characters recommended).">{{ old('meta_description', $data->meta_description ?? '') }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="seoKeywords">Meta keywords</label>
+                                <textarea class="form-control" name="keywords" rows="4" id="seoKeywords" placeholder="keyword1, keyword2, keyword3">{{ $data->keywords ?? '' }}</textarea>
+                                <p class="text-muted small mt-1 mb-0">Optional. Separate with commas.</p>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label" for="googleSiteVerification">Google Search Console verification</label>
+                                <input type="text" class="form-control font-monospace" name="google_site_verification" id="googleSiteVerification" value="{{ old('google_site_verification', $data->google_site_verification ?? '') }}" maxlength="128" placeholder="content value from the HTML meta tag">
+                                <p class="text-muted small mt-1 mb-0">Paste only the <code>content</code> value from Google’s HTML-tag verification method.</p>
+                            </div>
                     </div>
                     <div class="card-footer bg-light border-top py-3 d-flex justify-content-end gap-2 flex-wrap">
-                                <button type="submit" class="btn btn-primary">Save keywords</button>
+                                <button type="submit" class="btn btn-primary">Save SEO settings</button>
                     </div>
                         </form>
                 </div>
@@ -780,6 +805,12 @@ jQuery(function ($) {
 
     (function activateSettingsTabFromHash() {
         var hash = window.location.hash;
+        if (hash === '#seo-pages') {
+            hash = '#seo';
+            if (window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search + hash);
+            }
+        }
         if (!hash) {
             return;
         }

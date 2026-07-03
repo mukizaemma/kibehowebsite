@@ -54,6 +54,85 @@ if (! function_exists('hotel_reservation_url')) {
     }
 }
 
+if (! function_exists('site_meta_description')) {
+    function site_meta_description(?object $setting = null): string
+    {
+        $setting = $setting ?? \App\Models\Setting::first();
+        $description = trim((string) ($setting?->meta_description ?? ''));
+        if ($description !== '') {
+            return \Illuminate\Support\Str::limit($description, 320);
+        }
+
+        $quote = trim(strip_tags((string) ($setting?->quote ?? '')));
+        if ($quote !== '') {
+            return \Illuminate\Support\Str::limit($quote, 320);
+        }
+
+        return trim((string) ($setting?->company ?? ''));
+    }
+}
+
+if (! function_exists('site_hotel_schema')) {
+    /**
+     * @return array<string, mixed>
+     */
+    function site_hotel_schema(?object $setting = null): array
+    {
+        $setting = $setting ?? \App\Models\Setting::first();
+        $contact = \App\Models\HotelContact::first();
+        $logoPath = trim((string) ($setting?->logo ?? ''));
+        $logoUrl = $logoPath !== ''
+            ? asset('storage/images'.$logoPath)
+            : asset('assets/images/brand/kibeho-magnificat-logo.png');
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Hotel',
+            'name' => $setting?->company ?: config('app.name'),
+            'url' => url('/'),
+            'image' => $logoUrl,
+            'logo' => $logoUrl,
+        ];
+
+        $address = trim((string) ($setting?->address ?? $contact?->address ?? ''));
+        if ($address !== '') {
+            $schema['address'] = [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $address,
+                'addressLocality' => $contact?->city ?? null,
+                'addressCountry' => $contact?->country ?? 'RW',
+            ];
+        }
+
+        $phone = hotel_public_phone($setting);
+        if ($phone) {
+            $schema['telephone'] = $phone;
+        }
+
+        $email = trim((string) ($setting?->email ?? $contact?->email ?? ''));
+        if ($email !== '') {
+            $schema['email'] = $email;
+        }
+
+        if (! empty($setting?->star_rating)) {
+            $schema['starRating'] = [
+                '@type' => 'Rating',
+                'ratingValue' => (int) $setting->star_rating,
+            ];
+        }
+
+        $reservationUrl = hotel_reservation_url_configured($setting);
+        if ($reservationUrl) {
+            $schema['potentialAction'] = [
+                '@type' => 'ReserveAction',
+                'target' => $reservationUrl,
+            ];
+        }
+
+        return array_filter($schema, fn ($value) => $value !== null && $value !== '');
+    }
+}
+
 if (! function_exists('slideshow_cta_label')) {
     function slideshow_cta_label(?object $setting = null): string
     {
