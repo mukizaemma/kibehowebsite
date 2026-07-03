@@ -127,7 +127,9 @@ function resetForm() {
     document.getElementById('facilityFormErrors').innerHTML = '';
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     // Reset Summernote
-    $('#facility_description').summernote('code', '');
+    if (window.CmsSummernote) {
+        CmsSummernote.setCode('#facility_description', '');
+    }
     document.getElementById('facility_images').value = '';
     hideFacilityEditGallery();
 }
@@ -176,7 +178,9 @@ function editFacility(id) {
             document.getElementById('facility_id').value = data.id;
             document.getElementById('facility_title').value = data.title;
             // Set Summernote content
-            $('#facility_description').summernote('code', data.description || '');
+            if (window.CmsSummernote) {
+                CmsSummernote.setCode('#facility_description', data.description || '');
+            }
             document.getElementById('facility_status').value = data.status;
             document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
             document.getElementById('facility_images').value = '';
@@ -223,6 +227,9 @@ document.getElementById('facilityForm').addEventListener('submit', function(e) {
     spinner.classList.remove('d-none');
     
     const formData = new FormData(form);
+    if (window.CmsSummernote) {
+        CmsSummernote.syncFormData(formData, '#facility_description');
+    }
     const url = currentFacilityId 
         ? `{{ route('content-management.facilities.update', ':id') }}`.replace(':id', currentFacilityId)
         : '{{ route('content-management.facilities.store') }}';
@@ -378,20 +385,15 @@ function addFacilityImages() {
     });
 }
 
-// Initialize Summernote for description
-$(document).ready(function() {
-    $('#facility_description').summernote({
-        height: 200,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture']],
-            ['view', ['fullscreen', 'codeview']]
-        ]
-    });
+</script>
+
+@push('scripts')
+<script>
+jQuery(function () {
+    CmsSummernote.initInModal('#facilityModal', '#facility_description', { height: 200 });
 });
 </script>
+@endpush
 
 <!-- View Facility Modal -->
 <div class="modal fade" id="viewFacilityModal" tabindex="-1">

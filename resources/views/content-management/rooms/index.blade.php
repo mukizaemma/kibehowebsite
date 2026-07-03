@@ -190,8 +190,8 @@ function resetForm() {
     document.querySelectorAll('input[name="amenities[]"]').forEach(cb => cb.checked = false);
     document.getElementById('room_status').value = 'Active';
     // Reset Summernote
-    if ($('#room_description').summernote('code') !== undefined) {
-        $('#room_description').summernote('code', '');
+    if (window.CmsSummernote) {
+        CmsSummernote.setCode('#room_description', '');
     }
 }
 
@@ -203,7 +203,9 @@ function editRoom(id) {
             document.getElementById('room_id').value = data.id;
             document.getElementById('room_title').value = data.title;
             // Set Summernote content properly
-            $('#room_description').summernote('code', data.description || '');
+            if (window.CmsSummernote) {
+                CmsSummernote.setCode('#room_description', data.description || '');
+            }
             document.getElementById('room_price').value = data.price ?? '';
             document.getElementById('room_status').value = data.status || 'Active';
             
@@ -259,6 +261,9 @@ document.getElementById('roomForm').addEventListener('submit', function(e) {
     spinner.classList.remove('d-none');
     
     const formData = new FormData(form);
+    if (window.CmsSummernote) {
+        CmsSummernote.syncFormData(formData, '#room_description');
+    }
     const url = currentRoomId 
         ? `{{ route('content-management.rooms.update', ':id') }}`.replace(':id', currentRoomId)
         : '{{ route('content-management.rooms.store') }}';
@@ -404,80 +409,44 @@ function addRoomImages() {
     });
 }
 
-// Initialize Summernote for description
-$(document).ready(function() {
-    // Initialize Summernote when modal is shown to ensure proper display
-    $('#roomModal').on('shown.bs.modal', function() {
-        if (!$('#room_description').next('.note-editor').length) {
-            $('#room_description').summernote({
-                height: 300,
-                minHeight: 200,
-                maxHeight: 500,
-                focus: false,
-                placeholder: 'Enter room description...',
-                dialogsInBody: true,
-                dialogsFade: true,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['fontsize', ['fontsize']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph', 'height']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video', 'hr']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Gilda Display', 'Jost'],
-                fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '24', '36', '48'],
-                callbacks: {
-                    onInit: function() {
-                        // Ensure proper styling
-                        $('.note-editor').css({
-                            'border': '1px solid #ced4da',
-                            'border-radius': '0.375rem'
-                        });
-                    }
-                }
-            });
-        }
-    });
-    
-    // Also initialize if modal is already open
-    if ($('#roomModal').hasClass('show')) {
-        $('#room_description').summernote({
-            height: 300,
-            minHeight: 200,
-            maxHeight: 500,
-            focus: false,
-            placeholder: 'Enter room description...',
-            dialogsInBody: true,
-            dialogsFade: true,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
-                ['fontname', ['fontname']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph', 'height']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video', 'hr']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ],
-            fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Gilda Display', 'Jost'],
-            fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '24', '36', '48'],
-            callbacks: {
-                onInit: function() {
-                    $('.note-editor').css({
-                        'border': '1px solid #ced4da',
-                        'border-radius': '0.375rem'
-                    });
-                }
+</script>
+
+@push('scripts')
+<script>
+jQuery(function () {
+    var roomEditorOptions = {
+        height: 300,
+        minHeight: 200,
+        maxHeight: 500,
+        focus: false,
+        placeholder: 'Enter room description...',
+        dialogsFade: true,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+            ['fontname', ['fontname']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph', 'height']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video', 'hr']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Gilda Display', 'Jost'],
+        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '24', '36', '48'],
+        callbacks: {
+            onInit: function () {
+                jQuery('.note-editor').css({
+                    border: '1px solid #ced4da',
+                    'border-radius': '0.375rem'
+                });
             }
-        });
-    }
+        }
+    };
+    CmsSummernote.initInModal('#roomModal', '#room_description', roomEditorOptions);
 });
 </script>
+@endpush
 
 <!-- View Room Modal -->
 <div class="modal fade" id="viewRoomModal" tabindex="-1">

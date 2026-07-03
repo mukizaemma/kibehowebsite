@@ -104,6 +104,9 @@ function resetForm() {
     document.getElementById('activityForm').reset();
     document.getElementById('activity_id').value = '';
     document.getElementById('activityModalTitle').textContent = 'Add New Tour Activity';
+    if (window.CmsSummernote) {
+        CmsSummernote.setCode('#activity_description', '');
+    }
 }
 
 function editActivity(id) {
@@ -113,7 +116,11 @@ function editActivity(id) {
             currentActivityId = id;
             document.getElementById('activity_id').value = data.id;
             document.getElementById('activity_title').value = data.title;
-            document.getElementById('activity_description').value = data.description || '';
+            if (window.CmsSummernote) {
+                CmsSummernote.setCode('#activity_description', data.description || '');
+            } else {
+                document.getElementById('activity_description').value = data.description || '';
+            }
             document.getElementById('activity_status').value = data.status;
             document.getElementById('activityModalTitle').textContent = 'Edit Tour Activity';
             new bootstrap.Modal(document.getElementById('activityModal')).show();
@@ -141,6 +148,9 @@ function deleteActivity(id) {
 document.getElementById('activityForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
+    if (window.CmsSummernote) {
+        CmsSummernote.syncFormData(formData, '#activity_description');
+    }
     const url = currentActivityId 
         ? `{{ route('content-management.tour-activities.update', ':id') }}`.replace(':id', currentActivityId)
         : '{{ route('content-management.tour-activities.store') }}';
@@ -173,18 +183,13 @@ document.getElementById('activityForm').addEventListener('submit', function(e) {
     });
 });
 
-// Initialize Summernote for description
-$(document).ready(function() {
-    $('#activity_description').summernote({
-        height: 200,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture']],
-            ['view', ['fullscreen', 'codeview']]
-        ]
-    });
+</script>
+
+@push('scripts')
+<script>
+jQuery(function () {
+    CmsSummernote.initInModal('#activityModal', '#activity_description', { height: 200 });
 });
 </script>
+@endpush
 </div>

@@ -8,7 +8,9 @@ use App\Models\BlogComment;
 use App\Models\Category;
 use App\Models\Eventpage;
 use App\Models\Facility;
+use App\Models\GikongoroDiocesePage;
 use App\Models\KibehoPage;
+use App\Models\NyaruguruPage;
 use App\Models\MeetingRoom;
 use App\Models\Gallery;
 use App\Services\AggregatedGalleryService;
@@ -248,6 +250,82 @@ class PublicWebsiteData
             'officialWebsiteUrl' => filled(trim((string) $kibehoPage->official_website_url))
                 ? trim((string) $kibehoPage->official_website_url)
                 : null,
+        ];
+    }
+
+    public static function gikongoroDiocese(): array
+    {
+        $diocesePage = GikongoroDiocesePage::current();
+        $facilities = Facility::oldest()->get();
+        $setting = Setting::first();
+        $about = About::first();
+        $pageHero = PageHero::getBySlug('discover-gikongoro-diocese');
+
+        $dioceseStats = \App\Models\GikongoroDioceseStat::query()
+            ->active()
+            ->ordered()
+            ->get();
+
+        return [
+            'diocesePage' => $diocesePage,
+            'facilities' => $facilities,
+            'setting' => $setting,
+            'about' => $about,
+            'pageHero' => $pageHero,
+            'dioceseStats' => $dioceseStats,
+        ];
+    }
+
+    public static function discoverNyaruguru(): array
+    {
+        $nyaruguruPage = NyaruguruPage::current()->load('images');
+        $facilities = Facility::oldest()->get();
+        $setting = Setting::first();
+        $about = About::first();
+        $pageHero = PageHero::getBySlug('discover-nyaruguru');
+
+        $nyaruguruActivities = \App\Models\NyaruguruActivity::query()
+            ->active()
+            ->ordered()
+            ->get();
+
+        $pageImages = collect();
+        if ($nyaruguruPage->cover_image) {
+            $pageImages->push((object) [
+                'url' => asset('storage/' . $nyaruguruPage->cover_image),
+                'caption' => $nyaruguruPage->title,
+            ]);
+        }
+        foreach ($nyaruguruPage->images as $img) {
+            $pageImages->push((object) [
+                'url' => asset('storage/' . $img->image),
+                'caption' => $img->caption ?: $nyaruguruPage->title,
+            ]);
+        }
+
+        $galleryImages = Gallery::query()
+            ->where(function ($query) {
+                $query->whereRaw('LOWER(category) = ?', ['nyaruguru'])
+                    ->orWhereRaw('LOWER(category) = ?', ['discover nyaruguru']);
+            })
+            ->where('media_type', 'image')
+            ->oldest()
+            ->get()
+            ->map(fn ($item) => (object) [
+                'url' => asset('storage/' . $item->image),
+                'caption' => $item->caption ?: $item->category,
+            ]);
+
+        $allGalleryImages = $pageImages->concat($galleryImages)->unique('url')->values();
+
+        return [
+            'nyaruguruPage' => $nyaruguruPage,
+            'facilities' => $facilities,
+            'setting' => $setting,
+            'about' => $about,
+            'pageHero' => $pageHero,
+            'nyaruguruActivities' => $nyaruguruActivities,
+            'nyaruguruGallery' => $allGalleryImages,
         ];
     }
 

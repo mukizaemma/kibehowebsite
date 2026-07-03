@@ -152,8 +152,8 @@ function resetForm() {
     document.getElementById('service_cover_image').required = true;
     // Remove invalid classes
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    if ($('#service_description').length && $('#service_description').summernote) {
-        $('#service_description').summernote('code', '');
+    if (window.CmsSummernote) {
+        CmsSummernote.setCode('#service_description', '');
     }
 }
 
@@ -164,8 +164,8 @@ function editService(id) {
             currentServiceId = id;
             document.getElementById('service_id').value = data.id;
             document.getElementById('service_title').value = data.title;
-            if ($('#service_description').length && $('#service_description').summernote) {
-                $('#service_description').summernote('code', data.description || '');
+            if (window.CmsSummernote) {
+                CmsSummernote.setCode('#service_description', data.description || '');
             } else {
                 document.getElementById('service_description').value = data.description || '';
             }
@@ -242,8 +242,8 @@ document.getElementById('serviceForm').addEventListener('submit', function(e) {
     spinner.classList.remove('d-none');
     
     const formData = new FormData(form);
-    if ($('#service_description').length && $('#service_description').summernote) {
-        formData.set('description', $('#service_description').summernote('code'));
+    if (window.CmsSummernote) {
+        CmsSummernote.syncFormData(formData, '#service_description');
     }
     const url = currentServiceId 
         ? `{{ route('content-management.services.update', ':id') }}`.replace(':id', currentServiceId)
@@ -358,18 +358,13 @@ function deleteGalleryImage(imageId) {
     });
 }
 
-// Initialize Summernote for description
-$(document).ready(function() {
-    $('#service_description').summernote({
-        height: 200,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture']],
-            ['view', ['fullscreen', 'codeview']]
-        ]
-    });
+</script>
+
+@push('scripts')
+<script>
+jQuery(function () {
+    CmsSummernote.initInModal('#serviceModal', '#service_description', { height: 200 });
 });
 </script>
+@endpush
 </div>

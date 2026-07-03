@@ -489,11 +489,12 @@
                                         <a wire:navigate.hover href="{{ localized_route('about') }}" class="navigation__menu--item__link">{{ site_trans('nav.about') }}</a>
                                         <ul class="submenu sub__style" role="menu">
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('about')}}#background">{{ site_trans('nav.our_history') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('terms')}}">{{ site_trans('nav.terms') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('contact')}}">{{ site_trans('nav.contacts') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('terms')}}">{{ site_trans('nav.terms') }}</a></li>
                                         </ul>
                                     </li>
 
@@ -759,11 +760,12 @@
                                     </a>
                                     <ul class="slide__menu">
                                         <li><a wire:navigate href="{{ localized_route('about') }}#background">{{ site_trans('nav.our_history') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('terms') }}">{{ site_trans('nav.terms') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
                                         <li><a wire:navigate href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('contact') }}">{{ site_trans('nav.contacts') }}</a></li>
                                         <li><a wire:navigate href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('terms') }}">{{ site_trans('nav.terms') }}</a></li>
                                     </ul>
                                 </li>
                                 <li class="slide has__children">

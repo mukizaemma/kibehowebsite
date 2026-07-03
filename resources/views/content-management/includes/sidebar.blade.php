@@ -39,11 +39,15 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-bed me-2"></i>Rooms
             </a>
 
-            <a href="{{ route('content-management.facilities') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.facilities') ? 'active' : '' }}">
-                <i class="fas fa-building me-2"></i>Facilities
-            </a>
+            {{-- Facilities hidden for now — manage via Kibeho page and public footer pills --}}
             <a href="{{ route('content-management.kibeho-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.kibeho-page') ? 'active' : '' }}">
                 <i class="fas fa-church me-2"></i>Kibeho page
+            </a>
+            <a href="{{ route('content-management.nyaruguru-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.nyaruguru-page') ? 'active' : '' }}">
+                <i class="fas fa-mountain me-2"></i>Nyaruguru page
+            </a>
+            <a href="{{ route('content-management.gikongoro-diocese-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.gikongoro-diocese-page') ? 'active' : '' }}">
+                <i class="fas fa-cross me-2"></i>Gikongoro Diocese
             </a>
             <a href="{{ route('resto') }}" class="nav-item nav-link {{ $isDiningAdmin ? 'active' : '' }}">
                 <i class="fas fa-utensils me-2"></i>Dining page

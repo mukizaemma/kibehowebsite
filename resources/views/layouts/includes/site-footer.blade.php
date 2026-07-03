@@ -67,15 +67,16 @@
         ['label' => site_trans('footer.amenity_meeting_rooms'), 'icon' => 'fa-solid fa-people-group'],
     ];
 
-    $footerExploreLinks = [
-        ['label' => site_trans('nav.home'), 'route' => 'home', 'icon' => 'fa-solid fa-house'],
-        ['label' => site_trans('nav.about'), 'route' => 'about', 'icon' => 'fa-solid fa-book-open'],
-        ['label' => site_trans('nav.rooms'), 'route' => 'rooms', 'icon' => 'fa-solid fa-bed'],
-        ['label' => site_trans('nav.dining'), 'route' => 'dining', 'icon' => 'fa-solid fa-utensils'],
-        ['label' => site_trans('footer.events'), 'route' => 'meetings-events', 'icon' => 'fa-solid fa-calendar-days'],
-        ['label' => site_trans('nav.gallery'), 'route' => 'gallery', 'icon' => 'fa-solid fa-images'],
-        ['label' => site_trans('nav.contact'), 'route' => 'contact', 'icon' => 'fa-solid fa-envelope'],
-    ];
+    $footerFacilityUrl = function ($facility) {
+        $slug = strtolower((string) $facility->slug);
+        $title = strtolower((string) $facility->title);
+
+        if ($slug === 'accommodation' || str_contains($title, 'accommodation')) {
+            return localized_route('rooms');
+        }
+
+        return localized_route('facility', ['slug' => $facility->slug]);
+    };
 @endphp
 
 <footer class="site-footer site-footer--kibeho" aria-label="Site footer">
@@ -116,86 +117,83 @@
                         @endforeach
                     </div>
                 @endif
-
-                <div class="site-footer__lang-wrap">
-                    @include('frontend.includes.language-switcher', ['variant' => 'site-lang-switcher--footer'])
-                </div>
             </aside>
 
-            <div class="site-footer__panels">
-                <div class="site-footer__link-panels">
-                    <div class="site-footer__panel site-footer__panel--explore">
-                        <h2 class="site-footer__panel-title">{{ site_trans('footer.explore_hotel') }}</h2>
-                        <ul class="site-footer__nav-grid" role="list">
-                            @foreach($footerExploreLinks as $link)
+            <div class="site-footer__columns">
+                @if(isset($facilities) && $facilities->isNotEmpty())
+                    <nav class="site-footer__column" aria-label="{{ site_trans('footer.our_facilities') }}">
+                        <h2 class="site-footer__heading">{{ site_trans('footer.our_facilities') }}</h2>
+                        <ul class="site-footer__link-list" role="list">
+                            @foreach($facilities as $facility)
                                 <li>
-                                    <a wire:navigate href="{{ localized_route($link['route'], $link['params'] ?? []) }}" class="site-footer__nav-link">
-                                        <span class="site-footer__nav-icon" aria-hidden="true">
-                                            <i class="{{ $link['icon'] }}"></i>
-                                        </span>
-                                        <span class="site-footer__nav-label">{{ $link['label'] }}</span>
+                                    <a wire:navigate href="{{ $footerFacilityUrl($facility) }}">
+                                        {{ $facility->title }}
                                     </a>
                                 </li>
                             @endforeach
                         </ul>
-                    </div>
+                    </nav>
+                @endif
 
-                    @if(isset($facilities) && $facilities->isNotEmpty())
-                        <div class="site-footer__panel site-footer__panel--facilities">
-                            <h2 class="site-footer__panel-title">{{ site_trans('footer.our_facilities') }}</h2>
-                            <ul class="site-footer__facility-tags" role="list">
-                                @foreach($facilities as $facility)
-                                    <li>
-                                        <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="site-footer__facility-tag">
-                                            {{ $facility->title }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <div class="site-footer__panel site-footer__panel--kibeho">
-                        <h2 class="site-footer__panel-title">{{ site_trans('footer.kibeho_sanctuary') }}</h2>
-                        <ul class="site-footer__facility-tags" role="list">
-                            <li>
-                                <a wire:navigate href="{{ localized_route('explore-kibeho') }}" class="site-footer__facility-tag">
-                                    {{ site_trans('footer.explore_sanctuary') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="site-footer__amenities-block">
-                    <h2 class="site-footer__panel-title">{{ site_trans('footer.at_your_service') }}</h2>
-                    <ul class="site-footer__amenity-grid" role="list">
-                        @foreach($footerAmenities as $amenity)
-                            <li class="site-footer__amenity">
-                                <span class="site-footer__amenity-icon" aria-hidden="true">
-                                    <i class="{{ $amenity['icon'] }}"></i>
-                                </span>
-                                <span class="site-footer__amenity-label">{{ $amenity['label'] }}</span>
-                            </li>
-                        @endforeach
+                <nav class="site-footer__column" aria-label="{{ site_trans('footer.discover_region') }}">
+                    <h2 class="site-footer__heading">{{ site_trans('footer.discover_region') }}</h2>
+                    <ul class="site-footer__link-list" role="list">
+                        <li>
+                            <a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">
+                                {{ site_trans('footer.discover_gikongoro_link') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">
+                                {{ site_trans('footer.discover_nyaruguru_link') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a wire:navigate href="{{ localized_route('explore-kibeho') }}">
+                                {{ site_trans('footer.explore_sanctuary') }}
+                            </a>
+                        </li>
                     </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="site-footer__services">
+            <div class="site-footer__services-row">
+                <h2 class="site-footer__heading site-footer__heading--services">{{ site_trans('footer.at_your_service') }}</h2>
+                <ul class="site-footer__service-list" role="list">
+                    @foreach($footerAmenities as $amenity)
+                        <li class="site-footer__service-item">
+                            <span class="site-footer__service-icon" aria-hidden="true">
+                                <i class="{{ $amenity['icon'] }}"></i>
+                            </span>
+                            <span class="site-footer__service-label">{{ $amenity['label'] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="site-footer__lang-wrap">
+                    @include('frontend.includes.language-switcher', ['variant' => 'site-lang-switcher--footer'])
                 </div>
             </div>
         </div>
 
         <div class="site-footer__contact-bar">
+            <div class="site-footer__contact-list">
             @if($receptionPhone)
                 <a href="tel:{{ preg_replace('/\s+/', '', $receptionPhone) }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
                         <span class="site-footer__contact-label">{{ site_trans('footer.reception') }}</span>
-                        <span>{{ $receptionPhone }}</span>
+                        <span class="site-footer__contact-value">{{ $receptionPhone }}</span>
                     </span>
                 </a>
             @elseif(filled($mainPhone))
                 <a href="tel:{{ preg_replace('/\s+/', '', $mainPhone) }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
-                    <span class="site-footer__contact-text"><span>{{ $mainPhone }}</span></span>
+                    <span class="site-footer__contact-text">
+                        <span class="site-footer__contact-label">{{ site_trans('footer.phone') }}</span>
+                        <span class="site-footer__contact-value">{{ $mainPhone }}</span>
+                    </span>
                 </a>
             @endif
 
@@ -204,7 +202,7 @@
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
                         <span class="site-footer__contact-label">{{ site_trans('footer.manager') }}</span>
-                        <span>{{ $managerPhone }}</span>
+                        <span class="site-footer__contact-value">{{ $managerPhone }}</span>
                     </span>
                 </a>
             @endif
@@ -214,7 +212,7 @@
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
                     <span class="site-footer__contact-text">
                         <span class="site-footer__contact-label">{{ site_trans('footer.restaurant') }}</span>
-                        <span>{{ $restaurantPhone }}</span>
+                        <span class="site-footer__contact-value">{{ $restaurantPhone }}</span>
                     </span>
                 </a>
             @endif
@@ -222,23 +220,33 @@
             @if(filled($footerWhatsappDigits))
                 <a href="https://wa.me/{{ $footerWhatsappDigits }}" target="_blank" rel="noopener noreferrer" class="site-footer__contact-item site-footer__contact-item--wa">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fab fa-whatsapp"></i></span>
-                    <span class="site-footer__contact-text"><span>{{ $footerWhatsappLabel }}</span></span>
+                    <span class="site-footer__contact-text">
+                        <span class="site-footer__contact-label">{{ site_trans('footer.whatsapp') }}</span>
+                        <span class="site-footer__contact-value">{{ $footerWhatsappLabel }}</span>
+                    </span>
                 </a>
             @endif
 
             @if(filled($mainEmail))
                 <a href="mailto:{{ $mainEmail }}" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-envelope"></i></span>
-                    <span class="site-footer__contact-text"><span class="site-footer__contact-break">{{ $mainEmail }}</span></span>
+                    <span class="site-footer__contact-text">
+                        <span class="site-footer__contact-label">{{ site_trans('footer.email') }}</span>
+                        <span class="site-footer__contact-value site-footer__contact-break">{{ $mainEmail }}</span>
+                    </span>
                 </a>
             @endif
 
             @if(filled($ftAddr))
                 <a href="{{ $ftMapUrl }}" target="_blank" rel="noopener noreferrer" class="site-footer__contact-item">
                     <span class="site-footer__contact-icon" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>
-                    <span class="site-footer__contact-text"><span>{{ $ftAddr }}</span></span>
+                    <span class="site-footer__contact-text">
+                        <span class="site-footer__contact-label">{{ site_trans('footer.location') }}</span>
+                        <span class="site-footer__contact-value">{{ $ftAddr }}</span>
+                    </span>
                 </a>
             @endif
+            </div>
 
             <div class="site-footer__book-wrap">
                 @include('frontend.includes.reservation-link', [

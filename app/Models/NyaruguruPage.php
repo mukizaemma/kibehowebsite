@@ -6,7 +6,7 @@ use App\Models\Concerns\HasPublicThumbnail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class KibehoPage extends Model
+class NyaruguruPage extends Model
 {
     use HasPublicThumbnail;
 
@@ -14,13 +14,12 @@ class KibehoPage extends Model
         'title',
         'description',
         'cover_image',
-        'official_website_url',
         'status',
     ];
 
     public function images(): HasMany
     {
-        return $this->hasMany(KibehoPageImage::class)->orderBy('sort_order');
+        return $this->hasMany(NyaruguruPageImage::class)->orderBy('sort_order');
     }
 
     public static function current(): self
@@ -32,9 +31,8 @@ class KibehoPage extends Model
         }
 
         return static::query()->create([
-            'title' => 'Visit Kibeho Sanctuary',
+            'title' => 'Discover Nyaruguru',
             'description' => null,
-            'official_website_url' => 'https://www.kibeho.org/',
             'status' => 'Active',
         ]);
     }

@@ -31,27 +31,26 @@
 <script>
 jQuery(function ($) {
     var $tc = $('#termsContent');
-    if ($tc.length && !$tc.next('.note-editor').length) {
-        $tc.summernote({
-            placeholder: 'Hotel policies and terms…',
-            tabsize: 2,
-            height: 420,
-            disableResizeEditor: true,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        });
+    if (!$tc.length) {
+        return;
     }
+
+    CmsSummernote.init('#termsContent', {
+        height: 420,
+        initialHtml: $tc.val(),
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ]
+    });
+
     $(document).on('submit', 'form[action*="terms-conditions/update"]', function () {
-        if ($tc.length && $tc.next('.note-editor').length) {
-            $tc.val($tc.summernote('code'));
-        }
+        CmsSummernote.syncTextarea('#termsContent');
     });
 });
 </script>

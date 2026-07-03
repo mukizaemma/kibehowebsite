@@ -90,10 +90,12 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script src="/admin/js/summernote.js"></script>
+    <script src="{{ asset('admin/js/cms-summernote.js') }}"></script>
     @stack('scripts')
 
     {{-- System Users (content-management/users): inline scripts in Livewire slots do not run reliably after SPA navigation --}}
     <script src="{{ asset('admin/js/user-management-actions.js') }}"></script>
+    <script src="{{ asset('admin/js/amenity-management-actions.js') }}"></script>
     <script src="{{ asset('admin/js/image-upload-preview.js') }}"></script>
 
     {{-- Ensure admin modals can be closed via close button (BS4 loads last; close uses jQuery or BS5 API) --}}

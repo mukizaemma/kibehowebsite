@@ -198,13 +198,34 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-$(document).ready(function() {
-    $('#termsContent').summernote({
-        height: 300
+jQuery(function ($) {
+    var $tc = $('#termsContent');
+    if (!$tc.length) {
+        return;
+    }
+
+    function initTermsEditor() {
+        if (CmsSummernote.isInitialized('#termsContent')) {
+            return;
+        }
+        CmsSummernote.init('#termsContent', {
+            height: 300,
+            initialHtml: $tc.val()
+        });
+    }
+
+    $('a[data-bs-toggle="tab"][href="#tab-terms"]').on('shown.bs.tab', initTermsEditor);
+
+    $(document).on('submit', 'form[action*="terms-conditions/update"]', function () {
+        CmsSummernote.syncTextarea('#termsContent');
     });
 });
+</script>
+@endpush
 
+<script>
 function resetSeoForm() {
     document.getElementById('seoForm').reset();
     document.getElementById('seo_id').value = '';
