@@ -7,10 +7,10 @@
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light rounded h-100 p-4">
             <div id="amenity-mgmt-config" class="d-none"
-                data-url-show="{{ route('content-management.amenities.show', ['id' => '__ID__'], false) }}"
-                data-url-store="{{ route('content-management.amenities.store', [], false) }}"
-                data-url-update="{{ route('content-management.amenities.update', ['id' => '__ID__'], false) }}"
-                data-url-destroy="{{ route('content-management.amenities.destroy', ['id' => '__ID__'], false) }}"
+                data-url-show="{{ route('content-management.amenities.show', ['id' => '__ID__']) }}"
+                data-url-store="{{ route('content-management.amenities.store') }}"
+                data-url-update="{{ route('content-management.amenities.update', ['id' => '__ID__']) }}"
+                data-url-destroy="{{ route('content-management.amenities.destroy', ['id' => '__ID__']) }}"
             ></div>
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">

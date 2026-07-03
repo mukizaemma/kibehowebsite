@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Amenity extends Model
 {
-    use HasFactory;
+    use HasFactory, \Illuminate\Database\Eloquent\SoftDeletes;
     protected $table='amenities';
 
     protected $fillable = [
