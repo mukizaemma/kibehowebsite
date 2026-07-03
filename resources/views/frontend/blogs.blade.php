@@ -42,12 +42,12 @@
                         @foreach ($blogs as $blog)
                         <div class="single__blog">
                             <div class="single__blog__thumb">
-                                <a wire:navigate href="{{ localized_localized_route('update', ['slug' => $blog->slug]) }}">
+                                <a wire:navigate href="{{ localized_route('update', ['slug' => $blog->slug]) }}">
                                     <img src="{{ asset('storage/images/blogs/'.$blog->image) }}" height="490" width="760" alt="{{ $blog->title }}">
                                 </a>
                             </div>
                             <div class="single__blog__meta">
-                                <a wire:navigate href="{{ localized_localized_route('update', ['slug' => $blog->slug]) }}" class="h5">{{ $blog->title }}</a>
+                                <a wire:navigate href="{{ localized_route('update', ['slug' => $blog->slug]) }}" class="h5">{{ $blog->title }}</a>
                                 <p>In today's ever-evolving business landscape, staying ahead of the curve is essential for success. Whether you're a seasoned entrepreneur or just starting out, the key to thriving in this dynamic environment lies in adaptability and innovation.</p>
                                 <div class="single__blog__meta__main">
                                     <div class="author__meta">
@@ -55,7 +55,7 @@
                                         <span><img src="assets/images/icon/clock.svg" alt=""> 2 Min Read</span>
                                     </div>
                                     <div class="readmore">
-                                        <a wire:navigate href="{{ localized_localized_route('update',['slug'=>$blog->slug]) }}">Read More</a>
+                                        <a wire:navigate href="{{ localized_route('update',['slug'=>$blog->slug]) }}">Read More</a>
                                     </div>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                             @foreach ($rooms as $room)
                                 <div class="single__post">
                                 <div class="single__post__thumb">
-                                    <a wire:navigate href="{{ localized_localized_route('room',['slug'=>$room->slug]) }}">
+                                    <a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}">
                                         <img src="{{ $room->publicThumbnailUrl() }}" height="106" width="110" alt="{{ $room->title }}">
                                     </a>
                                 </div>
