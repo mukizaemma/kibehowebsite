@@ -7,9 +7,12 @@
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light rounded h-100 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0">Facilities Management</h4>
+                <div>
+                    <h4 class="mb-0">Our Services</h4>
+                    <p class="text-muted small mb-0">These appear on the public <a href="{{ route('our-services') }}" target="_blank" rel="noopener">Our Services</a> page and the home page services section.</p>
+                </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#facilityModal" onclick="resetForm()">
-                    <i class="fa fa-plus me-2"></i>Add New Facility
+                    <i class="fa fa-plus me-2"></i>Add New Service
                 </button>
             </div>
 

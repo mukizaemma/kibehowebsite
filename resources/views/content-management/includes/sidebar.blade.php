@@ -39,7 +39,9 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
                 <i class="fas fa-bed me-2"></i>Rooms
             </a>
 
-            {{-- Facilities hidden for now — manage via Kibeho page and public footer pills --}}
+            <a href="{{ route('content-management.facilities') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.facilities') ? 'active' : '' }}">
+                <i class="fas fa-concierge-bell me-2"></i>Our Services
+            </a>
             <a href="{{ route('content-management.kibeho-page.index') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.kibeho-page') ? 'active' : '' }}">
                 <i class="fas fa-church me-2"></i>Kibeho page
             </a>
