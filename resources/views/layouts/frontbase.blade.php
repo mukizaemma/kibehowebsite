@@ -498,6 +498,7 @@
                                     <li class="navigation__menu--item has-child">
                                         <a wire:navigate.hover href="{{ localized_route('about') }}" class="navigation__menu--item__link">{{ site_trans('nav.about') }}</a>
                                         <ul class="submenu sub__style" role="menu">
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('about')}}#background">{{ site_trans('nav.our_history') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
@@ -769,6 +770,7 @@
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
+                                        <li><a wire:navigate href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
                                         <li><a wire:navigate href="{{ localized_route('about') }}#background">{{ site_trans('nav.our_history') }}</a></li>
                                         <li><a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
                                         <li><a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>

@@ -43,7 +43,7 @@ class PublicWebsiteData
             ->oldest()
             ->get();
         $gallery = app(AggregatedGalleryService::class)->homeFeaturedImages();
-        $homeFacilities = Facility::where('status', 'Active')->oldest()->take(2)->get();
+        $homeFacilities = Facility::where('status', 'Active')->oldest()->take(3)->get();
         $services = Service::where('status', 'Active')->with('images')->latest()->take(4)->get();
         $blogs = Blog::where('status', 'Published')->latest()->take(3)->get() ?? collect();
         $reviews = Review::approved()->latest()->take(3)->get();

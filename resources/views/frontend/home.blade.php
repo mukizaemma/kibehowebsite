@@ -133,7 +133,7 @@
         @if($homeFacilities->count() > 0)
         <div class="row g-4 g-lg-4 justify-content-center wow fadeInUp" data-wow-delay=".1s">
             @foreach($homeFacilities as $facility)
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 col-lg-4">
                 <article class="home-room-card">
                     <a wire:navigate href="{{ localized_route('facility', ['slug' => $facility->slug]) }}" class="home-room-card__media">
                         <img src="{{ asset('storage/' . ($facility->cover_image ?? 'facilities/default.jpg')) }}"
