@@ -499,7 +499,7 @@ class ContentManagementController extends Controller
     // Slideshow Management
     public function slideshow()
     {
-        $slides = Slide::latest()->get();
+        $slides = Slide::orderBy('sort_order')->orderBy('created_at')->orderBy('id')->get();
         return view('content-management.slideshow.index', compact('slides'));
     }
 
@@ -518,6 +518,7 @@ class ContentManagementController extends Controller
         $slide->button = $request->filled('button') ? $request->input('button') : null;
         $slide->link = $request->filled('link') ? $request->input('link') : null;
         $slide->media_type = 'image';
+        $slide->sort_order = (int) Slide::max('sort_order') + 1;
 
         if ($request->hasFile('image')) {
             $slide->image = store_optimized_image($request->file('image'), 'slides');
@@ -526,6 +527,20 @@ class ContentManagementController extends Controller
         $slide->save();
 
         return redirect()->back()->with('success', 'Slide added successfully');
+    }
+
+    public function reorderSlides(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer',
+        ]);
+
+        foreach (array_values($request->input('order')) as $position => $id) {
+            Slide::where('id', $id)->update(['sort_order' => $position + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Slide order updated']);
     }
 
     public function updateSlide(Request $request, Slide $slide)

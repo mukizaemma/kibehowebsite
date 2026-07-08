@@ -175,6 +175,7 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     // Slideshow
     Route::get('/slideshow', ContentManagementSlideshow::class)->name('slideshow');
     Route::post('/slideshow/store', [App\Http\Controllers\ContentManagementController::class, 'storeSlide'])->name('slideshow.store');
+    Route::post('/slideshow/reorder', [App\Http\Controllers\ContentManagementController::class, 'reorderSlides'])->name('slideshow.reorder');
     Route::post('/slideshow/{slide}/update', [App\Http\Controllers\ContentManagementController::class, 'updateSlide'])->name('slideshow.update');
     Route::delete('/slideshow/{slide}', [App\Http\Controllers\ContentManagementController::class, 'deleteSlide'])->name('slideshow.destroy');
     

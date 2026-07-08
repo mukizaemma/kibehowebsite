@@ -17,9 +17,14 @@ class Slide extends Model
         'button',
         'link',
         'image',
+        'sort_order',
         'media_type',
         'video_url',
         'video_file',
+    ];
+
+    protected $casts = [
+        'sort_order' => 'integer',
     ];
 
 }

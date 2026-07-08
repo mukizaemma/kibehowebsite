@@ -36,7 +36,7 @@ class PublicWebsiteData
     public static function home(): array
     {
         $setting = Setting::first();
-        $slides = Slide::latest()->get();
+        $slides = Slide::orderBy('sort_order')->orderBy('created_at')->orderBy('id')->get();
         $about = About::first();
         $rooms = Room::with('amenities')
             ->where('status', 'Active')

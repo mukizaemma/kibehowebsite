@@ -9,19 +9,25 @@
                 <div>
                     <h4 class="mb-0">Slideshow Management</h4>
                     <p class="text-muted small mb-0">Each slide needs an image and optional caption. Button text and URL use <a href="{{ route('setting') }}">Settings → Booking &amp; review links</a> unless you override a single slide.</p>
+                    <p class="text-muted small mb-0"><i class="fa fa-arrows-alt me-1"></i>Slides play oldest first. Drag a card by its handle to change the order.</p>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#slideModal" data-toggle="modal" data-target="#slideModal" onclick="resetForm()">
                     <i class="fa fa-plus me-2"></i>Add New Slide
                 </button>
             </div>
 
-            <div class="row">
+            <div id="slideReorderStatus" class="alert alert-info py-2 px-3 small mb-3" style="display:none;"></div>
+
+            <div class="row" id="slidesGrid">
                 @foreach($slides as $slide)
                 @php
                     $caption = $slide->heading ?: $slide->subheading;
                 @endphp
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                <div class="col-md-4 mb-4 slide-card-col" data-slide-id="{{ $slide->id }}">
+                    <div class="card h-100 position-relative">
+                        <span class="slide-drag-handle badge bg-dark text-white" title="Drag to reorder" style="position:absolute;top:.5rem;left:.5rem;z-index:2;cursor:grab;padding:.4rem .55rem;">
+                            <i class="fa fa-arrows-alt"></i>
+                        </span>
                         @if($slide->media_type === 'video')
                             @if($slide->video_url)
                                 <div class="card-img-top bg-dark d-flex align-items-center justify-content-center" style="height: 200px;">
@@ -156,5 +162,65 @@
         form.action = deleteActionTemplate.replace('__SLIDE_ID__', id);
         form.submit();
     }
+
+    const reorderAction = @json(route('content-management.slideshow.reorder'));
+
+    (function initSlideReorder() {
+        const grid = document.getElementById('slidesGrid');
+        if (!grid || grid.dataset.reorderReady === '1') {
+            return;
+        }
+
+        function start() {
+            if (typeof Sortable === 'undefined') {
+                setTimeout(start, 200);
+                return;
+            }
+            grid.dataset.reorderReady = '1';
+
+            Sortable.create(grid, {
+                handle: '.slide-drag-handle',
+                animation: 150,
+                ghostClass: 'slide-card-ghost',
+                onEnd: persistOrder,
+            });
+        }
+
+        function persistOrder() {
+            const order = Array.from(grid.querySelectorAll('.slide-card-col'))
+                .map((el) => parseInt(el.dataset.slideId, 10))
+                .filter((id) => !Number.isNaN(id));
+
+            const status = document.getElementById('slideReorderStatus');
+            if (status) {
+                status.style.display = 'block';
+                status.className = 'alert alert-info py-2 px-3 small mb-3';
+                status.textContent = 'Saving new order…';
+            }
+
+            CmsAdmin.fetchJson(reorderAction, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: order }),
+            }).then(function () {
+                if (status) {
+                    status.className = 'alert alert-success py-2 px-3 small mb-3';
+                    status.textContent = 'Slide order saved.';
+                    setTimeout(function () { status.style.display = 'none'; }, 2000);
+                }
+            }).catch(function () {
+                if (status) {
+                    status.className = 'alert alert-danger py-2 px-3 small mb-3';
+                    status.textContent = 'Could not save the new order. Please try again.';
+                }
+            });
+        }
+
+        start();
+    })();
 </script>
+
+@once
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+@endonce
 </div>

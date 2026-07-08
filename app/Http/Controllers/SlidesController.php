@@ -14,7 +14,7 @@ class SlidesController extends Controller
     public function index()
     {
 
-        $slides = Slide::latest()->get();
+        $slides = Slide::orderBy('sort_order')->orderBy('created_at')->orderBy('id')->get();
         $setting = Setting::first();
         return view('admin.includes.slides', ['slides'=>$slides,'setting'=>$setting]);
     }
