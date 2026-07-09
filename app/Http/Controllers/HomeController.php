@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
-use App\Models\Booking;
 use App\Models\Post;
 use App\Models\Room;
 use App\Models\Trip;
@@ -39,8 +38,6 @@ use App\Models\PageHero;
 use App\Models\TourActivity;
 use App\Mail\BlogCommentGuestMail;
 use App\Mail\BlogCommentsNotofications;
-use App\Mail\BookingSubmittedAdminMail;
-use App\Mail\BookingSubmittedGuestMail;
 use App\Mail\ContactEnquiryAdminMail;
 use App\Mail\ContactEnquiryGuestMail;
 use App\Mail\NewSubscriberNotification;
@@ -48,6 +45,7 @@ use App\Mail\ReviewSubmittedAdminMail;
 use App\Mail\ReviewSubmittedGuestMail;
 use App\Mail\SubscriberThankYouMail;
 use App\Services\PublicWebsiteData;
+use App\Services\BookingSubmissionService;
 use App\Services\SiteNotificationMail;
 use Ramsey\Uuid\Uuid;
 
@@ -184,127 +182,32 @@ class HomeController extends Controller
         return view('frontend.terms', PublicWebsiteData::terms());
     }
 
-    public function bookNow(Request $request){
-        $isFacility = $request->filled('facility_id');
-        $isTourActivity = $request->filled('tour_activity_id');
+    public function storeBooking(Request $request, BookingSubmissionService $bookingSubmission)
+    {
+        try {
+            $result = $bookingSubmission->submit($request);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            Log::error('Booking submission failed', ['message' => $e->getMessage(), 'exception' => $e]);
 
-        $rules = [
-            'names' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'message' => 'nullable|string|max:1000',
-        ];
-
-        if ($isFacility) {
-            $rules['facility_id'] = 'required|exists:facilities,id';
-            $rules['reservation_date'] = 'required|date|after_or_equal:today';
-            $rules['guests'] = 'required|integer|min:1';
-        } else {
-            $rules['checkin'] = 'required|date|after_or_equal:today';
-            $rules['checkout'] = 'required|date|after:checkin';
-            $rules['adults'] = 'required|integer|min:1';
-            $rules['children'] = 'nullable|integer|min:0';
-            $rules['extra_beds'] = 'nullable|integer|min:0';
-            $rules['rooms'] = 'nullable|integer|min:1';
-
-            if ($isTourActivity) {
-                $rules['tour_activity_id'] = 'required|exists:tour_activities,id';
-            } else {
-                $rules['room_id'] = 'required|exists:rooms,id';
-            }
+            return redirect()->back()->with('error', 'Something went wrong. Please try again later.')->withInput();
         }
 
-        $request->validate($rules);
+        return $this->redirectBackWithContactEmailSwal(
+            redirect()->back()->withFragment('enquiry-contacts'),
+            $result['admin_sent'],
+            $result['guest_sent'],
+            true,
+            'Reservation received',
+            'Your reservation request was saved (reference #'.$result['booking']->id.'). We will get back to you soon.'
+        )->with('show_enquiry_contacts', true);
+    }
 
-        $booking = new Booking();
-        $booking->names = $request->input('names');
-        $booking->email = $request->input('email');
-        $booking->phone = $request->input('phone');
-        $booking->message = $request->input('message');
-        if (! $isFacility && ! $isTourActivity && $request->filled('extra_beds') && (int) $request->input('extra_beds') > 0) {
-            $booking->message = trim(($booking->message ?? '') . "\nExtra beds requested: " . (int) $request->input('extra_beds'));
-        }
-
-        if ($isFacility) {
-            $booking->checkin_date = $request->input('reservation_date');
-            $booking->checkout_date = $request->input('reservation_date');
-            $booking->adults = $request->input('guests');
-            $booking->children = 0;
-        } else {
-            $booking->checkin_date = $request->input('checkin');
-            $booking->checkout_date = $request->input('checkout');
-            $booking->adults = $request->input('adults');
-            $booking->children = $request->input('children') ?? 0;
-            $booking->rooms = $request->input('rooms') ?? 1;
-        }
-        $booking->status = 'pending';
-        $booking->booking_type = 'online';
-        $booking->paid_amount = 0;
-
-        if (auth()->check()) {
-            $booking->user_id = auth()->id();
-        }
-
-        if ($isTourActivity) {
-            $booking->tour_activity_id = $request->input('tour_activity_id');
-            $booking->reservation_type = 'tour_activity';
-            $booking->room_id = null;
-            $booking->facility_id = null;
-            $booking->total_amount = 0;
-            $booking->balance_amount = 0;
-        } elseif ($isFacility) {
-            $booking->facility_id = $request->input('facility_id');
-            $booking->reservation_type = 'facility';
-            $booking->room_id = null;
-            $booking->tour_activity_id = null;
-            $booking->total_amount = 0;
-            $booking->balance_amount = 0;
-        } else {
-            $booking->room_id = $request->input('room_id');
-            $booking->reservation_type = 'room';
-            $booking->facility_id = null;
-            $booking->tour_activity_id = null;
-            $room = Room::findOrFail($request->input('room_id'));
-            $checkin = new \DateTime($request->input('checkin'));
-            $checkout = new \DateTime($request->input('checkout'));
-            $nights = max(0, $checkin->diff($checkout)->days);
-            $adults = (int) $request->input('adults');
-            $children = (int) ($request->input('children') ?? 0);
-            $extraBeds = (int) ($request->input('extra_beds') ?? 0);
-            $roomCount = max(1, (int) ($request->input('rooms') ?? 1));
-
-            // Enforce max occupancy per room:
-            // If guests exceed `max_occupancy`, suggest/require booking more rooms.
-            $maxGuestsPerRoom = (int) ($room->max_occupancy ?? 0);
-            $totalGuests = $adults + $children;
-            if ($maxGuestsPerRoom > 0 && $totalGuests > ($maxGuestsPerRoom * $roomCount)) {
-                $suggestedRooms = (int) ceil($totalGuests / $maxGuestsPerRoom);
-
-                return redirect()->back()
-                    ->with('error', "Your selected number of rooms can’t accommodate {$totalGuests} guests. Please set “Number of Rooms” to at least {$suggestedRooms}.")
-                    ->withInput();
-            }
-
-            $nightly = $room->nightlyRateForGuests($adults, $children, $extraBeds);
-            $booking->total_amount = (int) round($nightly * $nights * $roomCount);
-            $booking->balance_amount = $booking->total_amount;
-        }
-
-        if ($booking->save()) {
-            $booking->load(['room', 'facility', 'tourActivity']);
-            $adminOk = SiteNotificationMail::sendToTeam(new BookingSubmittedAdminMail($booking));
-            $guestOk = SiteNotificationMail::sendToGuest($booking->email, new BookingSubmittedGuestMail($booking));
-
-            return $this->redirectBackWithContactEmailSwal(
-                redirect()->back(),
-                $adminOk,
-                $guestOk,
-                true,
-                'Booking received',
-                'Your reservation request was saved. We will get back to you soon.'
-            );
-        }
-        return redirect()->back()->with('error', 'Something went wrong. Please try again later.');
+    /** @deprecated Use storeBooking() — kept for backward compatibility */
+    public function bookNow(Request $request, BookingSubmissionService $bookingSubmission)
+    {
+        return $this->storeBooking($request, $bookingSubmission);
     }
 
     public function tours()

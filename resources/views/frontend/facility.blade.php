@@ -112,7 +112,10 @@
                         <p class="text-muted small text-center mb-4">
                             Overnight stays: use <strong>Booking.com</strong>. For this facility or event space, message us on WhatsApp or email.
                         </p>
-                        @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' Facility: '.$facility->title])
+                        @include('frontend.includes.hotel-booking-channels', [
+                            'contextLabel' => ' Facility: '.$facility->title,
+                            'facilityId' => $facility->id,
+                        ])
                     </div>
                 </div>
             </div>

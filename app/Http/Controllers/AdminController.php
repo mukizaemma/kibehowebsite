@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CommentApprovalNotification;
 use App\Mail\ContactMessageReplyMail;
+use App\Mail\BookingStatusUpdateGuestMail;
 use App\Models\BlogComment;
 use App\Models\Booking;
 use App\Models\Message;
+use App\Services\SiteNotificationMail;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -198,28 +200,13 @@ class AdminController extends Controller
 
         $guestEmail = $booking->email;
         if ($guestEmail) {
-            $itemName = 'Room';
-            if ($booking->reservation_type === 'facility' && $booking->facility) {
-                $itemName = $booking->facility->title;
-            } elseif ($booking->reservation_type === 'tour_activity' && $booking->tourActivity) {
-                $itemName = $booking->tourActivity->title;
-            } elseif ($booking->room) {
-                $itemName = $booking->room->title;
-            }
             $statusLabel = $request->status === 'confirmed' ? 'Confirmed' : 'Cancelled';
-            $subject = 'Reservation ' . $statusLabel . ' - ' . $itemName;
-            $body = "Hello " . $booking->names . ",\n\n";
-            $body .= "Your reservation for " . $itemName . " has been " . strtolower($statusLabel) . ".\n\n";
-            $body .= "Message from the hotel:\n" . $request->admin_reply . "\n\n";
-            $body .= "Check-in: " . ($booking->checkin_date ? $booking->checkin_date->format('Y-m-d') : '') . "\n";
-            $body .= "Check-out: " . ($booking->checkout_date ? $booking->checkout_date->format('Y-m-d') : '') . "\n\n";
-            $body .= "Thank you.";
-            try {
-                Mail::raw($body, function ($message) use ($guestEmail, $subject) {
-                    $message->to($guestEmail)->subject($subject);
-                });
-            } catch (\Exception $e) {
-                return back()->with('error', 'Reply saved but email could not be sent: ' . $e->getMessage());
+            $sent = SiteNotificationMail::sendToGuest(
+                $guestEmail,
+                new BookingStatusUpdateGuestMail($booking, $statusLabel, $request->admin_reply)
+            );
+            if (! $sent) {
+                return back()->with('error', 'Reply saved but email could not be sent. Check Resend configuration.');
             }
         }
         return back()->with('success', 'Reply sent and guest notified by email.');

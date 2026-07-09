@@ -81,12 +81,23 @@
                 @endif
             </div>
         @else
-            <h3 class="hotel-channel-actions__section-title h6 mb-2">{{ site_trans('booking.enquire_title') }}</h3>
-            <p class="hotel-channel-actions__lead small text-muted mb-3">{{ site_trans('booking.enquire_lead') }}</p>
-            @include('frontend.includes.hotel-enquiry-form', [
+            <h3 class="hotel-channel-actions__section-title h6 mb-2">{{ site_trans('booking.reserve_title') }}</h3>
+            <p class="hotel-channel-actions__lead small text-muted mb-3">{{ site_trans('booking.reserve_lead') }}</p>
+            @include('frontend.includes.hotel-room-booking-form', [
                 'formSuffix' => $formSuffix,
-                'contextLabel' => $contextLabel ?? null,
+                'roomId' => $roomId ?? null,
+                'facilityId' => $facilityId ?? null,
+                'tourActivityId' => $tourActivityId ?? null,
             ])
+
+            <div class="hotel-channel-actions__enquire-general border-top pt-4 mt-4">
+                <h3 class="hotel-channel-actions__section-title h6 mb-2">{{ site_trans('booking.enquire_title') }}</h3>
+                <p class="hotel-channel-actions__lead small text-muted mb-3">{{ site_trans('booking.enquire_lead') }}</p>
+                @include('frontend.includes.hotel-enquiry-form', [
+                    'formSuffix' => $formSuffix.'-enquiry',
+                    'contextLabel' => $contextLabel ?? null,
+                ])
+            </div>
         @endif
     </div>
 </div>

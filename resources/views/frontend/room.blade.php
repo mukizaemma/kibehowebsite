@@ -78,11 +78,18 @@
 
                     <div class="room-detail-book">
                         <p class="room-detail-book__lead">{{ site_trans('room.book_lead') }}</p>
-                        @include('frontend.includes.reservation-link', [
-                            'style' => 'fill',
-                            'class' => 'room-detail-book__btn w-100 text-center',
-                            'icon' => 'fa-solid fa-calendar-check',
-                        ])
+                        @if(hotel_book_now_is_external($setting ?? null))
+                            @include('frontend.includes.reservation-link', [
+                                'style' => 'fill',
+                                'class' => 'room-detail-book__btn w-100 text-center',
+                                'icon' => 'fa-solid fa-calendar-check',
+                            ])
+                        @else
+                            @include('frontend.includes.hotel-room-booking-form', [
+                                'formSuffix' => 'room-'.$room->id,
+                                'roomId' => $room->id,
+                            ])
+                        @endif
                     </div>
                 </aside>
             </div>

@@ -73,7 +73,10 @@
                         <p class="text-muted small text-center mb-4">
                             Room nights: <strong>Booking.com</strong>. For this activity, contact us on WhatsApp or email.
                         </p>
-                        @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' Activity: '.$activity->title])
+                        @include('frontend.includes.hotel-booking-channels', [
+                            'contextLabel' => ' Activity: '.$activity->title,
+                            'tourActivityId' => $activity->id,
+                        ])
                     </div>
                 </div>
             </div>

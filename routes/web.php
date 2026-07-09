@@ -423,6 +423,7 @@ $registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
     $named(Route::get('/handover', HandoverPage::class), 'handover');
     $named(Route::get('/book-now', BookNowPage::class), 'connect');
     $named(Route::post('/enquiry', [App\Http\Controllers\HomeController::class, 'sendMessage']), 'enquiry.submit');
+    $named(Route::post('/booking', [App\Http\Controllers\HomeController::class, 'storeBooking']), 'booking.submit');
 };
 
 Route::middleware('set.locale')->group(function () use ($registerPublicSiteRoutes) {

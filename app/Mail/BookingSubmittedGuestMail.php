@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Services\BookingSubmissionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -17,8 +18,10 @@ class BookingSubmittedGuestMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('We received your booking request — '.config('app.name'))
+        return $this->subject(BookingSubmissionService::guestSubject())
             ->from(config('mail.from.address'), config('mail.from.name'))
-            ->view('emails.booking-submitted-guest');
+            ->view('emails.booking-submitted-guest', [
+                'hotelName' => BookingSubmissionService::hotelName(),
+            ]);
     }
 }

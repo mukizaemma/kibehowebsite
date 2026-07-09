@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Services\BookingSubmissionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -17,9 +18,7 @@ class BookingSubmittedAdminMail extends Mailable
 
     public function build(): self
     {
-        $type = $this->booking->reservation_type ?? 'room';
-
-        return $this->subject('New booking request — '.$this->booking->names)
+        return $this->subject(BookingSubmissionService::adminSubject($this->booking))
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.booking-submitted-admin');
     }
