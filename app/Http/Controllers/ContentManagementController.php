@@ -18,6 +18,7 @@ use App\Models\Amenity;
 use App\Models\Gallery;
 use App\Services\AggregatedGalleryService;
 use App\Models\Slide;
+use App\Models\Setting;
 use App\Models\ServiceImage;
 use App\Models\Roomimage;
 use App\Models\Facilityimage;
@@ -500,7 +501,32 @@ class ContentManagementController extends Controller
     public function slideshow()
     {
         $slides = Slide::orderBy('sort_order')->orderBy('created_at')->orderBy('id')->get();
-        return view('content-management.slideshow.index', compact('slides'));
+        $setting = Setting::first();
+
+        return view('content-management.slideshow.index', compact('slides', 'setting'));
+    }
+
+    public function updateHomeHero(Request $request)
+    {
+        $validated = $request->validate([
+            'home_hero_headline' => 'nullable|string|max:255',
+            'home_hero_lead' => 'nullable|string|max:2000',
+        ]);
+
+        $setting = Setting::first();
+        if (! $setting) {
+            return redirect()->back()->with('error', 'No settings record found.');
+        }
+
+        $setting->home_hero_headline = filled($validated['home_hero_headline'] ?? null)
+            ? trim($validated['home_hero_headline'])
+            : null;
+        $setting->home_hero_lead = filled($validated['home_hero_lead'] ?? null)
+            ? trim($validated['home_hero_lead'])
+            : null;
+        $setting->save();
+
+        return redirect()->back()->with('success', 'Homepage hero text updated successfully.');
     }
 
     public function storeSlide(Request $request)

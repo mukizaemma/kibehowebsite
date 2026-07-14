@@ -138,6 +138,14 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::post('/why-choose-us/{id}/update', [App\Http\Controllers\WhyChooseUsController::class, 'update'])->name('why-choose-us.update');
     Route::delete('/why-choose-us/{id}', [App\Http\Controllers\WhyChooseUsController::class, 'destroy'])->name('why-choose-us.destroy');
 
+    // Homepage pilgrimage journey timeline
+    Route::get('/home-journey', [App\Http\Controllers\HomeJourneyController::class, 'index'])->name('home-journey.index');
+    Route::post('/home-journey/intro', [App\Http\Controllers\HomeJourneyController::class, 'updateIntro'])->name('home-journey.intro');
+    Route::post('/home-journey/steps/store', [App\Http\Controllers\HomeJourneyController::class, 'store'])->name('home-journey.steps.store');
+    Route::get('/home-journey/steps/{id}', [App\Http\Controllers\HomeJourneyController::class, 'show'])->name('home-journey.steps.show');
+    Route::post('/home-journey/steps/{id}/update', [App\Http\Controllers\HomeJourneyController::class, 'update'])->name('home-journey.steps.update');
+    Route::delete('/home-journey/steps/{id}', [App\Http\Controllers\HomeJourneyController::class, 'destroy'])->name('home-journey.steps.destroy');
+
     // Attractions (nearby places / POIs)
     Route::get('/attractions', [App\Http\Controllers\AttractionController::class, 'index'])->name('attractions.index');
     Route::post('/attractions/store', [App\Http\Controllers\AttractionController::class, 'store'])->name('attractions.store');
@@ -174,6 +182,7 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     
     // Slideshow
     Route::get('/slideshow', ContentManagementSlideshow::class)->name('slideshow');
+    Route::post('/slideshow/hero', [App\Http\Controllers\ContentManagementController::class, 'updateHomeHero'])->name('slideshow.hero');
     Route::post('/slideshow/store', [App\Http\Controllers\ContentManagementController::class, 'storeSlide'])->name('slideshow.store');
     Route::post('/slideshow/reorder', [App\Http\Controllers\ContentManagementController::class, 'reorderSlides'])->name('slideshow.reorder');
     Route::post('/slideshow/{slide}/update', [App\Http\Controllers\ContentManagementController::class, 'updateSlide'])->name('slideshow.update');

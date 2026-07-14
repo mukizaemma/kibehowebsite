@@ -8,12 +8,58 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="mb-0">Slideshow Management</h4>
-                    <p class="text-muted small mb-0">Each slide needs an image and optional caption. Button text and URL use <a href="{{ route('setting') }}">Settings → Booking &amp; review links</a> unless you override a single slide.</p>
-                    <p class="text-muted small mb-0"><i class="fa fa-arrows-alt me-1"></i>Slides play oldest first. Drag a card by its handle to change the order.</p>
+                    <p class="text-muted small mb-0">Hero images cycle behind fixed homepage text. Edit the message below; images still come from slides.</p>
+                    <p class="text-muted small mb-0"><i class="fa fa-arrows-alt me-1"></i>Drag a card by its handle to change slide order.</p>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#slideModal" data-toggle="modal" data-target="#slideModal" onclick="resetForm()">
                     <i class="fa fa-plus me-2"></i>Add New Slide
                 </button>
+            </div>
+
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-1">Homepage hero text</h5>
+                    <p class="text-muted small mb-3">Shown over every slide. Hotel name comes from Settings → Company name. Leave a field empty to use the default English/French translation.</p>
+                    <form action="{{ route('content-management.slideshow.hero') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label" for="home_hero_headline">Headline</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="home_hero_headline"
+                                   name="home_hero_headline"
+                                   maxlength="255"
+                                   value="{{ old('home_hero_headline', $setting?->home_hero_headline ?? '') }}"
+                                   placeholder="{{ site_trans('home.hero_headline') }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="home_hero_lead">Supporting text</label>
+                            <textarea class="form-control"
+                                      id="home_hero_lead"
+                                      name="home_hero_lead"
+                                      rows="3"
+                                      maxlength="2000"
+                                      placeholder="{{ site_trans('home.hero_lead') }}">{{ old('home_hero_lead', $setting?->home_hero_lead ?? '') }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save hero text</button>
+                    </form>
+                </div>
             </div>
 
             <div id="slideReorderStatus" class="alert alert-info py-2 px-3 small mb-3" style="display:none;"></div>

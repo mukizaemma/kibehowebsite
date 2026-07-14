@@ -19,7 +19,9 @@
 <section class="home-cta rts__section section__padding" aria-labelledby="{{ $headingId }}">
     <div class="container">
         <div class="home-cta__intro text-center wow fadeInUp">
+            @if(filled($eyebrow))
             <p class="home-cta__eyebrow">{{ $eyebrow }}</p>
+            @endif
             <h2 id="{{ $headingId }}" class="home-cta__title section__title">{{ $title }}</h2>
             <p class="home-cta__lead font-sm">{{ $lead }}</p>
         </div>
@@ -31,11 +33,7 @@
 
             <div class="col-lg-6 wow fadeInRight d-flex">
                 <div class="home-cta__panel home-cta__panel--form w-100">
-                    <div class="home-cta__form-badge">
-                        <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-                        <span>{{ site_trans('booking.badge') }}</span>
-                    </div>
-                    @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' (home CTA)'])
+                    @include('frontend.includes.hotel-booking-cta-panel')
                 </div>
             </div>
         </div>

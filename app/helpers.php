@@ -139,7 +139,7 @@ if (! function_exists('slideshow_cta_label')) {
         $setting = $setting ?? \App\Models\Setting::first();
         $label = trim((string) ($setting?->slideshow_cta_label ?? ''));
 
-        return $label !== '' ? $label : 'Book Now';
+        return $label !== '' ? $label : site_trans('buttons.book_your_stay');
     }
 }
 
@@ -149,7 +149,7 @@ if (! function_exists('hotel_book_now_url')) {
     {
         $url = hotel_reservation_url($setting);
 
-        return filled($url) ? $url : localized_route('contact');
+        return filled($url) ? $url : localized_route('connect');
     }
 }
 

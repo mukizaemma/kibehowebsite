@@ -11,7 +11,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="mb-0">Nyaruguru page</h4>
-                    <p class="text-muted small mb-0">Manage the public Discover Nyaruguru page — content, activities, and gallery.</p>
+                    <p class="text-muted small mb-0">Manage Discover Nyaruguru, homepage teaser, activities, and gallery.</p>
                 </div>
                 <a href="{{ route('discover-nyaruguru') }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm">
                     <i class="fa fa-external-link-alt me-1"></i> View page
@@ -52,17 +52,29 @@
                         <div class="row g-4">
                             <div class="col-lg-8">
                                 <div class="mb-3">
-                                    <label class="form-label" for="nyaruguru_title">Title <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="nyaruguru_title">Page title <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="nyaruguru_title" name="title" value="{{ $page->title }}" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="nyaruguru_description">Description</label>
+                                    <label class="form-label" for="nyaruguru_description">Page description</label>
                                     <textarea class="form-control" id="nyaruguru_description" name="description" rows="4"></textarea>
+                                </div>
+                                <hr class="my-4">
+                                <h6 class="mb-3">Homepage teaser</h6>
+                                <p class="text-muted small">Shown in the homepage “Why visit Nyaruguru” section. Uses the cover image on the right.</p>
+                                <div class="mb-3">
+                                    <label class="form-label" for="nyaruguru_home_title">Home section title</label>
+                                    <input type="text" class="form-control" id="nyaruguru_home_title" name="home_title" value="{{ $page->home_title }}" maxlength="255" placeholder="Why visit Nyaruguru?">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="nyaruguru_home_lead">Home section text</label>
+                                    <textarea class="form-control" id="nyaruguru_home_lead" name="home_lead" rows="4" maxlength="2000" placeholder="Short description of the beauty of Nyaruguru and the holy place of Kibeho…">{{ $page->home_lead }}</textarea>
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="mb-3">
                                     <label class="form-label">Cover image</label>
+                                    <p class="text-muted small">Used on Discover Nyaruguru and the homepage teaser.</p>
                                     @if($page->cover_image)
                                         <div class="mb-2">
                                             <img src="{{ asset('storage/'.$page->cover_image) }}" alt="" class="img-fluid rounded border" style="max-height:160px;object-fit:cover;width:100%;">

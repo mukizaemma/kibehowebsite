@@ -85,10 +85,12 @@
                                 'icon' => 'fa-solid fa-calendar-check',
                             ])
                         @else
-                            @include('frontend.includes.hotel-room-booking-form', [
-                                'formSuffix' => 'room-'.$room->id,
-                                'roomId' => $room->id,
-                            ])
+                            <a wire:navigate
+                               href="{{ localized_route('connect', ['room' => $room->id]) }}"
+                               class="theme-btn btn-style fill room-detail-book__btn w-100 text-center">
+                                <i class="fa-solid fa-calendar-check me-2" aria-hidden="true"></i>
+                                <span>{{ site_trans('buttons.book_your_stay') }}</span>
+                            </a>
                         @endif
                     </div>
                 </aside>

@@ -15,6 +15,7 @@ use App\Models\MeetingRoom;
 use App\Models\Gallery;
 use App\Services\AggregatedGalleryService;
 use App\Models\HotelContact;
+use App\Models\HomeJourneyStep;
 use App\Models\PageHero;
 use App\Models\Program;
 use App\Models\Promotion;
@@ -46,9 +47,40 @@ class PublicWebsiteData
         $homeFacilities = Facility::where('status', 'Active')->oldest()->take(3)->get();
         $services = Service::where('status', 'Active')->with('images')->latest()->take(4)->get();
         $blogs = Blog::where('status', 'Published')->latest()->take(3)->get() ?? collect();
-        $reviews = Review::approved()->latest()->take(3)->get();
+        $reviews = Review::approved()->latest()->take(4)->get();
         $reviewCount = Review::approved()->count();
         $whyChooseUsItems = WhyChooseUsItem::query()->orderBy('sort_order')->orderBy('id')->get();
+
+        $kibehoPage = KibehoPage::current()->load('images');
+        $kibehoImageUrl = null;
+        if (filled($kibehoPage->cover_image)) {
+            $kibehoImageUrl = asset('storage/' . $kibehoPage->cover_image);
+        } elseif ($kibehoPage->images->isNotEmpty()) {
+            $kibehoImageUrl = asset('storage/' . $kibehoPage->images->first()->image);
+        }
+
+        $nyaruguruPage = NyaruguruPage::current()->load('images');
+        $nyaruguruImageUrl = null;
+        if (filled($nyaruguruPage->cover_image)) {
+            $nyaruguruImageUrl = asset('storage/' . $nyaruguruPage->cover_image);
+        } elseif ($nyaruguruPage->images->isNotEmpty()) {
+            $nyaruguruImageUrl = asset('storage/' . $nyaruguruPage->images->first()->image);
+        }
+
+        $meetingRooms = collect();
+        $event = Eventpage::with(['meetingRooms.images'])->first();
+        if ($event) {
+            MeetingRoom::ensureDefaultsForEventpage($event);
+            $meetingRooms = $event->fresh()->load(['meetingRooms' => fn ($q) => $q->orderBy('sort_order')->orderBy('id')])->meetingRooms;
+        }
+
+        $restaurant = Restaurant::with(['images'])->first();
+        $journeySteps = HomeJourneyStep::query()->active()->ordered()->get();
+        $homeActivities = TourActivity::query()
+            ->active()
+            ->ordered()
+            ->take(3)
+            ->get();
 
         return [
             'setting' => $setting,
@@ -62,6 +94,14 @@ class PublicWebsiteData
             'reviews' => $reviews,
             'reviewCount' => $reviewCount,
             'whyChooseUsItems' => $whyChooseUsItems,
+            'kibehoPage' => $kibehoPage,
+            'kibehoImageUrl' => $kibehoImageUrl,
+            'nyaruguruPage' => $nyaruguruPage,
+            'nyaruguruImageUrl' => $nyaruguruImageUrl,
+            'meetingRooms' => $meetingRooms ?? collect(),
+            'restaurant' => $restaurant,
+            'journeySteps' => $journeySteps,
+            'homeActivities' => $homeActivities,
         ];
     }
 
@@ -489,7 +529,7 @@ class PublicWebsiteData
 
     public static function activities(): array
     {
-        $activities = TourActivity::with('images')->where('status', 'Active')->oldest()->get();
+        $activities = TourActivity::query()->active()->ordered()->with('images')->get();
         $setting = Setting::first();
         $about = About::first();
         $pageHero = PageHero::getBySlug('activities');
@@ -505,8 +545,13 @@ class PublicWebsiteData
     public static function activity(string $slug): array
     {
         $activity = TourActivity::with('images')->where('slug', $slug)->where('status', 'Active')->firstOrFail();
-        $images = $activity->images()->orderBy('order')->get();
-        $allActivities = TourActivity::where('status', 'Active')->where('id', '!=', $activity->id)->oldest()->take(3)->get();
+        $images = $activity->images;
+        $allActivities = TourActivity::query()
+            ->active()
+            ->ordered()
+            ->where('id', '!=', $activity->id)
+            ->take(3)
+            ->get();
         $setting = Setting::first();
         $about = About::first();
 

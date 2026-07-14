@@ -1,12 +1,12 @@
 {{--
-  Book Now — external channel when enabled & configured, otherwise contact page.
-  Props: $class, $label (default "Book Now"), $style (fill|border|sm-btn), $icon (optional FA class)
+  Book your stay — external channel when enabled & configured, otherwise contact page.
+  Props: $class, $label (default site_trans buttons.book_your_stay), $style (fill|border|sm-btn), $icon (optional FA class)
 --}}
 @php
     $bookUrl = hotel_book_now_url($setting ?? null);
     $bookExternal = hotel_book_now_is_external($setting ?? null);
     $btnClass = trim('theme-btn btn-style ' . ($style ?? 'sm-btn fill') . ' ' . ($class ?? ''));
-    $btnLabel = $label ?? site_trans('buttons.book_now');
+    $btnLabel = $label ?? site_trans('buttons.book_your_stay');
 @endphp
 @if($bookExternal)
     <a href="{{ $bookUrl }}"

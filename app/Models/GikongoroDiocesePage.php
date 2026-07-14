@@ -12,6 +12,7 @@ class GikongoroDiocesePage extends Model
     protected $fillable = [
         'title',
         'description',
+        'official_website_url',
         'header_image',
         'profile_image',
         'stats_background_image',

@@ -8,10 +8,15 @@
             ? asset('storage/' . $pageHero->background_image)
             : asset('storage/images/about/default.jpg'));
     $heroCaption = $page->title ?? site_trans('gikongoro.title');
-    $profileImage = $page->profile_image ? asset('storage/' . $page->profile_image) : null;
+    $mainImage = $page->profile_image
+        ? asset('storage/' . $page->profile_image)
+        : ($page->header_image ? asset('storage/' . $page->header_image) : null);
     $statsBg = $page->stats_background_image
         ? asset('storage/' . $page->stats_background_image)
         : $heroImage;
+    $officialWebsiteUrl = filled(trim((string) ($page->official_website_url ?? '')))
+        ? trim((string) $page->official_website_url)
+        : null;
 @endphp
 
 <div class="gikongoro-hero rts__section page__hero__height page__hero__bg" style="background-image: url({{ $heroImage }});">
@@ -32,24 +37,36 @@
 <section class="gikongoro-profile rts__section section__padding">
     <div class="container">
         <div class="row g-4 g-lg-5 align-items-center">
-            <div class="col-md-5 col-lg-4 text-center text-md-start">
-                <div class="gikongoro-profile__frame">
-                    @if($profileImage)
-                        <img src="{{ $profileImage }}" alt="{{ $page->title }}" class="gikongoro-profile__photo" loading="eager" decoding="async">
+            <div class="col-lg-5 wow fadeInLeft">
+                <div class="gikongoro-profile__media">
+                    @if($mainImage)
+                        <img src="{{ $mainImage }}" alt="{{ $page->title }}" class="gikongoro-profile__img" loading="eager" decoding="async" width="720" height="560">
                     @else
-                        <div class="gikongoro-profile__photo gikongoro-profile__photo--placeholder" aria-hidden="true">
+                        <div class="gikongoro-profile__img gikongoro-profile__img--placeholder" aria-hidden="true">
                             <i class="fa-solid fa-church"></i>
                         </div>
                     @endif
                 </div>
             </div>
-            <div class="col-md-7 col-lg-8">
-                <h2 class="gikongoro-profile__title">{{ site_trans('gikongoro.about_title') }}</h2>
-                <div class="gikongoro-profile__prose content-richtext">
-                    @if(filled($page->description))
-                        {!! $page->description !!}
-                    @else
-                        <p class="text-muted mb-0">{{ site_trans('gikongoro.about_placeholder') }}</p>
+            <div class="col-lg-7 wow fadeInRight">
+                <div class="gikongoro-profile__content">
+                    <h2 class="gikongoro-profile__title">{{ site_trans('gikongoro.about_title') }}</h2>
+                    <div class="gikongoro-profile__prose content-richtext">
+                        @if(filled($page->description))
+                            {!! $page->description !!}
+                        @else
+                            <p class="text-muted mb-0">{{ site_trans('gikongoro.about_placeholder') }}</p>
+                        @endif
+                    </div>
+                    @if($officialWebsiteUrl)
+                        <a href="{{ $officialWebsiteUrl }}"
+                           class="theme-btn btn-style fill gikongoro-profile__link"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           data-no-spa-navigate>
+                            <span>{{ site_trans('gikongoro.visit_website') }}</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                        </a>
                     @endif
                 </div>
             </div>

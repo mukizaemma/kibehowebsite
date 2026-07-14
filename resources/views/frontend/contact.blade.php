@@ -16,12 +16,8 @@
         <div class="row g-4 g-xl-4 align-items-stretch">
             <div class="col-lg-7 col-xl-7">
                 <div class="home-cta__panel home-cta__panel--form site-form-panel h-100" style="padding: 2rem; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                    <div class="home-cta__form-badge mb-2">
-                        <i class="fa-solid fa-comments" aria-hidden="true"></i>
-                        <span>Contact us</span>
-                    </div>
-                    <h3 class="mb-10 section__title section__title--compact">We’re here to help</h3>
-                    @include('frontend.includes.hotel-booking-channels', ['contextLabel' => ' (contact page)'])
+                    <h3 class="mb-3 section__title section__title--compact">{{ site_trans('home.close_booking_title') }}</h3>
+                    @include('frontend.includes.hotel-booking-cta-panel')
                 </div>
             </div>
 

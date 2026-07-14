@@ -12,7 +12,8 @@ class TourActivityController extends Controller
 {
     public function index()
     {
-        $activities = TourActivity::with('images')->latest()->get();
+        $activities = TourActivity::with('images')->ordered()->get();
+
         return view('content-management.tour-activities.index', compact('activities'));
     }
 
@@ -23,6 +24,7 @@ class TourActivityController extends Controller
             'description' => 'nullable|string',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
+            'sort_order' => 'nullable|integer|min:0|max:9999',
             'images.*' => admin_image_validation_rule(),
         ]);
 
@@ -31,6 +33,7 @@ class TourActivityController extends Controller
         $activity->slug = Str::slug($request->title);
         $activity->description = $request->description;
         $activity->status = $request->status;
+        $activity->sort_order = (int) ($request->sort_order ?? 0);
         $activity->added_by = auth()->id();
 
         if ($request->hasFile('cover_image')) {
@@ -39,7 +42,6 @@ class TourActivityController extends Controller
 
         $activity->save();
 
-        // Handle gallery images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 TourActivityImage::create([
@@ -60,6 +62,7 @@ class TourActivityController extends Controller
             'description' => 'nullable|string',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
+            'sort_order' => 'nullable|integer|min:0|max:9999',
             'images.*' => admin_image_validation_rule(),
         ]);
 
@@ -68,6 +71,7 @@ class TourActivityController extends Controller
         $activity->slug = Str::slug($request->title);
         $activity->description = $request->description;
         $activity->status = $request->status;
+        $activity->sort_order = (int) ($request->sort_order ?? 0);
 
         if ($request->hasFile('cover_image')) {
             if ($activity->cover_image) {
@@ -78,13 +82,13 @@ class TourActivityController extends Controller
 
         $activity->save();
 
-        // Handle new gallery images
         if ($request->hasFile('images')) {
+            $baseOrder = (int) $activity->images()->max('order');
             foreach ($request->file('images') as $index => $image) {
                 TourActivityImage::create([
                     'tour_activity_id' => $activity->id,
                     'image' => store_optimized_image($image, 'tour-activities/gallery'),
-                    'order' => $activity->images()->max('order') + $index + 1,
+                    'order' => $baseOrder + $index + 1,
                 ]);
             }
         }

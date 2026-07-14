@@ -13,6 +13,8 @@ class NyaruguruPage extends Model
     protected $fillable = [
         'title',
         'description',
+        'home_title',
+        'home_lead',
         'cover_image',
         'status',
     ];

@@ -23,6 +23,8 @@ class NyaruguruPageController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'home_title' => 'nullable|string|max:255',
+            'home_lead' => 'nullable|string|max:2000',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
             'images.*' => admin_image_validation_rule(),
@@ -31,6 +33,8 @@ class NyaruguruPageController extends Controller
         $page = NyaruguruPage::current();
         $page->title = $data['title'];
         $page->description = $data['description'] ?? null;
+        $page->home_title = $data['home_title'] ?? null;
+        $page->home_lead = $data['home_lead'] ?? null;
         $page->status = $data['status'];
 
         if ($request->hasFile('cover_image')) {

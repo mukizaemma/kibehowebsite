@@ -20,19 +20,19 @@
 
 <div class="hotel-channel-actions {{ $class ?? '' }}" id="enquiry-contacts">
     <div class="hotel-channel-actions__book mb-4">
-        <h3 class="hotel-channel-actions__section-title h6 mb-2">{{ site_trans('buttons.book_now') }}</h3>
+        <h3 class="hotel-channel-actions__section-title h6 mb-2">{{ site_trans('buttons.book_your_stay') }}</h3>
         <p class="hotel-channel-actions__lead small text-muted mb-3">
             {{ $bookExternal ? site_trans('booking.book_now_lead') : site_trans('booking.book_now_lead_contact') }}
         </p>
         @if($bookExternal)
             <a href="{{ $bookUrl }}" class="hotel-channel-actions__btn hotel-channel-actions__btn--booking theme-btn btn-style fill text-center w-100" target="_blank" rel="noopener noreferrer" data-no-spa-navigate>
                 <i class="fa-solid fa-calendar-check me-2" aria-hidden="true"></i>
-                <span>{{ site_trans('buttons.book_now') }}</span>
+                <span>{{ site_trans('buttons.book_your_stay') }}</span>
             </a>
         @else
             <a wire:navigate href="{{ $bookUrl }}" class="hotel-channel-actions__btn hotel-channel-actions__btn--booking theme-btn btn-style fill text-center w-100">
                 <i class="fa-solid fa-calendar-check me-2" aria-hidden="true"></i>
-                <span>{{ site_trans('buttons.book_now') }}</span>
+                <span>{{ site_trans('buttons.book_your_stay') }}</span>
             </a>
         @endif
 

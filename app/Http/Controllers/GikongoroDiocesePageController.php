@@ -19,9 +19,14 @@ class GikongoroDiocesePageController extends Controller
 
     public function updatePage(Request $request)
     {
+        $request->merge([
+            'official_website_url' => $this->nullableUrl($request->input('official_website_url')),
+        ]);
+
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'official_website_url' => 'nullable|url|max:500',
             'header_image' => admin_image_validation_rule(),
             'profile_image' => admin_image_validation_rule(),
             'stats_background_image' => admin_image_validation_rule(),
@@ -31,6 +36,7 @@ class GikongoroDiocesePageController extends Controller
         $page = GikongoroDiocesePage::current();
         $page->title = $data['title'];
         $page->description = $data['description'] ?? null;
+        $page->official_website_url = $data['official_website_url'] ?? null;
         $page->status = $data['status'];
 
         foreach (['header_image', 'profile_image', 'stats_background_image'] as $field) {
@@ -103,6 +109,17 @@ class GikongoroDiocesePageController extends Controller
         GikongoroDioceseStat::findOrFail($id)->delete();
 
         return response()->json(['success' => true, 'message' => 'Statistic deleted successfully']);
+    }
+
+    private function nullableUrl(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '' || $value === 'https://' || $value === 'http://') {
+            return null;
+        }
+
+        return $value;
     }
 
     private function nullableSortOrder(mixed $value): ?int

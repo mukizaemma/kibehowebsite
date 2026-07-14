@@ -495,14 +495,29 @@
                                         <a wire:navigate.hover href="{{ localized_route('home') }}" class="navigation__menu--item__link">{{ site_trans('nav.home') }}</a>
                                     </li>
 
+                                    <li class="navigation__menu--item">
+                                        <a wire:navigate.hover href="{{ localized_route('rooms') }}" class="navigation__menu--item__link">{{ site_trans('nav.stay') }}</a>
+                                    </li>
+
+                                    <li class="navigation__menu--item has-child">
+                                        <a wire:navigate.hover href="{{ localized_route('explore-kibeho') }}" class="navigation__menu--item__link">{{ site_trans('nav.explore_kibeho') }}</a>
+                                        <ul class="submenu sub__style" role="menu">
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <li class="navigation__menu--item">
+                                        <a wire:navigate.hover href="{{ localized_route('meetings-events') }}" class="navigation__menu--item__link">{{ site_trans('nav.retreats') }}</a>
+                                    </li>
+
                                     <li class="navigation__menu--item has-child">
                                         <a wire:navigate.hover href="{{ localized_route('about') }}" class="navigation__menu--item__link">{{ site_trans('nav.about') }}</a>
                                         <ul class="submenu sub__style" role="menu">
+                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('dining') }}">{{ site_trans('nav.dining') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('about')}}#background">{{ site_trans('nav.our_history') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
-                                            <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
                                             <li role="menuitem"><a wire:navigate.hover href="{{ localized_route('terms')}}">{{ site_trans('nav.terms') }}</a></li>
@@ -510,26 +525,11 @@
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('rooms')}}" class="navigation__menu--item__link">{{ site_trans('nav.rooms') }}</a>
-                                    </li>
-                                    <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('dining')}}" class="navigation__menu--item__link">{{ site_trans('nav.dining') }}</a>
+                                        <a wire:navigate.hover href="{{ localized_route('gallery') }}" class="navigation__menu--item__link">{{ site_trans('nav.gallery') }}</a>
                                     </li>
 
                                     <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('meetings-events')}}" class="navigation__menu--item__link">{{ site_trans('nav.meetings_events') }}</a>
-                                    </li>
-
-                                    {{-- <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('spa-wellness')}}" class="navigation__menu--item__link">SPA & Wellness</a>
-                                    </li> --}}
-
-                                    <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('gallery')}}" class="navigation__menu--item__link">{{ site_trans('nav.gallery') }}</a>
-                                    </li>
-
-                                    <li class="navigation__menu--item">
-                                        <a wire:navigate.hover href="{{ localized_route('contact')}}" class="navigation__menu--item__link">{{ site_trans('nav.contact') }}</a>
+                                        <a wire:navigate.hover href="{{ localized_route('contact') }}" class="navigation__menu--item__link">{{ site_trans('nav.contact') }}</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -760,65 +760,50 @@
                     <div class="rts__desktop__menu">
                         <nav class="desktop__menu offcanvas__menu">
                             <ul class="list-unstyled">
-                                <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('home') }}">{{ site_trans('nav.home') }}
-                                        <span class="toggle"></span>
-                                    </a>
+                                <li class="slide">
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('home') }}">{{ site_trans('nav.home') }}</a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('about') }}">{{ site_trans('nav.about') }}
-                                        <span class="toggle"></span>
-                                    </a>
-                                    <ul class="slide__menu">
-                                        <li><a wire:navigate href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('about') }}#background">{{ site_trans('nav.our_history') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
-                                        <li><a wire:navigate href="{{ localized_route('terms') }}">{{ site_trans('nav.terms') }}</a></li>
-                                    </ul>
-                                </li>
-                                <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('rooms') }}">{{ site_trans('nav.rooms') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('rooms') }}">{{ site_trans('nav.stay') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
                                       @foreach ($rooms as $room)
                                         <li><a wire:navigate href="{{ localized_route('room',['slug'=>$room->slug]) }}">{{ $room->title }}</a></li>
                                       @endforeach
-                                        
                                     </ul>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('facilities') }}">{{ site_trans('nav.our_services') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.explore_kibeho') }}
                                         <span class="toggle"></span>
                                     </a>
                                     <ul class="slide__menu">
-                                      @foreach ($facilities as $facility)
-                                        <li><a wire:navigate href="{{ localized_route('facility',['slug'=>$facility->slug]) }}">{{ $facility->title }}</a></li>
-                                      @endforeach
-                                        
+                                        <li><a wire:navigate href="{{ localized_route('explore-kibeho') }}">{{ site_trans('nav.visit_kibeho') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('discover-nyaruguru') }}">{{ site_trans('nav.discover_nyaruguru') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('discover-gikongoro-diocese') }}">{{ site_trans('nav.discover_gikongoro') }}</a></li>
                                     </ul>
                                 </li>
                                 <li class="slide">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('activities') }}">Tour Activities
-                                    </a>
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('meetings-events') }}">{{ site_trans('nav.retreats') }}</a>
                                 </li>
                                 <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('gallery') }}">{{ site_trans('nav.gallery') }}
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('about') }}">{{ site_trans('nav.about') }}
                                         <span class="toggle"></span>
                                     </a>
+                                    <ul class="slide__menu">
+                                        <li><a wire:navigate href="{{ localized_route('dining') }}">{{ site_trans('nav.dining') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('our-services') }}">{{ site_trans('nav.our_services') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('about') }}#background">{{ site_trans('nav.our_history') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('our-team') }}">{{ site_trans('nav.our_team') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('updates') }}">{{ site_trans('nav.updates') }}</a></li>
+                                        <li><a wire:navigate href="{{ localized_route('terms') }}">{{ site_trans('nav.terms') }}</a></li>
+                                    </ul>
                                 </li>
                                 <li class="slide">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('contact') }}">{{ site_trans('nav.contact') }}
-                                    </a>
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('gallery') }}">{{ site_trans('nav.gallery') }}</a>
                                 </li>
-                                <li class="slide has__children">
-                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('connect') }}">{{ site_trans('buttons.contact_us') }}
-                                    </a>
-
+                                <li class="slide">
+                                    <a class="slide__menu__item" wire:navigate href="{{ localized_route('contact') }}">{{ site_trans('nav.contact') }}</a>
                                 </li>
                             </ul>
                         </nav>

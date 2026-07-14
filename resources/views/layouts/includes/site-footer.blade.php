@@ -69,10 +69,10 @@
 
     $footerMainMenuLinks = [
         ['route' => 'home', 'label' => site_trans('nav.home')],
-        ['route' => 'about', 'label' => site_trans('nav.about')],
-        ['route' => 'rooms', 'label' => site_trans('footer.link_accommodation')],
+        ['route' => 'rooms', 'label' => site_trans('nav.stay')],
+        ['route' => 'explore-kibeho', 'label' => site_trans('nav.explore_kibeho')],
+        ['route' => 'meetings-events', 'label' => site_trans('nav.retreats')],
         ['route' => 'dining', 'label' => site_trans('footer.link_bar_restaurant')],
-        ['route' => 'meetings-events', 'label' => site_trans('footer.link_meetings_workshops')],
         ['route' => 'gallery', 'label' => site_trans('nav.gallery')],
         ['route' => 'contact', 'label' => site_trans('nav.contact')],
     ];

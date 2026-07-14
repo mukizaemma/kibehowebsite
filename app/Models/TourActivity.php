@@ -17,14 +17,31 @@ class TourActivity extends Model
         'cover_image',
         'description',
         'status',
+        'sort_order',
         'added_by',
     ];
 
-    public function images(){
-        return $this->hasMany(TourActivityImage::class);
+    protected $casts = [
+        'sort_order' => 'integer',
+    ];
+
+    public function images()
+    {
+        return $this->hasMany(TourActivityImage::class)->orderBy('order')->orderBy('id');
     }
 
-    public function addedBy(){
+    public function addedBy()
+    {
         return $this->belongsTo(User::class, 'added_by');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'Active');
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('sort_order')->orderBy('id');
     }
 }

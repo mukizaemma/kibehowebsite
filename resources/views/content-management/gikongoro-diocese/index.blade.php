@@ -55,7 +55,18 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="gikongoro_description">Description</label>
                                     <textarea class="form-control" id="gikongoro_description" name="description" rows="6"></textarea>
-                                    <small class="text-muted">Shown beside the profile image on the public page.</small>
+                                    <small class="text-muted">Shown beside the image on the public page.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="gikongoro_official_url">Official website <span class="text-muted fw-normal">(optional)</span></label>
+                                    <input type="url"
+                                           class="form-control"
+                                           id="gikongoro_official_url"
+                                           name="official_website_url"
+                                           value="{{ $page->official_website_url }}"
+                                           placeholder="https://example.com"
+                                           maxlength="500">
+                                    <small class="text-muted">Opens in a new tab from the public page for more details.</small>
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -67,11 +78,12 @@
                                     <input type="file" class="form-control" name="header_image" accept="image/*">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Profile image</label>
+                                    <label class="form-label">Main image</label>
                                     @if($page->profile_image)
-                                        <div class="mb-2"><img src="{{ asset('storage/'.$page->profile_image) }}" alt="" class="img-fluid rounded-circle border" style="width:100px;height:100px;object-fit:cover;"></div>
+                                        <div class="mb-2"><img src="{{ asset('storage/'.$page->profile_image) }}" alt="" class="img-fluid rounded border" style="max-height:140px;object-fit:cover;width:100%;"></div>
                                     @endif
                                     <input type="file" class="form-control" name="profile_image" accept="image/*">
+                                    <small class="text-muted">Featured beside the description (diocese photo or portrait).</small>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Statistics background</label>

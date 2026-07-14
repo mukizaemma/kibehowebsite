@@ -22,7 +22,7 @@
                 <div class="room__item-content" style="text-align:center">
                   <h3><a href="{{ hotel_reservation_url($setting) ?? '#' }}" target="_blank" rel="noopener noreferrer">{{$promotion->title}}</a></h3>
                   <div class="room__item-body" style="padding-top:10px">
-                    <a href="{{ hotel_reservation_url($setting) ?? '#' }}" target="_blank" rel="noopener noreferrer" class="custom-btn custom-btn--bordered"><span>Book Now</span></a>
+                    <a href="{{ hotel_reservation_url($setting) ?? '#' }}" target="_blank" rel="noopener noreferrer" class="custom-btn custom-btn--bordered"><span>{{ site_trans('buttons.book_your_stay') }}</span></a>
                   </div>
                 </div>
               </div>
