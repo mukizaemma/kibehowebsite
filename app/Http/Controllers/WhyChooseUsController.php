@@ -19,10 +19,12 @@ class WhyChooseUsController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|string|max:100',
             'sort_order' => 'nullable|integer|min:0|max:9999',
         ]);
 
         $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['icon'] = $this->normalizeIcon($data['icon'] ?? null);
 
         WhyChooseUsItem::create($data);
 
@@ -41,11 +43,13 @@ class WhyChooseUsController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|string|max:100',
             'sort_order' => 'nullable|integer|min:0|max:9999',
         ]);
 
         $item = WhyChooseUsItem::findOrFail($id);
         $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['icon'] = $this->normalizeIcon($data['icon'] ?? null);
         $item->update($data);
 
         return response()->json(['success' => true, 'message' => 'Item updated successfully']);
@@ -56,5 +60,18 @@ class WhyChooseUsController extends Controller
         WhyChooseUsItem::findOrFail($id)->delete();
 
         return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
+    }
+
+    private function normalizeIcon(?string $icon): string
+    {
+        $icon = trim((string) $icon);
+        if ($icon === '') {
+            return 'fa-solid fa-circle-dot';
+        }
+        if (! str_contains($icon, ' ')) {
+            return 'fa-solid '.$icon;
+        }
+
+        return $icon;
     }
 }

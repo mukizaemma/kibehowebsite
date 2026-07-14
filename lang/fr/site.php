@@ -144,7 +144,7 @@ return [
         'gallery_image_alt' => 'Image de la galerie de l\'hôtel',
         'view_full_gallery' => 'Voir la galerie complète',
         'why_choose_title' => 'Pourquoi nous choisir',
-        'why_choose_lead' => 'Survolez pour les détails ; sur mobile, un extrait s\'affiche sous chaque titre.',
+        'why_choose_lead' => 'Ce que retiennent les pèlerins et les retraitants en séjournant près du Sanctuaire.',
     ],
     'footer' => [
         'quick_links' => 'Liens rapides',

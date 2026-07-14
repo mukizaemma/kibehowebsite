@@ -11,52 +11,62 @@ class WhyChooseUsItemSeeder extends Seeder
     {
         $items = [
             [
-                'title' => 'Prime Location',
-                'description' => 'Located in Muhanga city, with easy access to healthcare facilities, business centers, schools, and tourist attractions.',
+                'title' => 'Near the Sanctuary',
+                'description' => 'Stay in Kibeho close to the holy shrine — a peaceful base for pilgrimage, prayer and visits to the Marian sites.',
+                'icon' => 'fa-solid fa-place-of-worship',
                 'sort_order' => 1,
             ],
             [
-                'title' => 'Faith-Based Environment',
-                'description' => 'A peaceful and respectful atmosphere rooted in Catholic values, ideal for reflection, retreats, and calm stays.',
+                'title' => 'Faith-centred hospitality',
+                'description' => 'A respectful Catholic atmosphere suited to pilgrims, retreatants and guests seeking quiet reflection.',
+                'icon' => 'fa-solid fa-hands-praying',
                 'sort_order' => 2,
             ],
             [
-                'title' => 'Comfortable & Affordable Rooms',
-                'description' => 'Well-maintained rooms with modern amenities at competitive pricing for all types of travelers.',
+                'title' => 'Rest after pilgrimage',
+                'description' => 'Comfortable, affordable rooms prepared for rest after a day of prayer, Mass and walking the sacred grounds.',
+                'icon' => 'fa-solid fa-bed',
                 'sort_order' => 3,
             ],
             [
-                'title' => 'Ideal for Conferences & Workshops',
-                'description' => 'Fully equipped meeting spaces suitable for trainings, church gatherings, and corporate events.',
+                'title' => 'Retreats & gatherings',
+                'description' => 'Meeting spaces for church retreats, choir camps, youth gatherings and prayerful workshops near the Sanctuary.',
+                'icon' => 'fa-solid fa-people-group',
                 'sort_order' => 4,
             ],
             [
-                'title' => 'Professional & Caring Staff',
-                'description' => 'A dedicated team committed to providing personalized service and exceeding guest expectations.',
+                'title' => 'Warm, caring staff',
+                'description' => 'A dedicated team that welcomes pilgrims and groups with kindness, guidance and attentive service.',
+                'icon' => 'fa-solid fa-heart',
                 'sort_order' => 5,
             ],
             [
-                'title' => 'Outside Catering Services',
-                'description' => 'Reliable catering solutions available both within Muhanga and across Rwanda for events and group functions.',
+                'title' => 'Meals for guests & groups',
+                'description' => 'Simple, welcoming dining for individual guests and groups during pilgrimages, retreats and celebrations.',
+                'icon' => 'fa-solid fa-utensils',
                 'sort_order' => 6,
             ],
             [
-                'title' => 'Transport Assistance',
-                'description' => 'Convenient transport arrangements for guests, including local and long-distance travel support.',
+                'title' => 'Safe & serene setting',
+                'description' => 'A calm, secure place in southern Rwanda where faith, rest and community can unfold without distraction.',
+                'icon' => 'fa-solid fa-shield-heart',
                 'sort_order' => 7,
-            ],
-            [
-                'title' => 'Safe & Serene Environment',
-                'description' => 'A secure and quiet setting perfect for relaxation, focus, and spiritual retreats.',
-                'sort_order' => 8,
             ],
         ];
 
         foreach ($items as $row) {
-            WhyChooseUsItem::firstOrCreate(
+            WhyChooseUsItem::updateOrCreate(
                 ['title' => $row['title']],
-                ['description' => $row['description'], 'sort_order' => $row['sort_order']]
+                [
+                    'description' => $row['description'],
+                    'icon' => $row['icon'],
+                    'sort_order' => $row['sort_order'],
+                ]
             );
         }
+
+        WhyChooseUsItem::query()
+            ->where('title', 'like', '%Transport%')
+            ->delete();
     }
 }

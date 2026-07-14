@@ -144,7 +144,7 @@ return [
         'gallery_image_alt' => 'Hotel gallery image',
         'view_full_gallery' => 'View full gallery',
         'why_choose_title' => 'Why Choose Us',
-        'why_choose_lead' => 'Hover for details; on phones we show a short excerpt under each title.',
+        'why_choose_lead' => 'What pilgrims and retreat guests value about staying near the Sanctuary.',
     ],
     'footer' => [
         'quick_links' => 'Quick Links',

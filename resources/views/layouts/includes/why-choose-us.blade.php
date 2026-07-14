@@ -1,18 +1,6 @@
-{{-- Full-width parallax background + transparent layer; icon/title + hover reveal.
-     Optional $whyChooseUsLayout: 'full' (default) | 'meetings' — contained column for Meetings page. --}}
 @if(isset($whyChooseUsItems) && $whyChooseUsItems->isNotEmpty())
 @php
     $wcuLayout = $whyChooseUsLayout ?? 'full';
-    $wcuIcons = [
-        'fa-location-dot',
-        'fa-hands-praying',
-        'fa-bed',
-        'fa-chalkboard-user',
-        'fa-user-group',
-        'fa-bowl-food',
-        'fa-van-shuttle',
-        'fa-shield-heart',
-    ];
     $wcuBgUrl = asset('storage/images/about/default.jpg');
     if ($about && $about->image2) {
         if (strpos($about->image2, '/') !== false || strpos($about->image2, 'abouts') === 0) {
@@ -58,6 +46,12 @@
             @endif
             <div class="row g-4 g-xl-4 justify-content-center align-items-stretch site-why-choose__grid {{ $wcuLayout === 'meetings' ? 'justify-content-start' : '' }}">
                 @foreach($whyChooseUsItems as $item)
+                @php
+                    $wcuIcon = filled($item->icon) ? $item->icon : 'fa-solid fa-circle-dot';
+                    if (! str_contains($wcuIcon, ' ')) {
+                        $wcuIcon = 'fa-solid '.$wcuIcon;
+                    }
+                @endphp
                 <div class="{{ $wcuCardColClass }} d-flex">
                     <article
                         class="site-why-choose__card h-100 w-100 {{ $wcuLayout === 'meetings' ? 'site-why-choose__card--meetings' : '' }}"
@@ -71,7 +65,7 @@
                         <div class="site-why-choose__peek">
                             <div class="site-why-choose__icon-wrap" aria-hidden="true">
                                 <span class="site-why-choose__icon-ring"></span>
-                                <i class="fa-solid {{ $wcuIcons[$loop->index % count($wcuIcons)] }} site-why-choose__icon"></i>
+                                <i class="{{ $wcuIcon }} site-why-choose__icon"></i>
                             </div>
                             <h3 class="site-why-choose__title">{{ $item->title }}</h3>
                         </div>

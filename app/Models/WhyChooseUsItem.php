@@ -9,6 +9,7 @@ class WhyChooseUsItem extends Model
     protected $fillable = [
         'title',
         'description',
+        'icon',
         'sort_order',
     ];
 

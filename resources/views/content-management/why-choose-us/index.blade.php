@@ -11,7 +11,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="mb-0">Why Choose Us</h4>
-                    <p class="text-muted small mb-0">Manage bullet points shown on the website (e.g. location, values, services).</p>
+                    <p class="text-muted small mb-0">Pilgrimage-focused reasons shown on the public site. Do not add transport — the hotel does not offer it.</p>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#wcuModal" onclick="resetWcuForm()">
                     <i class="fa fa-plus me-2"></i>Add item
@@ -23,6 +23,7 @@
                     <thead>
                         <tr>
                             <th style="width:72px">Order</th>
+                            <th style="width:72px">Icon</th>
                             <th>Title</th>
                             <th>Description</th>
                             <th style="width:120px">Actions</th>
@@ -32,6 +33,7 @@
                         @forelse($items as $item)
                         <tr>
                             <td>{{ $item->sort_order }}</td>
+                            <td class="text-center"><i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }}"></i></td>
                             <td><strong>{{ $item->title }}</strong></td>
                             <td class="small text-muted">{{ Str::limit(strip_tags($item->description ?? ''), 120) }}</td>
                             <td>
@@ -45,7 +47,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-4">No items yet. Add your first reason or run the seeder.</td>
+                            <td colspan="5" class="text-center text-muted py-4">No items yet. Add your first reason or run the seeder.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -72,7 +74,12 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="wcu_description">Description</label>
-                        <textarea class="form-control" id="wcu_description" name="description" rows="5" placeholder="Short paragraph explaining this point"></textarea>
+                        <textarea class="form-control" id="wcu_description" name="description" rows="5" placeholder="Short paragraph for pilgrims and retreat guests"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="wcu_icon">Icon class</label>
+                        <input type="text" class="form-control" id="wcu_icon" name="icon" maxlength="100" value="fa-solid fa-circle-dot" placeholder="fa-solid fa-place-of-worship">
+                        <div class="form-text">Font Awesome class, e.g. <code>fa-solid fa-hands-praying</code>.</div>
                     </div>
                     <div class="mb-0">
                         <label class="form-label" for="wcu_sort_order">Display order</label>
@@ -98,6 +105,7 @@ function resetWcuForm() {
     document.getElementById('wcuForm').reset();
     document.getElementById('wcu_id').value = '';
     document.getElementById('wcu_sort_order').value = '0';
+    document.getElementById('wcu_icon').value = 'fa-solid fa-circle-dot';
     document.getElementById('wcuModalTitle').textContent = 'Add item';
 }
 
@@ -109,6 +117,7 @@ function editWcu(id) {
             document.getElementById('wcu_id').value = data.id;
             document.getElementById('wcu_title').value = data.title || '';
             document.getElementById('wcu_description').value = data.description || '';
+            document.getElementById('wcu_icon').value = data.icon || 'fa-solid fa-circle-dot';
             document.getElementById('wcu_sort_order').value = data.sort_order ?? 0;
             document.getElementById('wcuModalTitle').textContent = 'Edit item';
             CmsAdmin.showModal('wcuModal');
@@ -136,6 +145,7 @@ document.getElementById('wcuForm').addEventListener('submit', function(e) {
     const payload = {
         title: document.getElementById('wcu_title').value,
         description: document.getElementById('wcu_description').value,
+        icon: document.getElementById('wcu_icon').value,
         sort_order: parseInt(document.getElementById('wcu_sort_order').value, 10) || 0
     };
     const url = currentWcuId
