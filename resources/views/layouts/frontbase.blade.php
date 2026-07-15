@@ -101,6 +101,7 @@
             line-height: 1.6;
             color: #1a2420;
             background: #fafaf8;
+            overflow-x: clip;
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Lora', Georgia, serif;
@@ -186,9 +187,10 @@
         }
         /* Phone + email beside logo on small screens (top bar is hidden <576px) */
         .main__header__contacts {
-            font-size: 0.7rem;
-            line-height: 1.2;
-            max-width: min(56vw, 14rem);
+            font-size: 0.68rem;
+            line-height: 1.25;
+            max-width: min(40vw, 10.5rem);
+            min-width: 0;
         }
         .main__header__contacts a {
             color: #111111;
@@ -197,6 +199,7 @@
             gap: 0.25rem;
             text-decoration: none;
             font-weight: 500;
+            min-width: 0;
         }
         .main__header__contacts a:hover {
             color: var(--brand-primary);
@@ -211,6 +214,14 @@
             display: inline-block;
             max-width: 100%;
             vertical-align: bottom;
+        }
+        @media (max-width: 399.98px) {
+            .main__header__contacts-email {
+                display: none !important;
+            }
+            .main__header__contacts {
+                max-width: min(36vw, 8.5rem);
+            }
         }
         /* Language switcher + nav sizing: see kibeho-theme.css */
         /* Home hero: full viewport height, same for every slide */
@@ -463,9 +474,8 @@
     </div>
     <header class="main__header header__function">
         <div class="container">
-            <div class="row">
-                <div class="main__header__wrapper">
-                    <div class="d-flex align-items-center min-w-0 flex-shrink-1 gap-2">
+            <div class="main__header__wrapper">
+                    <div class="d-flex align-items-center min-w-0 flex-shrink-1 gap-2 main__header__brand">
                         <div class="main__logo">
                             <a wire:navigate href="{{ localized_route('home')}}"><img class="logo__class" src="{{ $headerLogoUrl }}" alt="{{ $setting?->company ?? 'Kibeho Magnificat Hotel' }}"></a>
                         </div>
@@ -478,7 +488,7 @@
                             </a>
                             @endif
                             @if(filled($headerEmail))
-                            <a class="link__item" href="mailto:{{ $headerEmail }}">
+                            <a class="link__item main__header__contacts-email" href="mailto:{{ $headerEmail }}">
                                 <i class="fas fa-envelope main__header__contacts-icon" aria-hidden="true"></i>
                                 <span class="text-truncate">{{ $headerEmail }}</span>
                             </a>
@@ -537,7 +547,7 @@
 
                     </div>
 
-                    <div class="main__right d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                    <div class="main__right d-flex align-items-center gap-2 flex-nowrap justify-content-end">
                         @auth
                             @if(auth()->user()->isGuest())
                                 <a wire:navigate href="{{ route('account.dashboard') }}" class="theme-btn btn-style sm-btn outline" style="font-size: 14px; font-weight: 600; padding: 10px 20px;">
@@ -556,11 +566,10 @@
                             </form>
                         @endauth
                         @include('frontend.includes.reservation-link', ['style' => 'sm-btn fill', 'class' => 'header-book-cta'])
-                        <button class="theme-btn btn-style sm-btn fill menu__btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        <button type="button" class="theme-btn btn-style sm-btn fill menu__btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" aria-label="Open menu">
                             <span><img src="assets/images/icon/menu-icon.svg" alt=""></span>
                         </button>
                     </div>
-                </div>
             </div>
         </div>
     </header>
