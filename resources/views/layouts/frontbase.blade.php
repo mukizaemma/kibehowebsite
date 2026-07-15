@@ -224,7 +224,7 @@
             }
         }
         /* Language switcher + nav sizing: see kibeho-theme.css */
-        /* Home hero: full viewport height, same for every slide */
+        /* Home hero: full viewport on desktop; landscape frame on phones (see kibeho-theme.css) */
         .livewire-home-page .banner__area.is__home__one.banner__height {
             min-height: 100vh;
             min-height: 100dvh;

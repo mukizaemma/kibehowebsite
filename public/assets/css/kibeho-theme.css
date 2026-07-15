@@ -2356,7 +2356,7 @@ body.gallery-lightbox-open {
 .home-hero .banner__slider__image img,
 .home-hero .banner__slider__image video {
     object-fit: cover;
-    object-position: center 62%;
+    object-position: center center;
     width: 100%;
     height: 100%;
 }
@@ -2459,11 +2459,47 @@ body.gallery-lightbox-open {
     z-index: 4;
 }
 
-/* Home hero — mobile-friendly type, spacing, and CTAs */
+/* Home hero — landscape frame + compact copy on phones */
 @media (max-width: 767.98px) {
+    .livewire-home-page .banner__area.is__home__one.banner__height,
+    .home-hero.banner__area.is__home__one {
+        min-height: 0 !important;
+        height: auto;
+        aspect-ratio: 3 / 2;
+        max-height: min(66vw, 28rem);
+    }
+
+    .livewire-home-page .banner__area.is__home__one .banner__slider,
+    .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-wrapper,
+    .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-slide,
+    .home-hero .banner__slider--cinematic,
+    .home-hero .banner__slider--cinematic .swiper-wrapper,
+    .home-hero .banner__slider--cinematic .swiper-slide {
+        min-height: 0 !important;
+        height: 100% !important;
+        aspect-ratio: auto;
+    }
+
+    .home-hero .banner__slider__image {
+        position: absolute;
+        inset: 0;
+    }
+
+    .home-hero .banner__slider__image img,
+    .home-hero .banner__slider__image video {
+        object-position: center center;
+    }
+
     .home-hero__overlay {
-        align-items: flex-end;
-        padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 0 max(0.85rem, env(safe-area-inset-bottom));
+        background: linear-gradient(
+            180deg,
+            rgba(10, 32, 24, 0.35) 0%,
+            rgba(10, 32, 24, 0.22) 40%,
+            rgba(10, 32, 24, 0.58) 100%
+        );
     }
 
     .home-hero__overlay .container {
@@ -2476,45 +2512,51 @@ body.gallery-lightbox-open {
         width: 100%;
         max-width: 100%;
         margin-inline: 0;
-        padding: 5.5rem 0 2rem;
+        padding: 0.35rem 0 0.15rem;
         text-align: center;
     }
 
     .home-hero__headline {
-        margin: 0 auto 0.75rem !important;
+        margin: 0 auto 0.45rem !important;
         max-width: 22rem;
         padding-inline: 0.15rem;
-        font-size: clamp(1.2rem, 5.2vw, 1.55rem) !important;
-        line-height: 1.3 !important;
+        font-size: clamp(1.05rem, 4.4vw, 1.35rem) !important;
+        line-height: 1.28 !important;
         text-wrap: balance;
         text-align: center;
     }
 
     .home-hero__lead {
-        margin: 0 auto 1.25rem;
+        margin: 0 auto 0.85rem;
         max-width: 22rem;
         padding-inline: 0.15rem;
-        font-size: 0.92rem;
-        line-height: 1.55;
+        font-size: 0.84rem;
+        line-height: 1.45;
         text-align: center;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
     }
 
     .home-hero__actions {
-        flex-direction: column;
-        flex-wrap: nowrap;
-        gap: 0.7rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.55rem;
         width: 100%;
-        max-width: 18.5rem;
+        max-width: 22rem;
         margin-inline: auto;
+        justify-content: center;
     }
 
     .home-hero__actions .theme-btn {
-        width: 100%;
+        flex: 1 1 auto;
+        min-width: 9.5rem;
         justify-content: center;
         text-align: center;
-        white-space: normal;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        white-space: nowrap;
+        padding: 0.65rem 0.9rem !important;
+        font-size: 0.8rem !important;
     }
 
     .home-hero .rts__slider__nav {
@@ -2523,14 +2565,62 @@ body.gallery-lightbox-open {
 }
 
 @media (max-width: 399.98px) {
+    .livewire-home-page .banner__area.is__home__one.banner__height,
+    .home-hero.banner__area.is__home__one {
+        aspect-ratio: 4 / 3;
+        max-height: min(78vw, 26rem);
+    }
+
     .home-hero__headline {
-        font-size: 1.125rem !important;
+        font-size: 1.05rem !important;
         max-width: 100%;
     }
 
     .home-hero__lead {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         max-width: 100%;
+        -webkit-line-clamp: 2;
+    }
+
+    .home-hero__actions {
+        flex-direction: column;
+        max-width: 16.5rem;
+    }
+
+    .home-hero__actions .theme-btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Phones held sideways: keep a wide landscape hero */
+@media (max-height: 500px) and (orientation: landscape) {
+    .livewire-home-page .banner__area.is__home__one.banner__height,
+    .home-hero.banner__area.is__home__one {
+        min-height: 0 !important;
+        max-height: none;
+        aspect-ratio: 21 / 9;
+        height: auto;
+    }
+
+    .livewire-home-page .banner__area.is__home__one .banner__slider,
+    .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-wrapper,
+    .livewire-home-page .banner__area.is__home__one .banner__slider .swiper-slide {
+        min-height: 0 !important;
+        height: 100% !important;
+    }
+
+    .home-hero__lead {
+        display: none;
+    }
+
+    .home-hero__content {
+        padding: 0.25rem 0;
+    }
+
+    .home-hero__actions {
+        flex-direction: row;
+        max-width: 28rem;
     }
 }
 
