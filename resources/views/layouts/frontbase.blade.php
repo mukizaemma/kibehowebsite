@@ -1044,6 +1044,13 @@
         });
     }
 
+    var heroKenPlayers = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+    var heroKenLastScale = null;
+    var heroKenReducedMotion = false;
+    try {
+        heroKenReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) {}
+
     function syncHomeHeroOverlay(swiper) {
         var heroRoot = document.querySelector('.livewire-home-page .home-hero');
         if (!heroRoot || !swiper) return;
@@ -1096,6 +1103,99 @@
         }
     }
 
+    function heroKenReadScale(media, fallback) {
+        if (!media) return fallback;
+        var transform = window.getComputedStyle(media).transform;
+        if (!transform || transform === 'none') return fallback;
+        var matrix = transform.match(/matrix\(([^)]+)\)/);
+        if (matrix) {
+            var parts = matrix[1].split(',').map(function (v) { return parseFloat(v.trim()); });
+            if (!isNaN(parts[0]) && !isNaN(parts[1])) {
+                return Math.sqrt(parts[0] * parts[0] + parts[1] * parts[1]);
+            }
+        }
+        var scaleMatch = transform.match(/scale\(([^)]+)\)/);
+        if (scaleMatch) {
+            var scale = parseFloat(scaleMatch[1]);
+            if (!isNaN(scale)) return scale;
+        }
+        return fallback;
+    }
+
+    function heroKenCancel(media) {
+        if (!media || !heroKenPlayers) return;
+        var player = heroKenPlayers.get(media);
+        if (player) {
+            try { player.cancel(); } catch (e) {}
+            heroKenPlayers.delete(media);
+        }
+    }
+
+    function heroKenFreeze(media, fallback) {
+        if (!media) return fallback;
+        var scale = heroKenReadScale(media, fallback);
+        heroKenCancel(media);
+        media.style.transform = 'scale(' + scale + ')';
+        return scale;
+    }
+
+    function heroKenPlay(media, fromScale, toScale, durationMs) {
+        if (!media || typeof media.animate !== 'function') return;
+        heroKenCancel(media);
+        media.style.transform = 'scale(' + fromScale + ')';
+        var player = media.animate(
+            [
+                { transform: 'scale(' + fromScale + ')' },
+                { transform: 'scale(' + toScale + ')' }
+            ],
+            {
+                duration: Math.max(durationMs, 1000),
+                easing: 'linear',
+                fill: 'forwards'
+            }
+        );
+        if (heroKenPlayers) {
+            heroKenPlayers.set(media, player);
+        }
+        player.onfinish = function () {
+            media.style.transform = 'scale(' + toScale + ')';
+        };
+    }
+
+    function heroKenSlideMedia(slide) {
+        if (!slide) return null;
+        return slide.querySelector('.banner__slider__image img, .banner__slider__image video');
+    }
+
+    function syncHomeHeroKenBurns(swiper, isInit) {
+        if (heroKenReducedMotion || !swiper) return;
+
+        var sliderEl = swiper.el;
+        var minScale = parseFloat(window.getComputedStyle(sliderEl).getPropertyValue('--hero-ken-min')) || 1.06;
+        var maxScale = parseFloat(window.getComputedStyle(sliderEl).getPropertyValue('--hero-ken-max')) || 1.18;
+        var durationMs = (parseFloat(window.getComputedStyle(sliderEl).getPropertyValue('--hero-ken-duration')) || 7.5) * 1000;
+
+        var activeMedia = heroKenSlideMedia(swiper.slides[swiper.activeIndex]);
+        if (!activeMedia) return;
+
+        var fromScale;
+        if (isInit || heroKenLastScale == null) {
+            fromScale = minScale;
+        } else {
+            var prevMedia = heroKenSlideMedia(swiper.slides[swiper.previousIndex]);
+            fromScale = heroKenFreeze(prevMedia, heroKenLastScale);
+        }
+
+        // Alternate zoom direction so each slide continues from the previous end scale.
+        var toScale = (swiper.realIndex % 2 === 0) ? maxScale : minScale;
+        if (Math.abs(toScale - fromScale) < 0.001) {
+            toScale = fromScale >= ((minScale + maxScale) / 2) ? minScale : maxScale;
+        }
+
+        heroKenPlay(activeMedia, fromScale, toScale, durationMs);
+        heroKenLastScale = toScale;
+    }
+
     function initHomeHeroSwiper() {
         if (typeof Swiper === 'undefined') return;
         var heroSliderEl = document.querySelector('.livewire-home-page .banner__slider');
@@ -1103,6 +1203,7 @@
         if (heroSliderEl.swiper) {
             try { heroSliderEl.swiper.destroy(true, true); } catch (e) {}
         }
+        heroKenLastScale = null;
         var heroDelay = 7500;
         heroSliderEl.style.setProperty('--hero-ken-duration', (heroDelay / 1000) + 's');
         new Swiper(heroSliderEl, {
@@ -1124,9 +1225,11 @@
             on: {
                 init: function (swiper) {
                     syncHomeHeroOverlay(swiper);
+                    syncHomeHeroKenBurns(swiper, true);
                 },
-                slideChange: function (swiper) {
+                slideChangeTransitionStart: function (swiper) {
                     syncHomeHeroOverlay(swiper);
+                    syncHomeHeroKenBurns(swiper, false);
                 },
             },
         });

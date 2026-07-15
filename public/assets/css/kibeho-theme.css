@@ -322,9 +322,11 @@ a.text-primary {
     width: 100%;
 }
 
-/* ——— Home hero: crossfade transitions + cinematic Ken Burns zoom ——— */
+/* ——— Home hero: crossfade + continuous Ken Burns (JS-driven, no reset jump) ——— */
 .livewire-home-page .banner__slider--cinematic {
     --hero-ken-duration: 7.5s;
+    --hero-ken-min: 1.06;
+    --hero-ken-max: 1.18;
     background: #0a2018;
 }
 
@@ -346,41 +348,16 @@ a.text-primary {
 
 .livewire-home-page .banner__slider--cinematic .banner__slider__image img,
 .livewire-home-page .banner__slider--cinematic .banner__slider__image video {
-    transform: scale(1.08);
+    transform: scale(var(--hero-ken-min, 1.06));
     transform-origin: center center;
     will-change: transform;
     backface-visibility: hidden;
 }
 
-.livewire-home-page .banner__slider--cinematic .swiper-slide-active .banner__slider__image {
-    animation: none !important;
-}
-
-.livewire-home-page .banner__slider--cinematic .swiper-slide-active .banner__slider__image img,
-.livewire-home-page .banner__slider--cinematic .swiper-slide-active .banner__slider__image video {
-    animation: kibehoHeroKenBurns var(--hero-ken-duration, 7.5s) ease-out forwards;
-}
-
-.livewire-home-page .banner__slider--cinematic .swiper-slide:not(.swiper-slide-active) .banner__slider__image img,
-.livewire-home-page .banner__slider--cinematic .swiper-slide:not(.swiper-slide-active) .banner__slider__image video {
-    animation: none !important;
-    transform: scale(1.08);
-}
-
-@keyframes kibehoHeroKenBurns {
-    0% {
-        transform: scale(1.06);
-    }
-    100% {
-        transform: scale(1.18);
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .livewire-home-page .banner__slider--cinematic .swiper-slide-active .banner__slider__image img,
-    .livewire-home-page .banner__slider--cinematic .swiper-slide-active .banner__slider__image video {
-        animation: none !important;
-        transform: scale(1.08);
+    .livewire-home-page .banner__slider--cinematic .banner__slider__image img,
+    .livewire-home-page .banner__slider--cinematic .banner__slider__image video {
+        transform: scale(1.08) !important;
     }
 }
 
