@@ -509,6 +509,7 @@ class ContentManagementController extends Controller
     public function updateHomeHero(Request $request)
     {
         $validated = $request->validate([
+            'home_hero_text_mode' => 'required|in:global,per_slide',
             'home_hero_headline' => 'nullable|string|max:255',
             'home_hero_lead' => 'nullable|string|max:2000',
         ]);
@@ -518,6 +519,7 @@ class ContentManagementController extends Controller
             return redirect()->back()->with('error', 'No settings record found.');
         }
 
+        $setting->home_hero_text_mode = $validated['home_hero_text_mode'];
         $setting->home_hero_headline = filled($validated['home_hero_headline'] ?? null)
             ? trim($validated['home_hero_headline'])
             : null;

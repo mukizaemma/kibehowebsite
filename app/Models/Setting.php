@@ -33,6 +33,7 @@ class Setting extends Model
         'slideshow_cta_label',
         'home_hero_headline',
         'home_hero_lead',
+        'home_hero_text_mode',
         'home_journey_title',
         'home_journey_lead',
         'home_journey_image',

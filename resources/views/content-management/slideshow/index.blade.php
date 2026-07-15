@@ -8,7 +8,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="mb-0">Slideshow Management</h4>
-                    <p class="text-muted small mb-0">Hero images cycle behind fixed homepage text. Edit the message below; images still come from slides.</p>
+                    <p class="text-muted small mb-0">Choose fixed hero text for all images, or use each slide’s caption as the heading.</p>
                     <p class="text-muted small mb-0"><i class="fa fa-arrows-alt me-1"></i>Drag a card by its handle to change slide order.</p>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#slideModal" data-toggle="modal" data-target="#slideModal" onclick="resetForm()">
@@ -32,30 +32,69 @@
                 </div>
             @endif
 
+            @php
+                $heroTextMode = old('home_hero_text_mode', $setting?->home_hero_text_mode ?? 'global');
+                if (! in_array($heroTextMode, ['global', 'per_slide'], true)) {
+                    $heroTextMode = 'global';
+                }
+            @endphp
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="mb-1">Homepage hero text</h5>
-                    <p class="text-muted small mb-3">Shown over every slide. Hotel name comes from Settings → Company name. Leave a field empty to use the default English/French translation.</p>
-                    <form action="{{ route('content-management.slideshow.hero') }}" method="POST">
+                    <p class="text-muted small mb-3">The hotel name is not shown on the hero. Buttons stay visible; optional per-slide button overrides are under each slide’s edit form. Default Book label is in Settings.</p>
+                    <form action="{{ route('content-management.slideshow.hero') }}" method="POST" id="homeHeroForm">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label" for="home_hero_headline">Headline</label>
-                            <input type="text"
-                                   class="form-control"
-                                   id="home_hero_headline"
-                                   name="home_hero_headline"
-                                   maxlength="255"
-                                   value="{{ old('home_hero_headline', $setting?->home_hero_headline ?? '') }}"
-                                   placeholder="{{ site_trans('home.hero_headline') }}">
+                            <label class="form-label d-block">Text mode</label>
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="home_hero_text_mode"
+                                       id="heroModeGlobal"
+                                       value="global"
+                                       {{ $heroTextMode === 'global' ? 'checked' : '' }}
+                                       onchange="toggleHeroModeFields()">
+                                <label class="form-check-label" for="heroModeGlobal">
+                                    Same heading &amp; supporting text on every slide
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="home_hero_text_mode"
+                                       id="heroModePerSlide"
+                                       value="per_slide"
+                                       {{ $heroTextMode === 'per_slide' ? 'checked' : '' }}
+                                       onchange="toggleHeroModeFields()">
+                                <label class="form-check-label" for="heroModePerSlide">
+                                    Use each slide’s caption as the heading only
+                                </label>
+                            </div>
+                            <p class="text-muted small mt-2 mb-0" id="heroModePerSlideHint" style="{{ $heroTextMode === 'per_slide' ? '' : 'display:none;' }}">
+                                In this mode only the slide caption appears as the heading. Empty captions show no heading on that slide. Supporting text below is ignored.
+                            </p>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="home_hero_lead">Supporting text</label>
-                            <textarea class="form-control"
-                                      id="home_hero_lead"
-                                      name="home_hero_lead"
-                                      rows="3"
-                                      maxlength="2000"
-                                      placeholder="{{ site_trans('home.hero_lead') }}">{{ old('home_hero_lead', $setting?->home_hero_lead ?? '') }}</textarea>
+                        <div id="heroGlobalFields" style="{{ $heroTextMode === 'global' ? '' : 'display:none;' }}">
+                            <div class="mb-3">
+                                <label class="form-label" for="home_hero_headline">Headline</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="home_hero_headline"
+                                       name="home_hero_headline"
+                                       maxlength="255"
+                                       value="{{ old('home_hero_headline', $setting?->home_hero_headline ?? '') }}"
+                                       placeholder="{{ site_trans('home.hero_headline') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="home_hero_lead">Supporting text</label>
+                                <textarea class="form-control"
+                                          id="home_hero_lead"
+                                          name="home_hero_lead"
+                                          rows="3"
+                                          maxlength="2000"
+                                          placeholder="{{ site_trans('home.hero_lead') }}">{{ old('home_hero_lead', $setting?->home_hero_lead ?? '') }}</textarea>
+                                <p class="text-muted small mt-1 mb-0">Leave a field empty to use the default English/French translation.</p>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Save hero text</button>
                     </form>
@@ -134,15 +173,15 @@
                         <p class="text-muted small mt-1 mb-0" id="slideImageCurrentHint" style="display:none;">Leave empty to keep the current image when editing.</p>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="slideCaption">Caption</label>
-                        <textarea class="form-control" name="caption" id="slideCaption" rows="3" maxlength="500" placeholder="Short text shown over the slide (optional)"></textarea>
+                        <label class="form-label" for="slideCaption">Heading / caption</label>
+                        <textarea class="form-control" name="caption" id="slideCaption" rows="3" maxlength="500" placeholder="Used as the hero heading when “caption per slide” mode is on. Leave empty to show no heading on this slide."></textarea>
                     </div>
                     <details class="mb-1">
-                        <summary class="text-muted small" style="cursor:pointer;">Custom button for this slide only (optional)</summary>
+                        <summary class="text-muted small" style="cursor:pointer;">Custom primary button for this slide (optional)</summary>
                         <div class="pt-3">
                             <div class="mb-3">
                                 <label class="form-label" for="slideButtonText">Button text</label>
-                                <input type="text" class="form-control" name="button" id="slideButtonText" maxlength="255" placeholder="Uses default from Settings if empty">
+                                <input type="text" class="form-control" name="button" id="slideButtonText" maxlength="255" placeholder="Uses Slideshow button label from Settings if empty">
                             </div>
                             <div class="mb-0">
                                 <label class="form-label" for="slideButtonLink">Button URL</label>
@@ -170,6 +209,18 @@
     const storeAction = @json($storeAction);
     const updateActionTemplate = @json($updateActionTemplate);
     const deleteActionTemplate = @json($deleteActionTemplate);
+
+    function toggleHeroModeFields() {
+        const perSlide = document.getElementById('heroModePerSlide')?.checked;
+        const globalFields = document.getElementById('heroGlobalFields');
+        const hint = document.getElementById('heroModePerSlideHint');
+        if (globalFields) {
+            globalFields.style.display = perSlide ? 'none' : '';
+        }
+        if (hint) {
+            hint.style.display = perSlide ? '' : 'none';
+        }
+    }
 
     function resetForm() {
         const form = document.getElementById('slideForm');

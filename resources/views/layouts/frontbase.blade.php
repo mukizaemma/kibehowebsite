@@ -1044,6 +1044,58 @@
         });
     }
 
+    function syncHomeHeroOverlay(swiper) {
+        var heroRoot = document.querySelector('.livewire-home-page .home-hero');
+        if (!heroRoot || !swiper) return;
+
+        var activeSlide = swiper.slides[swiper.activeIndex];
+        if (!activeSlide) return;
+
+        var mode = heroRoot.getAttribute('data-hero-text-mode') || 'global';
+        var headline = heroRoot.querySelector('.home-hero__headline');
+        var primary = heroRoot.querySelector('.home-hero__cta-primary');
+
+        if (mode === 'per_slide' && headline) {
+            var caption = (activeSlide.getAttribute('data-caption') || '').trim();
+            if (caption) {
+                headline.textContent = caption;
+                headline.style.display = '';
+            } else {
+                headline.textContent = '';
+                headline.style.display = 'none';
+            }
+        }
+
+        if (primary) {
+            var defaultLabel = heroRoot.getAttribute('data-hero-default-label') || '';
+            var defaultUrl = heroRoot.getAttribute('data-hero-default-url') || '#';
+            var defaultExternal = heroRoot.getAttribute('data-hero-default-external') === '1';
+            var slideLabel = (activeSlide.getAttribute('data-button-label') || '').trim();
+            var slideLink = (activeSlide.getAttribute('data-button-link') || '').trim();
+            var label = slideLabel || defaultLabel;
+            var url = slideLink || defaultUrl;
+            var external = slideLink ? true : defaultExternal;
+            var labelEl = primary.querySelector('span');
+            if (labelEl) {
+                labelEl.textContent = label;
+            } else {
+                primary.textContent = label;
+            }
+            primary.setAttribute('href', url);
+            if (external) {
+                primary.setAttribute('target', '_blank');
+                primary.setAttribute('rel', 'noopener noreferrer');
+                primary.setAttribute('data-no-spa-navigate', '');
+                primary.removeAttribute('wire:navigate');
+            } else {
+                primary.removeAttribute('target');
+                primary.removeAttribute('rel');
+                primary.removeAttribute('data-no-spa-navigate');
+                primary.setAttribute('wire:navigate', '');
+            }
+        }
+    }
+
     function initHomeHeroSwiper() {
         if (typeof Swiper === 'undefined') return;
         var heroSliderEl = document.querySelector('.livewire-home-page .banner__slider');
@@ -1068,6 +1120,14 @@
             autoplay: {
                 delay: heroDelay,
                 disableOnInteraction: false,
+            },
+            on: {
+                init: function (swiper) {
+                    syncHomeHeroOverlay(swiper);
+                },
+                slideChange: function (swiper) {
+                    syncHomeHeroOverlay(swiper);
+                },
             },
         });
     }

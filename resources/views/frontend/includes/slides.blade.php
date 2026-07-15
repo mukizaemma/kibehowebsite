@@ -1,20 +1,36 @@
 @php
-    $brandName = $setting?->company ?? 'Magnificat MV Hotel';
     $bookUrl = hotel_book_now_url($setting ?? null);
     $bookExternal = hotel_book_now_is_external($setting ?? null);
+    $bookLabel = slideshow_cta_label($setting ?? null);
     $slideCount = ($slides ?? collect())->count();
+    $heroTextMode = ($setting?->home_hero_text_mode ?? 'global') === 'per_slide' ? 'per_slide' : 'global';
     $heroHeadline = filled($setting?->home_hero_headline)
         ? $setting->home_hero_headline
         : site_trans('home.hero_headline');
     $heroLead = filled($setting?->home_hero_lead)
         ? $setting->home_hero_lead
         : site_trans('home.hero_lead');
+    $firstSlide = ($slides ?? collect())->first();
+    $firstCaption = trim((string) ($firstSlide?->heading ?: $firstSlide?->subheading ?: ''));
+    $initialPrimaryLabel = filled($firstSlide?->button) ? $firstSlide->button : $bookLabel;
+    $initialPrimaryUrl = filled($firstSlide?->link) ? $firstSlide->link : $bookUrl;
+    $initialPrimaryExternal = filled($firstSlide?->link) ? true : $bookExternal;
 @endphp
-    <div class="rts__section banner__area is__home__one banner__height banner__center home-hero">
+    <div class="rts__section banner__area is__home__one banner__height banner__center home-hero"
+         data-hero-text-mode="{{ $heroTextMode }}"
+         data-hero-default-label="{{ $bookLabel }}"
+         data-hero-default-url="{{ $bookUrl }}"
+         data-hero-default-external="{{ $bookExternal ? '1' : '0' }}">
         <div class="banner__slider banner__slider--cinematic overflow-hidden">
             <div class="swiper-wrapper">
                 @forelse ($slides as $index => $slide)
-                <div class="swiper-slide">
+                @php
+                    $caption = trim((string) ($slide->heading ?: $slide->subheading ?: ''));
+                @endphp
+                <div class="swiper-slide"
+                     data-caption="{{ $caption }}"
+                     data-button-label="{{ $slide->button ?? '' }}"
+                     data-button-link="{{ $slide->link ?? '' }}">
                     <div class="banner__slider__image">
                         @if($slide->media_type === 'video')
                             @if($slide->video_url)
@@ -35,7 +51,7 @@
                                         frameborder="0"
                                         allow="autoplay; encrypted-media"
                                         allowfullscreen
-                                        title="{{ $slide->heading ?? 'Hotel video' }}"
+                                        title="{{ $caption !== '' ? $caption : 'Hotel video' }}"
                                         style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover;">
                                     </iframe>
                                 @elseif($videoType === 'vimeo')
@@ -44,7 +60,7 @@
                                         frameborder="0"
                                         allow="autoplay; fullscreen; picture-in-picture"
                                         allowfullscreen
-                                        title="{{ $slide->heading ?? 'Hotel video' }}"
+                                        title="{{ $caption !== '' ? $caption : 'Hotel video' }}"
                                         style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: cover;">
                                     </iframe>
                                 @else
@@ -59,7 +75,7 @@
                             @endif
                         @else
                             <img src="{{ asset('storage/' . ($slide->image ?? 'slides/default.jpg')) }}"
-                                 alt="{{ $slide->heading ?: $brandName }}"
+                                 alt="{{ $caption !== '' ? $caption : 'Hotel' }}"
                                  loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
                                  decoding="async"
                                  @if($index === 0) fetchpriority="high" @endif>
@@ -67,7 +83,7 @@
                     </div>
                 </div>
                 @empty
-                <div class="swiper-slide">
+                <div class="swiper-slide" data-caption="" data-button-label="" data-button-link="">
                     <div class="banner__slider__image home-hero__fallback-bg"></div>
                 </div>
                 @endforelse
@@ -78,14 +94,17 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-11 col-xl-10">
                             <div class="banner__slide__content home-hero__content">
-                                <p class="home-hero__brand">{{ $brandName }}</p>
-                                <h1 class="home-hero__headline">{{ $heroHeadline }}</h1>
-                                <p class="home-hero__lead">{{ $heroLead }}</p>
+                                @if($heroTextMode === 'global')
+                                    <h1 class="home-hero__headline">{{ $heroHeadline }}</h1>
+                                    <p class="home-hero__lead">{{ $heroLead }}</p>
+                                @else
+                                    <h1 class="home-hero__headline" @if($firstCaption === '') style="display:none" @endif>{{ $firstCaption }}</h1>
+                                @endif
                                 <div class="home-hero__actions">
-                                    <a href="{{ $bookUrl }}"
-                                       class="theme-btn btn-style fill no-border"
-                                       @if($bookExternal) target="_blank" rel="noopener noreferrer" data-no-spa-navigate @else wire:navigate @endif>
-                                        <span>{{ site_trans('buttons.book_your_stay') }}</span>
+                                    <a href="{{ $initialPrimaryUrl }}"
+                                       class="theme-btn btn-style fill no-border home-hero__cta-primary"
+                                       @if($initialPrimaryExternal) target="_blank" rel="noopener noreferrer" data-no-spa-navigate @else wire:navigate @endif>
+                                        <span>{{ $initialPrimaryLabel }}</span>
                                     </a>
                                     <a wire:navigate href="{{ localized_route('explore-kibeho') }}" class="theme-btn btn-style border home-hero__ghost">
                                         <span>{{ site_trans('home.explore_kibeho') }}</span>
