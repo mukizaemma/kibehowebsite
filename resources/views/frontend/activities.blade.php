@@ -55,7 +55,7 @@
                                     <p class="font-sm text-muted mb-0">{!! Str::words(strip_tags($activity->description ?? ''), 22, '...') !!}</p>
                                 </div>
                                 <a wire:navigate href="{{ localized_route('activity', ['slug' => $activity->slug]) }}" class="theme-btn btn-style fill align-self-start">
-                                    <span>View more</span>
+                                    <span>{{ site_trans('home.view_details') }}</span>
                                 </a>
                             </div>
                         </div>

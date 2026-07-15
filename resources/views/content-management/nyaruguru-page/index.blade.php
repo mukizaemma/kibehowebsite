@@ -32,6 +32,7 @@
                 data-item-show="{{ route('content-management.nyaruguru-page.activities.show', ['id' => '__ID__'], false) }}"
                 data-item-update="{{ route('content-management.nyaruguru-page.activities.update', ['id' => '__ID__'], false) }}"
                 data-item-destroy="{{ route('content-management.nyaruguru-page.activities.destroy', ['id' => '__ID__'], false) }}"
+                data-item-gallery-destroy-base="{{ str_replace('/0', '', route('content-management.nyaruguru-page.activities.images.destroy', ['id' => 0], false)) }}"
                 data-storage-base="{{ asset('storage') }}"
                 data-summernote-field="#nyaruguru_description"
                 data-add-label="Add activity"
@@ -197,12 +198,18 @@
                         <label class="form-check-label" for="nyaruguru_activity_active">Show on public page</label>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label">Image</label>
+                        <label class="form-label">Cover image</label>
                         <input type="file" class="form-control" id="nyaruguru_activity_image" name="image" accept="image/*">
                         @include('content-management.includes.image-upload-hint')
                     </div>
                     <div id="nyaruguru_activity_image_wrap" style="display:none;">
                         <img id="nyaruguru_activity_image_preview" src="" alt="" class="img-thumbnail" style="max-height:120px;">
+                    </div>
+                    <div class="mb-2 mt-3">
+                        <label class="form-label">Gallery images</label>
+                        <div id="nyaruguru_activity_gallery_existing" class="mb-2"></div>
+                        <input type="file" class="form-control" id="nyaruguru_activity_gallery" name="gallery_images[]" multiple accept="image/*">
+                        <small class="text-muted">Add extra photos for the activity detail page.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

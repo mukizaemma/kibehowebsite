@@ -76,7 +76,13 @@
                     <article class="explore-sanctuary-event-card h-100">
                         @if($activity->image)
                             <div class="explore-sanctuary-event-card__media">
-                                <img src="{{ asset('storage/' . $activity->image) }}" alt="{{ $activity->title }}" loading="lazy" decoding="async">
+                                @if(!empty($activityDetailRoute) && filled($activity->slug))
+                                    <a wire:navigate href="{{ localized_route($activityDetailRoute, ['slug' => $activity->slug]) }}">
+                                        <img src="{{ asset('storage/' . $activity->image) }}" alt="{{ $activity->title }}" loading="lazy" decoding="async">
+                                    </a>
+                                @else
+                                    <img src="{{ asset('storage/' . $activity->image) }}" alt="{{ $activity->title }}" loading="lazy" decoding="async">
+                                @endif
                             </div>
                         @endif
                         <div class="explore-sanctuary-event-card__body">
@@ -90,12 +96,26 @@
                             @if(filled($activity->description))
                                 <p class="explore-sanctuary-event-card__text">{{ \Illuminate\Support\Str::limit(strip_tags($activity->description), 140) }}</p>
                             @endif
-                            @if(filled($activity->external_url))
-                                <a href="{{ $activity->external_url }}" class="explore-sanctuary-event-card__link" target="_blank" rel="noopener noreferrer">
-                                    {{ site_trans($i18n . '.learn_more') }}
-                                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                                </a>
-                            @endif
+                            <div class="explore-sanctuary-event-card__actions">
+                                @if(!empty($activityDetailRoute) && filled($activity->slug))
+                                    <a wire:navigate
+                                       href="{{ localized_route($activityDetailRoute, ['slug' => $activity->slug]) }}"
+                                       class="explore-sanctuary-event-card__link">
+                                        {{ site_trans($i18n . '.view_more') }}
+                                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                    </a>
+                                @endif
+                                @if(filled($activity->external_url))
+                                    <a href="{{ $activity->external_url }}"
+                                       class="explore-sanctuary-event-card__link explore-sanctuary-event-card__link--external"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       data-no-spa-navigate>
+                                        {{ site_trans($i18n . '.learn_more') }}
+                                        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </article>
                 </div>

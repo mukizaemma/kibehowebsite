@@ -14,6 +14,8 @@ use App\Models\NyaruguruPage;
 use App\Models\MeetingRoom;
 use App\Models\Gallery;
 use App\Services\AggregatedGalleryService;
+use App\Models\SanctuaryEvent;
+use App\Models\NyaruguruActivity;
 use App\Models\HotelContact;
 use App\Models\HomeJourneyStep;
 use App\Models\PageHero;
@@ -245,6 +247,7 @@ class PublicWebsiteData
         $pageHero = PageHero::getBySlug('explore-kibeho');
 
         $sanctuaryEvents = \App\Models\SanctuaryEvent::query()
+            ->with('images')
             ->active()
             ->ordered()
             ->get();
@@ -293,6 +296,32 @@ class PublicWebsiteData
         ];
     }
 
+    public static function sanctuaryActivity(string $slug): array
+    {
+        $activity = SanctuaryEvent::with('images')
+            ->where('slug', $slug)
+            ->active()
+            ->firstOrFail();
+        $setting = Setting::first();
+        $about = About::first();
+        $related = SanctuaryEvent::query()
+            ->active()
+            ->ordered()
+            ->where('id', '!=', $activity->id)
+            ->take(3)
+            ->get();
+
+        return [
+            'activity' => $activity,
+            'images' => $activity->images,
+            'relatedActivities' => $related,
+            'setting' => $setting,
+            'about' => $about,
+            'backRoute' => 'explore-kibeho',
+            'translationPrefix' => 'sanctuary',
+        ];
+    }
+
     public static function gikongoroDiocese(): array
     {
         $diocesePage = GikongoroDiocesePage::current();
@@ -325,6 +354,7 @@ class PublicWebsiteData
         $pageHero = PageHero::getBySlug('discover-nyaruguru');
 
         $nyaruguruActivities = \App\Models\NyaruguruActivity::query()
+            ->with('images')
             ->active()
             ->ordered()
             ->get();
@@ -366,6 +396,32 @@ class PublicWebsiteData
             'pageHero' => $pageHero,
             'nyaruguruActivities' => $nyaruguruActivities,
             'nyaruguruGallery' => $allGalleryImages,
+        ];
+    }
+
+    public static function nyaruguruActivity(string $slug): array
+    {
+        $activity = NyaruguruActivity::with('images')
+            ->where('slug', $slug)
+            ->active()
+            ->firstOrFail();
+        $setting = Setting::first();
+        $about = About::first();
+        $related = NyaruguruActivity::query()
+            ->active()
+            ->ordered()
+            ->where('id', '!=', $activity->id)
+            ->take(3)
+            ->get();
+
+        return [
+            'activity' => $activity,
+            'images' => $activity->images,
+            'relatedActivities' => $related,
+            'setting' => $setting,
+            'about' => $about,
+            'backRoute' => 'discover-nyaruguru',
+            'translationPrefix' => 'nyaruguru',
         ];
     }
 

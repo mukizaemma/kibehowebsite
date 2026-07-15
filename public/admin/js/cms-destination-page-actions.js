@@ -68,6 +68,38 @@
         if (config.dataset.itemErrors) {
             Cms.clearErrors(config.dataset.itemErrors);
         }
+
+        renderItemGallery(scope, []);
+    }
+
+    function renderItemGallery(scope, images) {
+        var config = cfg(scope);
+        var wrapId = scope === 'kibeho-event'
+            ? 'kibeho_event_gallery_existing'
+            : (scope === 'nyaruguru-activity' ? 'nyaruguru_activity_gallery_existing' : null);
+        if (!wrapId) {
+            return;
+        }
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) {
+            return;
+        }
+
+        if (!images || !images.length) {
+            wrap.innerHTML = '<p class="text-muted small mb-0">No gallery images yet.</p>';
+            return;
+        }
+
+        var base = (config && config.dataset.storageBase) ? config.dataset.storageBase : '';
+        var html = '<div class="row g-2">';
+        images.forEach(function (image) {
+            html += '<div class="col-4 col-md-3 position-relative" id="cms-item-gallery-' + image.id + '">' +
+                '<img src="' + base + '/' + image.image + '" alt="" class="img-fluid rounded border" style="height:90px;width:100%;object-fit:cover;">' +
+                '<button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" data-cms-item-gallery-delete="' + image.id + '" data-cms-item-gallery-scope="' + scope + '" title="Remove">' +
+                '<i class="fa fa-times"></i></button></div>';
+        });
+        html += '</div>';
+        wrap.innerHTML = html;
     }
 
     function populateItemForm(scope, data) {
@@ -97,6 +129,10 @@
             if (imageInput) {
                 imageInput.value = '';
             }
+            var galleryInput = document.getElementById('kibeho_event_gallery');
+            if (galleryInput) {
+                galleryInput.value = '';
+            }
             var wrap = document.getElementById('kibeho_event_image_wrap');
             var img = document.getElementById('kibeho_event_image_preview');
             if (wrap && img) {
@@ -107,6 +143,7 @@
                     wrap.style.display = 'none';
                 }
             }
+            renderItemGallery(scope, data.images || []);
             var titleEl = document.getElementById('kibehoEventModalTitle');
             if (titleEl) {
                 titleEl.textContent = 'Edit activity';
@@ -127,6 +164,10 @@
             if (imageInput) {
                 imageInput.value = '';
             }
+            galleryInput = document.getElementById('nyaruguru_activity_gallery');
+            if (galleryInput) {
+                galleryInput.value = '';
+            }
             wrap = document.getElementById('nyaruguru_activity_image_wrap');
             img = document.getElementById('nyaruguru_activity_image_preview');
             if (wrap && img) {
@@ -137,6 +178,7 @@
                     wrap.style.display = 'none';
                 }
             }
+            renderItemGallery(scope, data.images || []);
             titleEl = document.getElementById('nyaruguruActivityModalTitle');
             if (titleEl) {
                 titleEl.textContent = 'Edit activity';
@@ -201,6 +243,31 @@
                 window.location.reload();
             } else {
                 window.alert('Could not delete. Please try again.');
+            }
+        });
+    }
+
+    function deleteItemGalleryImage(scope, id) {
+        var config = cfg(scope);
+        if (!config || !config.dataset.itemGalleryDestroyBase) {
+            return;
+        }
+
+        if (!window.confirm('Remove this gallery image?')) {
+            return;
+        }
+
+        Cms.fetchJson(Cms.appUrl(config.dataset.itemGalleryDestroyBase + '/' + id), {
+            method: 'DELETE',
+        }).then(function (result) {
+            if (result.ok && result.data.success) {
+                var el = document.getElementById('cms-item-gallery-' + id);
+                if (el) {
+                    el.remove();
+                }
+                if (!document.querySelector('[id^="cms-item-gallery-"]')) {
+                    renderItemGallery(scope, []);
+                }
             }
         });
     }
@@ -288,6 +355,16 @@
     }
 
     document.addEventListener('click', function (e) {
+        var itemGalleryBtn = e.target.closest('[data-cms-item-gallery-delete]');
+        if (itemGalleryBtn) {
+            e.preventDefault();
+            deleteItemGalleryImage(
+                itemGalleryBtn.getAttribute('data-cms-item-gallery-scope'),
+                itemGalleryBtn.getAttribute('data-cms-item-gallery-delete')
+            );
+            return;
+        }
+
         var galleryBtn = e.target.closest('[data-cms-gallery-delete]');
         if (galleryBtn) {
             var galleryScope = galleryBtn.getAttribute('data-cms-gallery-scope');

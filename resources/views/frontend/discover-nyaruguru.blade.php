@@ -4,6 +4,7 @@
     'translationPrefix' => 'nyaruguru',
     'destinationActivities' => $nyaruguruActivities,
     'destinationGallery' => $nyaruguruGallery,
+    'activityDetailRoute' => 'discover-nyaruguru.activity',
     'ctaType' => 'book',
     'pageHero' => $pageHero,
     'about' => $about,

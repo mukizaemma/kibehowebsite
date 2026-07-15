@@ -12,6 +12,8 @@ use App\Livewire\Public\MeetingRoomShowPage;
 use App\Livewire\Public\DiscoverGikongoroDiocesePage;
 use App\Livewire\Public\DiscoverNyaruguruPage;
 use App\Livewire\Public\ExploreKibehoPage;
+use App\Livewire\Public\SanctuaryActivityShowPage;
+use App\Livewire\Public\NyaruguruActivityShowPage;
 use App\Livewire\Public\FacilitiesPage;
 use App\Livewire\Public\FacilityShowPage;
 use App\Livewire\Public\GalleryPage;
@@ -160,6 +162,7 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::get('/kibeho-page/events/{id}', [App\Http\Controllers\KibehoPageController::class, 'showEvent'])->name('kibeho-page.events.show');
     Route::post('/kibeho-page/events/{id}/update', [App\Http\Controllers\KibehoPageController::class, 'updateEvent'])->name('kibeho-page.events.update');
     Route::delete('/kibeho-page/events/{id}', [App\Http\Controllers\KibehoPageController::class, 'destroyEvent'])->name('kibeho-page.events.destroy');
+    Route::delete('/kibeho-page/events/images/{id}', [App\Http\Controllers\KibehoPageController::class, 'deleteEventImage'])->name('kibeho-page.events.images.destroy');
 
     Route::get('/nyaruguru-page', [App\Http\Controllers\NyaruguruPageController::class, 'index'])->name('nyaruguru-page.index');
     Route::post('/nyaruguru-page/update', [App\Http\Controllers\NyaruguruPageController::class, 'updatePage'])->name('nyaruguru-page.update');
@@ -168,6 +171,7 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::get('/nyaruguru-page/activities/{id}', [App\Http\Controllers\NyaruguruPageController::class, 'showActivity'])->name('nyaruguru-page.activities.show');
     Route::post('/nyaruguru-page/activities/{id}/update', [App\Http\Controllers\NyaruguruPageController::class, 'updateActivity'])->name('nyaruguru-page.activities.update');
     Route::delete('/nyaruguru-page/activities/{id}', [App\Http\Controllers\NyaruguruPageController::class, 'destroyActivity'])->name('nyaruguru-page.activities.destroy');
+    Route::delete('/nyaruguru-page/activities/images/{id}', [App\Http\Controllers\NyaruguruPageController::class, 'deleteActivityImage'])->name('nyaruguru-page.activities.images.destroy');
 
     Route::get('/gikongoro-diocese-page', [App\Http\Controllers\GikongoroDiocesePageController::class, 'index'])->name('gikongoro-diocese-page.index');
     Route::post('/gikongoro-diocese-page/update', [App\Http\Controllers\GikongoroDiocesePageController::class, 'updatePage'])->name('gikongoro-diocese-page.update');
@@ -415,8 +419,10 @@ $registerPublicSiteRoutes = function (bool $nameRoutes = true): void {
     $named(Route::get('/facilities', FacilitiesPage::class), 'facilities');
     $named(Route::get('/facilities/{slug}', FacilityShowPage::class), 'facility');
     $named(Route::get('/explore-kibeho', ExploreKibehoPage::class), 'explore-kibeho');
+    $named(Route::get('/explore-kibeho/activities/{slug}', SanctuaryActivityShowPage::class), 'explore-kibeho.activity');
     $named(Route::get('/discover-gikongoro-diocese', DiscoverGikongoroDiocesePage::class), 'discover-gikongoro-diocese');
     $named(Route::get('/discover-nyaruguru', DiscoverNyaruguruPage::class), 'discover-nyaruguru');
+    $named(Route::get('/discover-nyaruguru/activities/{slug}', NyaruguruActivityShowPage::class), 'discover-nyaruguru.activity');
     $named(Route::get('/activities', ActivitiesPage::class), 'activities');
     $named(Route::get('/activities/{slug}', ActivityShowPage::class), 'activity');
     $named(Route::get('/meetings-events', EventsPage::class), 'meetings-events');

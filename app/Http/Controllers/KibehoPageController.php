@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KibehoPage;
 use App\Models\KibehoPageImage;
 use App\Models\SanctuaryEvent;
+use App\Models\SanctuaryEventImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -87,10 +88,12 @@ class KibehoPageController extends Controller
             'sort_order' => 'nullable|integer|min:0|max:9999',
             'is_active' => 'nullable|boolean',
             'image' => admin_image_validation_rule(),
+            'gallery_images.*' => admin_image_validation_rule(),
         ]);
 
         $data['is_active'] = $request->boolean('is_active', true);
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+        $data['slug'] = SanctuaryEvent::uniqueSlug($data['title']);
 
         if ($request->hasFile('image')) {
             $data['image'] = store_optimized_image($request->file('image'), 'kibeho-page/events');
@@ -98,14 +101,15 @@ class KibehoPageController extends Controller
             unset($data['image']);
         }
 
-        SanctuaryEvent::create($data);
+        $event = SanctuaryEvent::create($data);
+        $this->storeEventGallery($event, $request);
 
         return response()->json(['success' => true, 'message' => 'Event created successfully']);
     }
 
     public function showEvent($id)
     {
-        return response()->json(SanctuaryEvent::findOrFail($id));
+        return response()->json(SanctuaryEvent::with('images')->findOrFail($id));
     }
 
     public function updateEvent(Request $request, $id)
@@ -123,11 +127,13 @@ class KibehoPageController extends Controller
             'sort_order' => 'nullable|integer|min:0|max:9999',
             'is_active' => 'nullable|boolean',
             'image' => admin_image_validation_rule(),
+            'gallery_images.*' => admin_image_validation_rule(),
         ]);
 
         $event = SanctuaryEvent::findOrFail($id);
         $data['is_active'] = $request->boolean('is_active', true);
         $data['sort_order'] = (int) ($data['sort_order'] ?? $event->sort_order);
+        $data['slug'] = SanctuaryEvent::uniqueSlug($data['title'], $event->id);
 
         if ($request->hasFile('image')) {
             if ($event->image) {
@@ -139,19 +145,50 @@ class KibehoPageController extends Controller
         }
 
         $event->update($data);
+        $this->storeEventGallery($event, $request);
 
         return response()->json(['success' => true, 'message' => 'Event updated successfully']);
     }
 
     public function destroyEvent($id)
     {
-        $event = SanctuaryEvent::findOrFail($id);
+        $event = SanctuaryEvent::with('images')->findOrFail($id);
         if ($event->image) {
             Storage::disk('public')->delete($event->image);
+        }
+        foreach ($event->images as $image) {
+            Storage::disk('public')->delete($image->image);
+            $image->delete();
         }
         $event->delete();
 
         return response()->json(['success' => true, 'message' => 'Event deleted successfully']);
+    }
+
+    public function deleteEventImage($id)
+    {
+        $image = SanctuaryEventImage::findOrFail($id);
+        Storage::disk('public')->delete($image->image);
+        $image->delete();
+
+        return response()->json(['success' => true, 'message' => 'Image removed successfully']);
+    }
+
+    private function storeEventGallery(SanctuaryEvent $event, Request $request): void
+    {
+        if (! $request->hasFile('gallery_images')) {
+            return;
+        }
+
+        $sort = (int) $event->images()->max('sort_order');
+        foreach ($request->file('gallery_images') as $file) {
+            $sort++;
+            SanctuaryEventImage::create([
+                'sanctuary_event_id' => $event->id,
+                'image' => store_optimized_image($file, 'kibeho-page/events/gallery'),
+                'sort_order' => $sort,
+            ]);
+        }
     }
 
     private function nullableUrl(mixed $value): ?string

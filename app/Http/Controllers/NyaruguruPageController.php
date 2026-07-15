@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NyaruguruActivity;
+use App\Models\NyaruguruActivityImage;
 use App\Models\NyaruguruPage;
 use App\Models\NyaruguruPageImage;
 use Illuminate\Http\Request;
@@ -84,10 +85,12 @@ class NyaruguruPageController extends Controller
             'sort_order' => 'nullable|integer|min:0|max:9999',
             'is_active' => 'nullable|boolean',
             'image' => admin_image_validation_rule(),
+            'gallery_images.*' => admin_image_validation_rule(),
         ]);
 
         $data['is_active'] = $request->boolean('is_active', true);
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+        $data['slug'] = NyaruguruActivity::uniqueSlug($data['title']);
 
         if ($request->hasFile('image')) {
             $data['image'] = store_optimized_image($request->file('image'), 'nyaruguru-page/activities');
@@ -95,14 +98,15 @@ class NyaruguruPageController extends Controller
             unset($data['image']);
         }
 
-        NyaruguruActivity::create($data);
+        $activity = NyaruguruActivity::create($data);
+        $this->storeActivityGallery($activity, $request);
 
         return response()->json(['success' => true, 'message' => 'Activity created successfully']);
     }
 
     public function showActivity($id)
     {
-        return response()->json(NyaruguruActivity::findOrFail($id));
+        return response()->json(NyaruguruActivity::with('images')->findOrFail($id));
     }
 
     public function updateActivity(Request $request, $id)
@@ -119,11 +123,13 @@ class NyaruguruPageController extends Controller
             'sort_order' => 'nullable|integer|min:0|max:9999',
             'is_active' => 'nullable|boolean',
             'image' => admin_image_validation_rule(),
+            'gallery_images.*' => admin_image_validation_rule(),
         ]);
 
         $activity = NyaruguruActivity::findOrFail($id);
         $data['is_active'] = $request->boolean('is_active', true);
         $data['sort_order'] = (int) ($data['sort_order'] ?? $activity->sort_order);
+        $data['slug'] = NyaruguruActivity::uniqueSlug($data['title'], $activity->id);
 
         if ($request->hasFile('image')) {
             if ($activity->image) {
@@ -135,19 +141,50 @@ class NyaruguruPageController extends Controller
         }
 
         $activity->update($data);
+        $this->storeActivityGallery($activity, $request);
 
         return response()->json(['success' => true, 'message' => 'Activity updated successfully']);
     }
 
     public function destroyActivity($id)
     {
-        $activity = NyaruguruActivity::findOrFail($id);
+        $activity = NyaruguruActivity::with('images')->findOrFail($id);
         if ($activity->image) {
             Storage::disk('public')->delete($activity->image);
+        }
+        foreach ($activity->images as $image) {
+            Storage::disk('public')->delete($image->image);
+            $image->delete();
         }
         $activity->delete();
 
         return response()->json(['success' => true, 'message' => 'Activity deleted successfully']);
+    }
+
+    public function deleteActivityImage($id)
+    {
+        $image = NyaruguruActivityImage::findOrFail($id);
+        Storage::disk('public')->delete($image->image);
+        $image->delete();
+
+        return response()->json(['success' => true, 'message' => 'Image removed successfully']);
+    }
+
+    private function storeActivityGallery(NyaruguruActivity $activity, Request $request): void
+    {
+        if (! $request->hasFile('gallery_images')) {
+            return;
+        }
+
+        $sort = (int) $activity->images()->max('sort_order');
+        foreach ($request->file('gallery_images') as $file) {
+            $sort++;
+            NyaruguruActivityImage::create([
+                'nyaruguru_activity_id' => $activity->id,
+                'image' => store_optimized_image($file, 'nyaruguru-page/activities/gallery'),
+                'sort_order' => $sort,
+            ]);
+        }
     }
 
     private function nullableUrl(mixed $value): ?string

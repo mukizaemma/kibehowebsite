@@ -4,6 +4,7 @@
     'translationPrefix' => 'sanctuary',
     'destinationActivities' => $sanctuaryEvents,
     'destinationGallery' => $sanctuaryGallery,
+    'activityDetailRoute' => 'explore-kibeho.activity',
     'ctaType' => 'official',
     'officialWebsiteUrl' => $officialWebsiteUrl,
     'pageHero' => $pageHero,
