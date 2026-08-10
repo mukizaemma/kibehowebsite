@@ -41,6 +41,9 @@ class BookingSubmissionService
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
             'message' => 'nullable|string|max:1000',
+            'country' => 'nullable|string|max:100',
+            'stay_reason' => 'nullable|string|max:50',
+            'party_type' => 'nullable|in:individual,group',
         ];
 
         if ($isFacility) {
@@ -68,6 +71,9 @@ class BookingSubmissionService
         $booking->names = $request->input('names');
         $booking->email = $request->input('email');
         $booking->phone = $request->input('phone');
+        $booking->country = $request->input('country');
+        $booking->stay_reason = $request->input('stay_reason');
+        $booking->party_type = $request->input('party_type', 'individual') ?: 'individual';
         $booking->message = $request->input('message');
 
         if (! $isFacility && ! $isTourActivity && $request->filled('extra_beds') && (int) $request->input('extra_beds') > 0) {
@@ -124,6 +130,13 @@ class BookingSubmissionService
             $children = (int) ($request->input('children') ?? 0);
             $extraBeds = (int) ($request->input('extra_beds') ?? 0);
             $roomCount = max(1, (int) ($request->input('rooms') ?? 1));
+            $inventory = max(1, (int) ($room->number_of_rooms ?? 1));
+
+            if ($roomCount > $inventory) {
+                throw ValidationException::withMessages([
+                    'rooms' => site_trans('booking.wizard_rooms_inventory', ['max' => $inventory]),
+                ]);
+            }
 
             $maxGuestsPerRoom = (int) ($room->max_occupancy ?? 0);
             $totalGuests = $adults + $children;
@@ -135,7 +148,9 @@ class BookingSubmissionService
                 ]);
             }
 
-            $nightly = $room->nightlyRateForGuests($adults, $children, $extraBeds);
+            $adultsPerRoom = (int) max(1, ceil($adults / $roomCount));
+            $childrenPerRoom = (int) max(0, ceil($children / $roomCount));
+            $nightly = $room->nightlyRateForGuests($adultsPerRoom, $childrenPerRoom, $extraBeds);
             $booking->total_amount = (int) round($nightly * $nights * $roomCount);
             $booking->balance_amount = $booking->total_amount;
         }

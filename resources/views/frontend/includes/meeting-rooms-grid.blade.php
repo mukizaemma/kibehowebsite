@@ -8,11 +8,12 @@
     $rooms = $excludeSlug
         ? $meetingRooms->filter(fn ($r) => $r->slug !== $excludeSlug)->values()
         : $meetingRooms;
+    $colClass = $rooms->count() <= 2 ? 'col-md-6' : 'col-md-6 col-xl-4';
 @endphp
 @if($rooms->isNotEmpty())
 <div class="row g-4 meeting-rooms-grid">
     @foreach($rooms as $room)
-        <div class="col-md-6 col-xl-4">
+        <div class="{{ $colClass }}">
             <article class="meeting-room-tile card border-0 shadow-sm h-100 overflow-hidden">
                 <a wire:navigate href="{{ route('meetings-events.room', $room->slug) }}" class="meeting-room-tile__media-link d-block text-decoration-none">
                     <div class="meeting-room-tile__media ratio ratio-4x3">
@@ -33,11 +34,11 @@
                         <h3 class="h5 mb-0 meeting-room-tile__title">
                             <a wire:navigate href="{{ route('meetings-events.room', $room->slug) }}" class="text-reset text-decoration-none">{{ $room->title }}</a>
                         </h3>
-                        <span class="badge rounded-pill meeting-room-tile__badge">Up to {{ $room->max_persons }} guests</span>
+                        <span class="badge rounded-pill meeting-room-tile__badge">{{ $room->capacityLabel() }}</span>
                     </div>
                     <p class="meeting-room-tile__excerpt small text-muted flex-grow-1 mb-3">{{ $room->excerpt() }}</p>
                     <a wire:navigate href="{{ route('meetings-events.room', $room->slug) }}" class="btn theme-btn btn-style fill align-self-start meeting-room-tile__btn">
-                        View details
+                        {{ site_trans('meetings.view_details') }}
                     </a>
                 </div>
             </article>

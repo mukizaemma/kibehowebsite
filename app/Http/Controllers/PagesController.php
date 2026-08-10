@@ -156,7 +156,8 @@ class PagesController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'max_persons' => 'required|integer|min:1|max:10000',
+            'min_persons' => 'required|integer|min:0|max:10000',
+            'max_persons' => 'required|integer|min:1|max:10000|gte:min_persons',
             'description' => 'nullable|string',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
@@ -167,6 +168,7 @@ class PagesController extends Controller
             $room->slug = MeetingRoom::uniqueSlugForEventpage((int) $room->eventpage_id, $newTitle, (int) $room->id);
         }
         $room->title = $newTitle;
+        $room->min_persons = (int) $request->input('min_persons');
         $room->max_persons = (int) $request->input('max_persons');
         $room->description = $request->input('description');
 
@@ -191,7 +193,8 @@ class PagesController extends Controller
         $request->validate([
             'eventpage_id' => 'required|exists:eventpages,id',
             'title' => 'required|string|max:255',
-            'max_persons' => 'required|integer|min:1|max:10000',
+            'min_persons' => 'required|integer|min:0|max:10000',
+            'max_persons' => 'required|integer|min:1|max:10000|gte:min_persons',
         ]);
 
         $maxOrder = (int) MeetingRoom::where('eventpage_id', $request->eventpage_id)->max('sort_order');
@@ -202,6 +205,7 @@ class PagesController extends Controller
             'eventpage_id' => $eventpageId,
             'title' => $title,
             'slug' => MeetingRoom::uniqueSlugForEventpage($eventpageId, $title),
+            'min_persons' => (int) $request->min_persons,
             'max_persons' => (int) $request->max_persons,
             'sort_order' => $maxOrder + 1,
         ]);

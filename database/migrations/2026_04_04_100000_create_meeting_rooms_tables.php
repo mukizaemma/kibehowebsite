@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('eventpage_id')->constrained('eventpages')->cascadeOnDelete();
             $table->string('title');
             $table->string('slug');
+            $table->unsignedInteger('min_persons')->default(0);
             $table->unsignedInteger('max_persons')->default(0);
             $table->text('description')->nullable();
             $table->string('image')->nullable();
@@ -37,15 +38,15 @@ return new class extends Migration
         if ($eventpageId) {
             $now = now();
             $defaults = [
-                ['title' => 'Salle Kibeho', 'max_persons' => 50, 'sort_order' => 1],
-                ['title' => 'Salle Lourde', 'max_persons' => 250, 'sort_order' => 2],
-                ['title' => 'Salle no 111', 'max_persons' => 15, 'sort_order' => 3],
+                ['title' => 'Salle Kibeho', 'min_persons' => 80, 'max_persons' => 120, 'sort_order' => 1],
+                ['title' => 'Salle Lourde', 'min_persons' => 150, 'max_persons' => 200, 'sort_order' => 2],
             ];
             foreach ($defaults as $row) {
                 DB::table('meeting_rooms')->insert([
                     'eventpage_id' => $eventpageId,
                     'title' => $row['title'],
                     'slug' => Str::slug($row['title']),
+                    'min_persons' => $row['min_persons'],
                     'max_persons' => $row['max_persons'],
                     'description' => null,
                     'image' => null,

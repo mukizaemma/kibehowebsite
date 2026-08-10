@@ -2,7 +2,7 @@
 
 @include('frontend.includes.page-hero-banner', [
     'defaultCaption' => $room->title,
-    'defaultDescription' => 'Up to '.$room->max_persons.' guests · Meetings & events',
+    'defaultDescription' => $room->capacityLabel().' · '.site_trans('meetings.eyebrow'),
 ])
 
 <section class="meeting-room-detail rts__section section__padding pt-4">
@@ -16,6 +16,7 @@
         </nav>
 
         <div class="meeting-room-detail__intro page-feature__prose content-richtext mb-5 mb-lg-5 w-100">
+            <p class="meeting-room-detail__capacity mb-3"><strong>{{ $room->capacityLabel() }}</strong></p>
             @if(filled($room->description))
                 {!! $room->description !!}
             @else
@@ -51,7 +52,7 @@
 
         @if($otherMeetingRooms->isNotEmpty())
             <div class="meeting-room-detail__others mt-5 pt-5 border-top">
-                <h2 class="h4 mb-4">Other meeting rooms</h2>
+                <h2 class="h4 mb-4">{{ site_trans('meetings.other_rooms') }}</h2>
                 @include('frontend.includes.meeting-rooms-grid', [
                     'meetingRooms' => $otherMeetingRooms,
                     'excludeSlug' => null,

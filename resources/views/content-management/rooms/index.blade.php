@@ -34,6 +34,7 @@
                                     <th>ID</th>
                                     <th>Cover</th>
                                     <th>Title</th>
+                                    <th>Inventory</th>
                                     <th>Status</th>
                                     <th>Price</th>
                                     <th>Gallery</th>
@@ -58,6 +59,7 @@
                                         >
                                     </td>
                                     <td>{{ $room->title }}</td>
+                                    <td>{{ (int) ($room->number_of_rooms ?? 1) }} · max {{ (int) ($room->max_occupancy ?? 2) }}/room</td>
                                     <td><span class="badge bg-{{ $room->status == 'Active' ? 'success' : 'danger' }}">{{ $room->status }}</span></td>
                                     <td>{{ hotel_price($room->price ?? 0, $setting) }}<span class="text-muted">/night</span></td>
                                     <td>{{ $room->images->count() }} {{ Str::plural('image', $room->images->count()) }}</td>
@@ -98,17 +100,27 @@
                     <div id="roomFormErrors" class="alert alert-danger" style="display: none;"></div>
                     <input type="hidden" id="room_id" name="id">
                     <p class="text-muted small mb-3">
-                        Inventory and detailed rates are managed in your online booking channel. Use this form for the room name, marketing description, and indicative price shown on the website.
+                        Create one listing per room <strong>type</strong> (e.g. Single, Double with kitchen, VIP). Set how many physical rooms of that type you have — guests request a count of that type; front office assigns specific rooms later.
                     </p>
                     <div class="mb-3">
                         <label class="form-label">Title <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="room_title" name="title" required>
                         <div class="invalid-feedback">Please provide a title.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price ({{ price_currency_label($setting) }} / night) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="room_price" name="price" min="0" step="1" required style="max-width: 220px;">
-                        <small class="text-muted">Indicative rate displayed on the website. Live availability and pricing come from the booking channel.</small>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Price ({{ price_currency_label($setting) }} / night) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="room_price" name="price" min="0" step="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rooms of this type <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="room_number_of_rooms" name="number_of_rooms" min="1" max="200" value="1" required>
+                            <small class="text-muted">Inventory count (e.g. 31 singles).</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Max guests / room <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="room_max_occupancy" name="max_occupancy" min="1" max="20" value="2" required>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
@@ -188,6 +200,9 @@ function resetForm() {
     document.getElementById('roomFormErrors').innerHTML = '';
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     document.querySelectorAll('input[name="amenities[]"]').forEach(cb => cb.checked = false);
+    document.getElementById('room_price').value = '';
+    document.getElementById('room_number_of_rooms').value = '1';
+    document.getElementById('room_max_occupancy').value = '2';
     document.getElementById('room_status').value = 'Active';
     // Reset Summernote
     if (window.CmsSummernote) {
@@ -207,6 +222,8 @@ function editRoom(id) {
                 CmsSummernote.setCode('#room_description', data.description || '');
             }
             document.getElementById('room_price').value = data.price ?? '';
+            document.getElementById('room_number_of_rooms').value = data.number_of_rooms ?? 1;
+            document.getElementById('room_max_occupancy').value = data.max_occupancy ?? 2;
             document.getElementById('room_status').value = data.status || 'Active';
             
             // Set amenities

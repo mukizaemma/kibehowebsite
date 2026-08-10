@@ -36,6 +36,12 @@
 <!-- Rooms listing -->
 <div class="rts__section section__padding pt-50 pb-120">
     <div class="container">
+        <aside class="hotel-capacity-note mb-4 mb-lg-5" aria-label="{{ site_trans('hotel.capacity_title') }}">
+            <h2 class="hotel-capacity-note__title h5 mb-2">{{ site_trans('hotel.capacity_title') }}</h2>
+            <p class="hotel-capacity-note__rooms mb-2">{{ site_trans('hotel.capacity_rooms') }}</p>
+            <p class="hotel-capacity-note__meetings mb-0">{{ site_trans('hotel.capacity_meetings') }}</p>
+        </aside>
+
         <div class="row g-4">
             @forelse($rooms as $room)
                 @include('frontend.includes.room-listing-card', ['room' => $room, 'colClass' => 'col-lg-6 col-md-6'])

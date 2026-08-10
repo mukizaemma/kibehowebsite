@@ -27,6 +27,8 @@ class RoomManagementController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'number_of_rooms' => 'required|integer|min:1|max:200',
+            'max_occupancy' => 'required|integer|min:1|max:20',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
             'amenities' => 'nullable|array',
@@ -41,12 +43,12 @@ class RoomManagementController extends Controller
         $room->room_type = 'room';
         $room->price = $request->price;
         $room->couplePrice = null;
-        $room->number_of_rooms = 1;
-        $room->guests_included_in_price = 2;
+        $room->number_of_rooms = (int) $request->number_of_rooms;
+        $room->guests_included_in_price = min(2, (int) $request->max_occupancy);
         $room->extra_adult_price = null;
         $room->extra_child_price = null;
         $room->extra_bed_price = null;
-        $room->max_occupancy = 2;
+        $room->max_occupancy = (int) $request->max_occupancy;
         $room->bed_count = 1;
         $room->bed_type = null;
         $room->status = $request->status;
@@ -83,6 +85,8 @@ class RoomManagementController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'number_of_rooms' => 'required|integer|min:1|max:200',
+            'max_occupancy' => 'required|integer|min:1|max:20',
             'cover_image' => admin_image_validation_rule(),
             'status' => 'required|in:Active,Inactive',
             'amenities' => 'nullable|array',
@@ -97,6 +101,9 @@ class RoomManagementController extends Controller
         $room->description = $request->description;
         $room->room_type = 'room';
         $room->price = $request->price;
+        $room->number_of_rooms = (int) $request->number_of_rooms;
+        $room->max_occupancy = (int) $request->max_occupancy;
+        $room->guests_included_in_price = min((int) $room->guests_included_in_price ?: 2, (int) $request->max_occupancy);
         $room->status = $request->status;
 
         if ($request->hasFile('cover_image')) {

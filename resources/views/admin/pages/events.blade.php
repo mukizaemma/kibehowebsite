@@ -123,17 +123,21 @@
                                 @forelse($meetingRooms as $room)
                                     <div class="border rounded p-3 mb-4 bg-light">
                                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                                            <h6 class="mb-0">{{ $room->title }} <span class="badge bg-secondary">max {{ $room->max_persons }}</span></h6>
+                                            <h6 class="mb-0">{{ $room->title }} <span class="badge bg-secondary">{{ $room->capacityLabel() }}</span></h6>
                                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDeleteRoom('{{ route('deleteMeetingRoom', $room->id) }}')">Remove room</button>
                                         </div>
                                         <form action="{{ route('saveMeetingRoom', $room->id) }}" method="POST" enctype="multipart/form-data" class="mb-3">
                                             @csrf
                                             <div class="row g-3">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <label class="form-label">Room name</label>
                                                     <input type="text" name="title" class="form-control" value="{{ old('title', $room->title) }}" required>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Minimum guests</label>
+                                                    <input type="number" name="min_persons" class="form-control" min="0" max="10000" value="{{ old('min_persons', $room->min_persons ?? 0) }}" required>
+                                                </div>
+                                                <div class="col-md-4">
                                                     <label class="form-label">Maximum guests</label>
                                                     <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="{{ old('max_persons', $room->max_persons) }}" required>
                                                 </div>
@@ -268,9 +272,15 @@
                                 <label class="form-label">Name</label>
                                 <input type="text" name="title" class="form-control" required>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Maximum guests</label>
-                                <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="50" required>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Minimum guests</label>
+                                    <input type="number" name="min_persons" class="form-control" min="0" max="10000" value="80" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Maximum guests</label>
+                                    <input type="number" name="max_persons" class="form-control" min="1" max="10000" value="120" required>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">

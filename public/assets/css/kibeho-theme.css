@@ -3596,6 +3596,26 @@ body.gallery-lightbox-open {
     border-top: 1px solid rgba(27, 77, 62, 0.1);
 }
 
+.book-wizard__party {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.book-wizard__party-options {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.book-wizard__group-note {
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    background: rgba(27, 77, 62, 0.06);
+    border: 1px solid rgba(27, 77, 62, 0.12);
+    color: rgba(26, 36, 32, 0.8);
+    font-size: 0.92rem;
+}
+
 .book-wizard__errors {
     margin: 0 0 1.15rem;
     padding: 0.85rem 1rem;

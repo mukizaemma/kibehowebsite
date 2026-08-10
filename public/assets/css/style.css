@@ -13788,6 +13788,26 @@ textarea:focus-visible, input:focus-visible {
   background: rgba(3, 86, 183, 0.12) !important;
   color: #0356b7 !important;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.hotel-capacity-note {
+  border-left: 3px solid #1a3a2e;
+  background: rgba(26, 58, 46, 0.04);
+  padding: 1rem 1.25rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.hotel-capacity-note__title {
+  color: #1a3a2e;
+  letter-spacing: 0.01em;
+}
+
+.hotel-capacity-note__rooms,
+.hotel-capacity-note__meetings {
+  color: #44554c;
+  font-size: 0.95rem;
+  line-height: 1.55;
 }
 
 .meeting-room-tile__btn {
