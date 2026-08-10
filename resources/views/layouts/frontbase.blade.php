@@ -1293,7 +1293,8 @@
 
 </script>
 
-    @livewireScriptConfig
+    {{-- Do not emit @livewireScriptConfig here: defining window.livewireScriptConfig
+         disables Livewire's auto-start in livewire.js, so components never hydrate. --}}
     @livewireScripts
     <script src="assets/js/spa-navigation.js"></script>
 

@@ -153,7 +153,7 @@
     })();
     </script>
 
-    @livewireScriptConfig
+    {{-- Avoid @livewireScriptConfig — it prevents livewire.js auto-start. --}}
     @livewireScripts
     <script>
         document.addEventListener('click', function (e) {

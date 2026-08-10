@@ -497,9 +497,11 @@
       },
 
       date: function (e) {
-        var currentDate = new Date(); // Create a new Date object
-        var year = currentDate.getFullYear(); // Get the current year
-        document.getElementById("year").innerHTML = year;
+        var yearEl = document.getElementById("year");
+        if (!yearEl) {
+          return;
+        }
+        yearEl.innerHTML = new Date().getFullYear();
       }
 
     }
