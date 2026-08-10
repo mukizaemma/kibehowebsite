@@ -40,6 +40,16 @@
                 <div class="row g-4 g-xl-5 align-items-start">
                     <div class="col-lg-7">
                         <div class="book-wizard__card">
+                            @if ($errors->any())
+                                <div class="book-wizard__errors" role="alert">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
                             @if($step === 1)
                                 <h2 class="book-wizard__card-title">{{ site_trans('booking.wizard_stay_title') }}</h2>
                                 <p class="book-wizard__card-lead">{{ site_trans('booking.wizard_stay_lead') }}</p>
@@ -57,28 +67,28 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="wizard-checkin">{{ site_trans('booking.form_checkin') }}</label>
-                                        <input wire:model="checkin" type="date" id="wizard-checkin" class="form-control @error('checkin') is-invalid @enderror" min="{{ now()->toDateString() }}">
+                                        <input wire:model.live="checkin" type="date" id="wizard-checkin" class="form-control @error('checkin') is-invalid @enderror" min="{{ now()->toDateString() }}">
                                         @error('checkin') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="wizard-checkout">{{ site_trans('booking.form_checkout') }}</label>
-                                        <input wire:model="checkout" type="date" id="wizard-checkout" class="form-control @error('checkout') is-invalid @enderror" min="{{ $checkin ?: now()->toDateString() }}">
+                                        <input wire:model.live="checkout" type="date" id="wizard-checkout" class="form-control @error('checkout') is-invalid @enderror" min="{{ $checkin ?: now()->toDateString() }}">
                                         @error('checkout') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-adults">{{ site_trans('booking.form_adults') }}</label>
-                                        <input wire:model="adults" type="number" min="1" max="20" id="wizard-adults" class="form-control @error('adults') is-invalid @enderror">
+                                        <input wire:model.live="adults" type="number" min="1" max="20" id="wizard-adults" class="form-control @error('adults') is-invalid @enderror">
                                         @error('adults') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-children">{{ site_trans('booking.form_children') }}</label>
-                                        <input wire:model="children" type="number" min="0" max="20" id="wizard-children" class="form-control @error('children') is-invalid @enderror">
+                                        <input wire:model.live="children" type="number" min="0" max="20" id="wizard-children" class="form-control @error('children') is-invalid @enderror">
                                         @error('children') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-rooms">{{ site_trans('booking.form_rooms') }}</label>
-                                        <input wire:model="rooms" type="number" min="1" max="10" id="wizard-rooms" class="form-control @error('rooms') is-invalid @enderror">
-                                        @error('rooms') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                        <input wire:model.live="room_count" type="number" min="1" max="10" id="wizard-rooms" class="form-control @error('room_count') is-invalid @enderror">
+                                        @error('room_count') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
                             @elseif($step === 2)
@@ -113,7 +123,7 @@
                                 <dl class="book-wizard__review">
                                     <div><dt>{{ site_trans('booking.form_room') }}</dt><dd>{{ $selectedRoom?->title ?? '—' }}</dd></div>
                                     <div><dt>{{ site_trans('booking.wizard_dates') }}</dt><dd>{{ $checkin }} → {{ $checkout }}</dd></div>
-                                    <div><dt>{{ site_trans('booking.wizard_guests') }}</dt><dd>{{ $adults }} {{ site_trans('booking.form_adults') }}, {{ $children }} {{ site_trans('booking.form_children') }} · {{ $rooms }} {{ site_trans('booking.wizard_rooms_short') }}</dd></div>
+                                    <div><dt>{{ site_trans('booking.wizard_guests') }}</dt><dd>{{ $adults }} {{ site_trans('booking.form_adults') }}, {{ $children }} {{ site_trans('booking.form_children') }} · {{ $room_count }} {{ site_trans('booking.wizard_rooms_short') }}</dd></div>
                                     <div><dt>{{ site_trans('booking.form_name') }}</dt><dd>{{ $names }}</dd></div>
                                     <div><dt>{{ site_trans('booking.form_phone') }}</dt><dd>{{ $phone }}</dd></div>
                                     <div><dt>{{ site_trans('booking.form_email') }}</dt><dd>{{ $email }}</dd></div>
@@ -150,19 +160,20 @@
 
                             <div class="book-wizard__nav">
                                 @if($step > 1)
-                                    <button type="button" class="theme-btn btn-style border" wire:click="previousStep">
-                                        <span>{{ site_trans('booking.wizard_back') }}</span>
+                                    <button type="button" class="book-wizard__btn book-wizard__btn--ghost" wire:click="previousStep">
+                                        {{ site_trans('booking.wizard_back') }}
                                     </button>
                                 @else
                                     <span></span>
                                 @endif
 
                                 @if($step < 3)
-                                    <button type="button" class="theme-btn btn-style fill" wire:click="nextStep" wire:loading.attr="disabled">
-                                        <span>{{ site_trans('booking.wizard_continue') }}</span>
+                                    <button type="button" class="book-wizard__btn book-wizard__btn--primary" wire:click="nextStep" wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="nextStep">{{ site_trans('booking.wizard_continue') }}</span>
+                                        <span wire:loading wire:target="nextStep">{{ site_trans('booking.wizard_submitting') }}</span>
                                     </button>
                                 @else
-                                    <button type="button" class="theme-btn btn-style fill" wire:click="confirmBooking" wire:loading.attr="disabled">
+                                    <button type="button" class="book-wizard__btn book-wizard__btn--primary" wire:click="confirmBooking" wire:loading.attr="disabled">
                                         <span wire:loading.remove wire:target="confirmBooking">{{ site_trans('booking.wizard_confirm_button') }}</span>
                                         <span wire:loading wire:target="confirmBooking">{{ site_trans('booking.wizard_submitting') }}</span>
                                     </button>

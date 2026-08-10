@@ -3596,6 +3596,58 @@ body.gallery-lightbox-open {
     border-top: 1px solid rgba(27, 77, 62, 0.1);
 }
 
+.book-wizard__errors {
+    margin: 0 0 1.15rem;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    background: rgba(180, 35, 24, 0.08);
+    border: 1px solid rgba(180, 35, 24, 0.25);
+    color: #8a1f16;
+    font-size: 0.92rem;
+}
+
+.book-wizard__errors ul {
+    padding-left: 1.1rem;
+}
+
+.book-wizard__btn {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.85rem 1.35rem;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.book-wizard__btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.book-wizard__btn--primary {
+    background: var(--brand-accent, #c5a059);
+    color: #fff;
+}
+
+.book-wizard__btn--primary:hover:not(:disabled) {
+    filter: brightness(0.96);
+}
+
+.book-wizard__btn--ghost {
+    background: transparent;
+    border-color: rgba(27, 77, 62, 0.25);
+    color: var(--brand-primary-dark, #1b4d3e);
+}
+
+.book-wizard__btn--ghost:hover:not(:disabled) {
+    border-color: var(--brand-primary, #1b4d3e);
+    color: var(--brand-primary, #1b4d3e);
+}
+
 .book-wizard__summary {
     background: linear-gradient(180deg, var(--brand-primary-dark), var(--brand-primary));
     color: #fff;

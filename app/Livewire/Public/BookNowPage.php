@@ -15,35 +15,50 @@ use Livewire\Component;
 #[Layout('layouts.frontbase')]
 class BookNowPage extends Component
 {
-    public int $step = 1;
+    /** @var int */
+    public $step = 1;
 
+    /** @var int|string|null */
     public $room_id = null;
 
-    public string $checkin = '';
+    /** @var string|null */
+    public $checkin = '';
 
-    public string $checkout = '';
+    /** @var string|null */
+    public $checkout = '';
 
-    public int $adults = 2;
+    /** @var int|string|null */
+    public $adults = 2;
 
-    public int $children = 0;
+    /** @var int|string|null */
+    public $children = 0;
 
-    public int $rooms = 1;
+    /** @var int|string|null */
+    public $room_count = 1;
 
-    public string $names = '';
+    /** @var string|null */
+    public $names = '';
 
-    public string $phone = '';
+    /** @var string|null */
+    public $phone = '';
 
-    public string $email = '';
+    /** @var string|null */
+    public $email = '';
 
-    public string $message = '';
+    /** @var string|null */
+    public $message = '';
 
-    public string $confirm_via = 'email';
+    /** @var string */
+    public $confirm_via = 'email';
 
-    public bool $agree_terms = false;
+    /** @var bool */
+    public $agree_terms = false;
 
-    public bool $submitted = false;
+    /** @var bool */
+    public $submitted = false;
 
-    public ?int $submittedBookingId = null;
+    /** @var int|null */
+    public $submittedBookingId = null;
 
     public function mount(): void
     {
@@ -68,9 +83,16 @@ class BookNowPage extends Component
         }
     }
 
-    public function updatedRoomId(): void
+    public function updated($property): void
     {
-        $this->resetValidation('room_id');
+        if (in_array($property, ['room_id', 'checkin', 'checkout', 'adults', 'children', 'room_count'], true)) {
+            $this->normalizeStayInput();
+            $this->resetValidation($property === 'room_count' ? 'room_count' : $property);
+        }
+
+        if (in_array($property, ['names', 'phone', 'email', 'message'], true)) {
+            $this->{$property} = (string) ($this->{$property} ?? '');
+        }
     }
 
     public function goToStep(int $step): void
@@ -137,11 +159,11 @@ class BookNowPage extends Component
                 'checkout' => $this->checkout,
                 'adults' => $this->adults,
                 'children' => $this->children,
-                'rooms' => $this->rooms,
+                'rooms' => $this->room_count,
                 'names' => $this->names,
                 'phone' => $this->phone,
                 'email' => $this->email,
-                'message' => trim($this->message."\nConfirmation preference: ".$this->confirm_via),
+                'message' => trim((string) $this->message."\nConfirmation preference: ".$this->confirm_via),
             ]);
 
             $result = $bookings->submit($request);
@@ -160,15 +182,32 @@ class BookNowPage extends Component
         }
     }
 
+    protected function normalizeStayInput(): void
+    {
+        $this->checkin = (string) ($this->checkin ?? '');
+        $this->checkout = (string) ($this->checkout ?? '');
+        $this->adults = max(1, (int) ($this->adults ?? 2));
+        $this->children = max(0, (int) ($this->children ?? 0));
+        $this->room_count = max(1, (int) ($this->room_count ?? 1));
+
+        if ($this->room_id === '' || $this->room_id === null) {
+            $this->room_id = null;
+        } else {
+            $this->room_id = (int) $this->room_id;
+        }
+    }
+
     protected function validateStay(): void
     {
+        $this->normalizeStayInput();
+
         $this->validate([
             'room_id' => 'required|exists:rooms,id',
             'checkin' => 'required|date|after_or_equal:today',
             'checkout' => 'required|date|after:checkin',
             'adults' => 'required|integer|min:1|max:20',
             'children' => 'nullable|integer|min:0|max:20',
-            'rooms' => 'required|integer|min:1|max:10',
+            'room_count' => 'required|integer|min:1|max:10',
         ]);
 
         $room = Room::find($this->room_id);
@@ -180,7 +219,7 @@ class BookNowPage extends Component
 
         if ($room && $room->max_occupancy) {
             $guests = (int) $this->adults + (int) $this->children;
-            $capacity = (int) $room->max_occupancy * max(1, (int) $this->rooms);
+            $capacity = (int) $room->max_occupancy * max(1, (int) $this->room_count);
             if ($guests > $capacity) {
                 throw ValidationException::withMessages([
                     'adults' => site_trans('booking.wizard_capacity_exceeded', ['max' => $capacity]),
@@ -191,6 +230,11 @@ class BookNowPage extends Component
 
     protected function validateGuest(): void
     {
+        $this->names = (string) ($this->names ?? '');
+        $this->phone = (string) ($this->phone ?? '');
+        $this->email = (string) ($this->email ?? '');
+        $this->message = (string) ($this->message ?? '');
+
         $this->validate([
             'names' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -211,8 +255,8 @@ class BookNowPage extends Component
     public function nights(): int
     {
         try {
-            $checkin = new DateTime($this->checkin);
-            $checkout = new DateTime($this->checkout);
+            $checkin = new DateTime((string) $this->checkin);
+            $checkout = new DateTime((string) $this->checkout);
             $diff = (int) $checkin->diff($checkout)->days;
 
             return max(0, $diff);
@@ -231,7 +275,7 @@ class BookNowPage extends Component
 
         $nightly = $room->nightlyRateForGuests((int) $this->adults, (int) $this->children);
 
-        return $nightly * $nights * max(1, (int) $this->rooms);
+        return $nightly * $nights * max(1, (int) $this->room_count);
     }
 
     protected function whatsappDeepLink(?int $bookingId = null): ?string
@@ -244,10 +288,10 @@ class BookNowPage extends Component
 
         $room = $this->selectedRoom();
         $text = site_trans('booking.wizard_whatsapp_message', [
-            'names' => $this->names,
+            'names' => (string) $this->names,
             'room' => $room?->title ?? '',
-            'checkin' => $this->checkin,
-            'checkout' => $this->checkout,
+            'checkin' => (string) $this->checkin,
+            'checkout' => (string) $this->checkout,
             'adults' => (string) $this->adults,
             'children' => (string) $this->children,
             'ref' => $bookingId ? '#'.$bookingId : '',

@@ -740,6 +740,7 @@ figure {
   visibility: hidden;
   transform: translateY(-100%);
   transition: all 0.3s 1s ease-out;
+  pointer-events: none;
 }
 
 .loader:after {
