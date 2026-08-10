@@ -11,6 +11,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-base-url" content="{{ url('/') }}">
+    <meta name="admin-media-library-url" content="{{ route('content-management.media-library.index') }}">
     <meta content="" name="keywords">
     <meta content="" name="description">
 

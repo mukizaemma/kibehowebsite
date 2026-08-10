@@ -127,15 +127,30 @@
                         <textarea class="form-control" id="room_description" name="description" rows="6" placeholder="Enter room description..."></textarea>
                         <small class="text-muted">Use the rich text editor toolbar to format your room description with styles, colors, lists, and more</small>
                     </div>
+                    <div class="mb-3" id="room_current_media" style="display: none;">
+                        <label class="form-label">Current images</label>
+                        <div class="border rounded p-3 bg-white">
+                            <div class="mb-3">
+                                <div class="small text-muted mb-1">Cover</div>
+                                <div id="room_current_cover" class="d-flex align-items-start gap-3 flex-wrap"></div>
+                            </div>
+                            <div>
+                                <div class="small text-muted mb-1">Gallery</div>
+                                <div id="room_current_gallery" class="d-flex flex-wrap gap-2"></div>
+                                <p id="room_current_gallery_empty" class="small text-muted mb-0" style="display: none;">No gallery images yet.</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Cover Image</label>
                         <input type="file" class="form-control" id="room_cover_image" name="cover_image" accept="image/*">
                         @include('content-management.includes.image-upload-hint')
-                        <small class="text-muted">Optional - Main image for the room</small>
+                        <small class="text-muted">Optional — replaces the current cover when you choose a new or existing image.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Gallery Images (Multiple)</label>
                         <input type="file" class="form-control" id="room_images" name="images[]" multiple accept="image/*">
+                        <small class="text-muted">Adds to the gallery below. Existing gallery images stay unless you remove them.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Amenities</label>
@@ -189,6 +204,79 @@ function __formatRoomAdminPrice (v) {
 }
 let currentRoomId = null;
 
+function clearRoomCurrentMedia() {
+    const wrap = document.getElementById('room_current_media');
+    const cover = document.getElementById('room_current_cover');
+    const gallery = document.getElementById('room_current_gallery');
+    const empty = document.getElementById('room_current_gallery_empty');
+    if (!wrap) return;
+    wrap.style.display = 'none';
+    cover.innerHTML = '';
+    gallery.innerHTML = '';
+    empty.style.display = 'none';
+}
+
+function renderRoomCurrentMedia(data) {
+    const wrap = document.getElementById('room_current_media');
+    const cover = document.getElementById('room_current_cover');
+    const gallery = document.getElementById('room_current_gallery');
+    const empty = document.getElementById('room_current_gallery_empty');
+    if (!wrap) return;
+
+    wrap.style.display = 'block';
+    cover.innerHTML = '';
+    gallery.innerHTML = '';
+
+    if (data.cover_url) {
+        cover.innerHTML =
+            '<img src="' + data.cover_url + '" alt="Cover" class="rounded border" style="width:160px;height:110px;object-fit:cover;">' +
+            '<div class="small text-muted">Current cover image</div>';
+    } else {
+        cover.innerHTML = '<span class="small text-muted">No cover image yet.</span>';
+    }
+
+    const images = Array.isArray(data.images) ? data.images : [];
+    if (!images.length) {
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+    images.forEach(function (img) {
+        const item = document.createElement('div');
+        item.className = 'position-relative border rounded overflow-hidden bg-light';
+        item.style.width = '110px';
+        item.innerHTML =
+            '<img src="' + img.url + '" alt="" style="width:110px;height:80px;object-fit:cover;display:block;">' +
+            '<button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-1" title="Remove from gallery">&times;</button>';
+        item.querySelector('button').addEventListener('click', function () {
+            deleteRoomGalleryImage(img.id, item);
+        });
+        gallery.appendChild(item);
+    });
+}
+
+function deleteRoomGalleryImage(imageId, el) {
+    if (!confirm('Remove this gallery image?')) return;
+    fetch(`{{ route('content-management.rooms.delete-image', ':id') }}`.replace(':id', imageId), {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+    })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success && el) {
+                el.remove();
+                const gallery = document.getElementById('room_current_gallery');
+                const empty = document.getElementById('room_current_gallery_empty');
+                if (gallery && empty && !gallery.children.length) {
+                    empty.style.display = 'block';
+                }
+            }
+        });
+}
+
 function resetForm() {
     currentRoomId = null;
     const form = document.getElementById('roomForm');
@@ -204,9 +292,13 @@ function resetForm() {
     document.getElementById('room_number_of_rooms').value = '1';
     document.getElementById('room_max_occupancy').value = '2';
     document.getElementById('room_status').value = 'Active';
+    clearRoomCurrentMedia();
     // Reset Summernote
     if (window.CmsSummernote) {
         CmsSummernote.setCode('#room_description', '');
+    }
+    if (window.AdminImageUpload && AdminImageUpload.bindAll) {
+        AdminImageUpload.bindAll(form);
     }
 }
 
@@ -234,9 +326,14 @@ function editRoom(id) {
                     if (checkbox) checkbox.checked = true;
                 });
             }
+
+            renderRoomCurrentMedia(data);
             
             document.getElementById('roomModalTitle').textContent = 'Edit Room';
             CmsAdmin.showModal('roomModal');
+            if (window.AdminImageUpload && AdminImageUpload.bindAll) {
+                AdminImageUpload.bindAll(document.getElementById('roomForm'));
+            }
         });
 }
 

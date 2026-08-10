@@ -57,6 +57,7 @@ Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap'
 // ============================================
 Route::middleware(['auth', 'admin'])->prefix('content-management')->name('content-management.')->group(function () {
     Route::get('/dashboard', ContentManagementDashboard::class)->name('dashboard');
+    Route::get('/media-library', [App\Http\Controllers\AdminMediaLibraryController::class, 'index'])->name('media-library.index');
     
     // Hotel Contacts — UI lives under Settings → Contacts & Logo tab
     Route::redirect('/contacts', '/setting#contacts')->name('contacts');

@@ -3604,7 +3604,20 @@ body.gallery-lightbox-open {
 
 .book-wizard__party-options {
     display: grid;
+    grid-template-columns: 1fr;
     gap: 0.65rem;
+}
+
+@media (min-width: 576px) {
+    .book-wizard__party-options {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+}
+
+.book-wizard__party-options .book-wizard__radio {
+    height: 100%;
+    margin-bottom: 0;
 }
 
 .book-wizard__group-note {

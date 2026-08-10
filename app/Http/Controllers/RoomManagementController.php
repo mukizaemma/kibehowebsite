@@ -158,7 +158,29 @@ class RoomManagementController extends Controller
     public function show($id)
     {
         $room = Room::with(['amenities', 'images'])->findOrFail($id);
-        return response()->json($room);
+
+        return response()->json([
+            'id' => $room->id,
+            'title' => $room->title,
+            'description' => $room->description,
+            'price' => $room->price,
+            'number_of_rooms' => $room->number_of_rooms,
+            'max_occupancy' => $room->max_occupancy,
+            'status' => $room->status,
+            'cover_image' => $room->cover_image,
+            'cover_url' => $room->cover_image
+                ? asset('storage/'.$room->cover_image)
+                : $room->publicThumbnailUrl(),
+            'amenities' => $room->amenities->map(fn ($a) => [
+                'id' => $a->id,
+                'title' => $a->title,
+            ])->values(),
+            'images' => $room->images->map(fn ($img) => [
+                'id' => $img->id,
+                'image' => $img->image,
+                'url' => asset('storage/'.$img->image),
+            ])->values(),
+        ]);
     }
 
     public function deleteImage($id)
