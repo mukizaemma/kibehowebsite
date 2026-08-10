@@ -18,8 +18,11 @@ class BookingSubmittedGuestMail extends Mailable
 
     public function build(): self
     {
+        $from = config('mail.from.address');
+
         return $this->subject(BookingSubmissionService::guestSubject())
-            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->from($from, config('mail.from.name'))
+            ->replyTo($from, config('mail.from.name'))
             ->view('emails.booking-submitted-guest', [
                 'hotelName' => BookingSubmissionService::hotelName(),
             ]);

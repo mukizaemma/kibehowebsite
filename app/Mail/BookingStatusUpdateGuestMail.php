@@ -26,6 +26,7 @@ class BookingStatusUpdateGuestMail extends Mailable
 
         return $this->subject($subject)
             ->from(config('mail.from.address'), config('mail.from.name'))
+            ->replyTo(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.booking-status-update-guest', [
                 'hotelName' => BookingSubmissionService::hotelName(),
                 'itemName' => $itemName,

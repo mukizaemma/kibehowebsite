@@ -60,6 +60,9 @@ class BookNowPage extends Component
     /** @var int|null */
     public $submittedBookingId = null;
 
+    /** @var bool */
+    public $guestEmailSent = false;
+
     public function mount(): void
     {
         if (hotel_book_now_is_external()) {
@@ -168,6 +171,7 @@ class BookNowPage extends Component
 
             $result = $bookings->submit($request);
             $this->submittedBookingId = $result['booking']->id;
+            $this->guestEmailSent = (bool) ($result['guest_sent'] ?? false);
             $this->submitted = true;
             $this->step = 3;
 

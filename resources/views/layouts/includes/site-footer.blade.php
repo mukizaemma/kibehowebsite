@@ -42,20 +42,8 @@
         }
     }
 
-    $footerWhatsappDigits = '';
-    if (filled(trim((string) ($setting->whatsapp_e164 ?? '')))) {
-        $footerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->whatsapp_e164);
-    } elseif (filled(trim((string) ($setting->reception_phone ?? '')))) {
-        $footerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->reception_phone);
-    } elseif ($ftHotel && filled($ftHotel->whatsapp)) {
-        $footerWhatsappDigits = preg_replace('/\D+/', '', $ftHotel->whatsapp);
-    }
-
-    $footerWhatsappLabel = filled(trim((string) ($setting->reception_phone ?? '')))
-        ? trim((string) $setting->reception_phone)
-        : (($ftHotel && filled($ftHotel->whatsapp))
-            ? $ftHotel->whatsapp
-            : trim((string) ($setting->whatsapp_e164 ?? '')));
+    $footerWhatsappDigits = hotel_whatsapp_digits($setting) ?? '';
+    $footerWhatsappLabel = hotel_whatsapp_label($setting);
 
     $footerStars = isset($setting?->star_rating) ? (int) $setting->star_rating : 0;
 

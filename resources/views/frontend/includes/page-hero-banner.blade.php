@@ -55,19 +55,8 @@
                                 }
                             ));
                             $heroHasSocial = count($heroSocialLinks) > 0;
-                            $heroWhatsappDigits = '';
-                            if (filled(trim((string) ($stHero?->whatsapp_e164 ?? '')))) {
-                                $heroWhatsappDigits = preg_replace('/\D+/', '', (string) $stHero->whatsapp_e164);
-                            } elseif (filled($heroReception)) {
-                                $heroWhatsappDigits = preg_replace('/\D+/', '', $heroReception);
-                            } elseif ($hcHero && filled($hcHero->whatsapp)) {
-                                $heroWhatsappDigits = preg_replace('/\D+/', '', $hcHero->whatsapp);
-                            }
-                            $heroWhatsappLabel = filled($heroReception)
-                                ? $heroReception
-                                : (($hcHero && filled($hcHero->whatsapp))
-                                    ? $hcHero->whatsapp
-                                    : trim((string) ($stHero?->whatsapp_e164 ?? '')));
+                            $heroWhatsappDigits = hotel_whatsapp_digits($stHero) ?? '';
+                            $heroWhatsappLabel = hotel_whatsapp_label($stHero);
                             $heroShowBlock = filled($heroPhone) || filled($heroEmail) || filled($heroWhatsappDigits) || $heroHasSocial;
                         @endphp
                         @if($heroShowBlock)

@@ -179,7 +179,7 @@
                                     <td><span class="badge bg-{{ $rs->status === 'confirmed' ? 'success' : ($rs->status === 'cancelled' ? 'danger' : 'warning') }}">{{ ucfirst($rs->status ?? 'pending') }}</span></td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#replyBookingModal" onclick="setReplyBookingId({{ $rs->id }})">Reply</button>
+                                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#replyBookingModal" onclick="setReplyBookingId({{ $rs->id }}, @json($rs->names ?? ''), @json($rs->email ?? ''))">Reply</button>
                                             <a href="{{ route('destroyBooking', $rs->id) }}" class="btn btn-danger" onclick="return confirm('Are you sure to delete this booking?')">Delete</a>
                                         </div>
                                     </td>
@@ -193,7 +193,7 @@
 
             <!-- Reply to Booking Modal -->
             <div class="modal fade" id="replyBookingModal" tabindex="-1">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Reply to Reservation</h5>
@@ -202,32 +202,50 @@
                         <form id="replyBookingForm" method="POST" action="">
                             @csrf
                             <div class="modal-body">
+                                <p class="text-muted small mb-3" id="replyBookingGuestMeta"></p>
                                 <div class="mb-3">
                                     <label class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select name="status" class="form-control" required>
+                                    <select name="status" id="replyBookingStatus" class="form-control" required>
                                         <option value="confirmed">Confirm</option>
                                         <option value="cancelled">Reject</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Message to guest <span class="text-danger">*</span></label>
-                                    <textarea name="admin_reply" class="form-control" rows="4" required placeholder="This message will be sent to the guest's email."></textarea>
-                                    <small class="text-muted">The guest will be notified at their reservation email.</small>
+                                    <textarea name="admin_reply" id="replyBookingMessage" class="form-control" rows="12" required placeholder="This message will be sent to the guest's email."></textarea>
+                                    <small class="text-muted">Prefills with guest name and booking details. Edit before sending — the guest receives this by email via Resend.</small>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Send reply</button>
+                                <button type="submit" class="btn btn-primary">Send reply &amp; email guest</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
             <script>
-            function setReplyBookingId(id) {
-                var base = '{{ route("replyBooking", ["id" => "__ID__"]) }}';
-                document.getElementById('replyBookingForm').action = base.replace('__ID__', id);
+            window.bookingReplyDrafts = @json($bookingReplyDrafts ?? new \stdClass());
+            function applyReplyBookingDraft() {
+                var id = document.getElementById('replyBookingForm').dataset.bookingId;
+                var status = document.getElementById('replyBookingStatus').value;
+                var drafts = (window.bookingReplyDrafts && window.bookingReplyDrafts[id]) || null;
+                var message = document.getElementById('replyBookingMessage');
+                if (drafts && drafts[status]) {
+                    message.value = drafts[status];
+                }
             }
+            function setReplyBookingId(id, guestName, guestEmail) {
+                var base = '{{ route("replyBooking", ["id" => "__ID__"]) }}';
+                var form = document.getElementById('replyBookingForm');
+                form.action = base.replace('__ID__', id);
+                form.dataset.bookingId = String(id);
+                var meta = document.getElementById('replyBookingGuestMeta');
+                meta.textContent = 'Guest: ' + (guestName || '—') + (guestEmail ? ' · ' + guestEmail : '') + ' · Ref #' + id;
+                document.getElementById('replyBookingStatus').value = 'confirmed';
+                applyReplyBookingDraft();
+            }
+            document.getElementById('replyBookingStatus').addEventListener('change', applyReplyBookingDraft);
             </script>
 
             <script>

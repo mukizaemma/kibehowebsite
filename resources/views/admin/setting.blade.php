@@ -425,8 +425,8 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label" for="whatsapp_e164">WhatsApp number</label>
-                                        <input type="text" class="form-control" id="whatsapp_e164" name="whatsapp_e164" value="{{ old('whatsapp_e164', $data->whatsapp_e164 ?? '') }}" placeholder="250794191115" maxlength="32">
-                                        <p class="text-muted small mb-0 mt-1">Digits only, with country code (no +).</p>
+                                        <input type="text" class="form-control" id="whatsapp_e164" name="whatsapp_e164" value="{{ old('whatsapp_e164', $data->whatsapp_e164 ?? '') }}" placeholder="250787550007" maxlength="32">
+                                        <p class="text-muted small mb-0 mt-1">Optional. Digits with country code (no +). If empty, the site uses the main/reception phone for both calls and WhatsApp.</p>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="channel_contact_email">Contact email for mailto links</label>

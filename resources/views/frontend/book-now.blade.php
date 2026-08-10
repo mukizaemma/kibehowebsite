@@ -18,6 +18,11 @@
                     @if($submittedBookingId)
                         <p class="book-wizard__success-ref">{{ site_trans('booking.wizard_success_ref', ['id' => $submittedBookingId]) }}</p>
                     @endif
+                    @if($guestEmailSent)
+                        <p class="book-wizard__success-email">A confirmation email was sent to <strong>{{ $email }}</strong>.</p>
+                    @else
+                        <p class="book-wizard__success-email">We saved your request. If you do not receive an email shortly, contact us and quote your reference.</p>
+                    @endif
                     <div class="book-wizard__success-actions">
                         <a wire:navigate href="{{ localized_route('home') }}" class="theme-btn btn-style fill">
                             <span>{{ site_trans('nav.home') }}</span>

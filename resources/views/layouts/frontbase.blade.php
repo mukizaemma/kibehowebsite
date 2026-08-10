@@ -380,24 +380,11 @@
     <!-- header area -->
     @php
         $hotelContactHeader = \App\Models\HotelContact::first();
-        $receptionPhoneHeader = trim((string) ($setting?->reception_phone ?? ''));
-        $headerPhone = filled($receptionPhoneHeader)
-            ? $receptionPhoneHeader
-            : ($hotelContactHeader?->phone ?? $setting?->phone ?? '');
-        $headerEmail = $hotelContactHeader?->email ?? $setting?->email ?? '';
-        $headerWhatsappDigits = '';
-        if (filled(trim((string) ($setting?->whatsapp_e164 ?? '')))) {
-            $headerWhatsappDigits = preg_replace('/\D+/', '', (string) $setting->whatsapp_e164);
-        } elseif (filled($receptionPhoneHeader)) {
-            $headerWhatsappDigits = preg_replace('/\D+/', '', $receptionPhoneHeader);
-        } elseif ($hotelContactHeader && filled($hotelContactHeader->whatsapp)) {
-            $headerWhatsappDigits = preg_replace('/\D+/', '', $hotelContactHeader->whatsapp);
-        }
-        $headerWhatsappLabel = filled($receptionPhoneHeader)
-            ? $receptionPhoneHeader
-            : (($hotelContactHeader && filled($hotelContactHeader->whatsapp))
-                ? $hotelContactHeader->whatsapp
-                : trim((string) ($setting?->whatsapp_e164 ?? '')));
+        $headerPhone = hotel_public_phone($setting) ?? '';
+        $headerEmail = trim((string) (\App\Support\HotelChannels::all()['public_email'] ?? ''))
+            ?: ($hotelContactHeader?->email ?? $setting?->email ?? '');
+        $headerWhatsappDigits = hotel_whatsapp_digits($setting) ?? '';
+        $headerWhatsappLabel = hotel_whatsapp_label($setting);
         $headerAddress = '';
         if ($hotelContactHeader) {
             $headerAddress = trim(implode(' ', array_filter([

@@ -103,8 +103,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'info@kibeho-magnificat.rw'),
-        'name' => env('MAIL_FROM_NAME', 'Kibeho Magnificat MV Hôtel'),
+        'address' => env('MAIL_FROM_ADDRESS', 'info@kibehomagnificathotel.com'),
+        'name' => env('MAIL_FROM_NAME', 'Kibeho Magnificat Hotel'),
     ],
 
     /*
@@ -118,7 +118,7 @@ return [
     */
 
     'notification' => [
-        'admin_to' => env('MAIL_NOTIFICATION_TO', 'info@kibeho-magnificat.rw'),
+        'admin_to' => env('MAIL_NOTIFICATION_TO', 'info@kibehomagnificathotel.com'),
         'admin_cc' => env('MAIL_NOTIFICATION_CC', ''),
     ],
 

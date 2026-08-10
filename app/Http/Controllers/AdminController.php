@@ -32,7 +32,10 @@ class AdminController extends Controller
         $blogCommetsCount = $blogCommets->count();
         $data = Setting::first();
         $rooms = Room::count();
-        $bookings = Booking::latest()->get();
+        $bookings = Booking::with(['room', 'facility', 'tourActivity'])->latest()->get();
+        $bookingReplyDrafts = $bookings->mapWithKeys(function (Booking $booking) {
+            return [$booking->id => \App\Support\BookingReplyDrafts::for($booking)];
+        });
         $today = Carbon::today();
         $weekStart = Carbon::now()->startOfWeek();
         $monthStart = Carbon::now()->startOfMonth();
@@ -71,6 +74,7 @@ class AdminController extends Controller
             'data'=>$data,
             'rooms'=>$rooms,
             'bookings'=>$bookings,
+            'bookingReplyDrafts' => $bookingReplyDrafts,
             'totalVisits' => $totalVisits,
             'todayVisits' => $todayVisits,
             'weekVisits' => $weekVisits,

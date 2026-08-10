@@ -109,22 +109,7 @@ final class HotelChannels
             'google_write_review_url' => $str($s->google_write_review_url ?? null)
                 ? trim((string) $s->google_write_review_url)
                 : null,
-            'whatsapp_e164' => (static function () use ($s, $str, $base): ?string {
-                $digits = $str($s->whatsapp_e164 ?? null)
-                    ? preg_replace('/\D+/', '', (string) $s->whatsapp_e164) ?: null
-                    : null;
-                if ($digits !== null && $digits !== '') {
-                    return $digits;
-                }
-                $fromReception = $str($s->reception_phone ?? null)
-                    ? preg_replace('/\D+/', '', (string) $s->reception_phone) ?: null
-                    : null;
-                if ($fromReception !== null && $fromReception !== '') {
-                    return $fromReception;
-                }
-
-                return $base['whatsapp_e164'] ?? null;
-            })(),
+            'whatsapp_e164' => hotel_whatsapp_digits($s) ?? ($base['whatsapp_e164'] ?? null),
             'whatsapp_default_message' => $str($s->whatsapp_default_message ?? null)
                 ? trim((string) $s->whatsapp_default_message)
                 : ($base['whatsapp_default_message'] ?? null),

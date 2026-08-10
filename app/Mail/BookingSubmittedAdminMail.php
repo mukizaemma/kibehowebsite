@@ -18,8 +18,14 @@ class BookingSubmittedAdminMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject(BookingSubmissionService::adminSubject($this->booking))
+        $mailable = $this->subject(BookingSubmissionService::adminSubject($this->booking))
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('emails.booking-submitted-admin');
+
+        if (filled($this->booking->email)) {
+            $mailable->replyTo($this->booking->email, $this->booking->names ?: $this->booking->email);
+        }
+
+        return $mailable;
     }
 }
