@@ -103,7 +103,7 @@ class BookNowPage extends Component
     {
         if (in_array($property, ['room_id', 'checkin', 'checkout', 'adults', 'children', 'room_count', 'party_type'], true)) {
             $this->normalizeStayInput();
-            $this->resetValidation();
+            $this->syncLimitFeedback();
         }
 
         if (in_array($property, ['names', 'phone', 'email', 'country', 'stay_reason', 'message'], true)) {
@@ -239,57 +239,69 @@ class BookNowPage extends Component
         $this->children = max(0, (int) ($this->children ?? 0));
         $this->room_count = max(1, (int) ($this->room_count ?? 1));
 
+        // Soft ceilings only (party size), not room inventory — over-limit values keep
+        // the typed number so we can show red labels / explanations instead of silently clamping.
+        $maxAdults = $isGroup ? 120 : 20;
+        $maxChildren = $isGroup ? 60 : 20;
+        $this->adults = min($maxAdults, (int) $this->adults);
+        $this->children = min($maxChildren, (int) $this->children);
+        $this->room_count = min($isGroup ? 200 : 20, (int) $this->room_count);
+    }
+
+    /**
+     * Surface limit explanations only when the guest exceeds inventory or occupancy.
+     */
+    protected function syncLimitFeedback(): void
+    {
+        $this->resetErrorBag(['adults', 'children', 'room_count']);
+
         $room = $this->selectedRoom();
         if (! $room) {
             return;
         }
 
-        $availability = $this->availability();
-        $summary = $availability->summary($room, $this->checkin, $this->checkout);
+        $summary = $this->availability()->summary($room, (string) $this->checkin, (string) $this->checkout);
         $available = max(0, (int) $summary['available']);
-        $maxOccupancy = (int) $summary['max_occupancy'];
+        $inventory = max(1, (int) $summary['inventory']);
+        $maxOccupancy = max(1, (int) $summary['max_occupancy']);
+        $roomCount = max(1, (int) $this->room_count);
+        $guests = (int) $this->adults + (int) $this->children;
+        $capacity = $maxOccupancy * $roomCount;
 
-        if ($available < 1) {
-            $this->room_count = 1;
-            $this->adults = min((int) $this->adults, $maxOccupancy);
-            $this->children = min((int) $this->children, max(0, $maxOccupancy - (int) $this->adults));
+        if (($summary['dates_ready'] ?? false) && $available < 1) {
+            $this->addError('room_count', site_trans('booking.wizard_dates_unavailable'));
 
             return;
         }
 
-        $needed = $availability->minRoomsForGuests($room, (int) $this->adults, (int) $this->children);
-        $individualCap = min(5, $available);
-        $maxRooms = $isGroup ? $available : $individualCap;
+        if (($summary['dates_ready'] ?? false) && $roomCount > $available) {
+            $this->addError('room_count', site_trans('booking.wizard_rooms_dates_inventory', [
+                'max' => $available,
+                'inventory' => $inventory,
+            ]));
+        }
 
-        // Prefer enough rooms for the guest count, then keep the guest’s choice within availability.
-        $desired = max((int) $this->room_count, $needed);
-        $this->room_count = max(1, min($maxRooms, $desired));
-
-        $capacity = $availability->maxGuestsForRooms($room, (int) $this->room_count);
-        $guests = (int) $this->adults + (int) $this->children;
         if ($guests > $capacity) {
-            $overflow = $guests - $capacity;
-            $reduceChildren = min((int) $this->children, $overflow);
-            $this->children = (int) $this->children - $reduceChildren;
-            $overflow -= $reduceChildren;
-            if ($overflow > 0) {
-                $this->adults = max(1, (int) $this->adults - $overflow);
-            }
+            $needed = $this->availability()->minRoomsForGuests($room, (int) $this->adults, (int) $this->children);
+            $this->addError('adults', site_trans('booking.wizard_capacity_need_rooms', [
+                'max' => $capacity,
+                'needed' => $needed,
+                'per_room' => $maxOccupancy,
+            ]));
         }
     }
 
     protected function validateStay(): void
     {
         $this->normalizeStayInput();
+        $this->syncLimitFeedback();
+
         $summary = $this->staySummary();
         $available = max(0, (int) ($summary['available'] ?? 0));
-        $maxOccupancy = max(1, (int) ($summary['max_occupancy'] ?? 1));
         $isGroup = $this->party_type === 'group';
-
-        $maxRoomsRule = max(1, $available);
-        $maxGuests = max(1, $maxOccupancy * max(1, (int) $this->room_count));
-        $maxAdults = min($isGroup ? 120 : 20, $maxGuests);
-        $maxChildren = min($isGroup ? 60 : 20, max(0, $maxGuests - 1));
+        $maxAdults = $isGroup ? 120 : 20;
+        $maxChildren = $isGroup ? 60 : 20;
+        $maxRoomsRule = max(1, $available > 0 ? $available : 1);
 
         $this->validate([
             'party_type' => 'required|in:individual,group',

@@ -106,30 +106,10 @@
                                         @error('room_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
 
-                                    @if($selectedRoom)
+                                    @if($selectedRoom && $datesReady && ($roomsAvailable ?? 0) < 1)
                                         <div class="col-12">
-                                            <aside class="book-wizard__capacity-note @if(($roomsAvailable ?? 0) < 1) book-wizard__capacity-note--warn @endif" aria-live="polite">
-                                                <p class="mb-1">
-                                                    <strong>{{ site_trans('booking.capacity_title') }}</strong>
-                                                    {{ site_trans('booking.capacity_type_line', [
-                                                        'rooms' => $roomInventory,
-                                                        'guests' => $maxOccupancy,
-                                                    ]) }}
-                                                </p>
-                                                @if($datesReady)
-                                                    @if(($roomsAvailable ?? 0) < 1)
-                                                        <p class="mb-0">{{ site_trans('booking.capacity_dates_full') }}</p>
-                                                    @else
-                                                        <p class="mb-0">
-                                                            {{ site_trans('booking.capacity_dates_line', [
-                                                                'available' => $roomsAvailable,
-                                                                'inventory' => $roomInventory,
-                                                            ]) }}
-                                                        </p>
-                                                    @endif
-                                                @else
-                                                    <p class="mb-0 text-muted">{{ site_trans('booking.capacity_pick_dates') }}</p>
-                                                @endif
+                                            <aside class="book-wizard__capacity-note book-wizard__capacity-note--warn" aria-live="polite">
+                                                <p class="mb-0">{{ site_trans('booking.capacity_dates_full') }}</p>
                                             </aside>
                                         </div>
                                     @endif
@@ -145,33 +125,43 @@
                                         @error('checkout') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label" for="wizard-adults">{{ site_trans('booking.form_adults') }}</label>
-                                        <input wire:model.live="adults" type="number" min="1" max="{{ max(1, min($party_type === 'group' ? 120 : 20, $maxGuests ?? 20)) }}" id="wizard-adults" class="form-control @error('adults') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
+                                        <label class="form-label @error('adults') text-danger @enderror" for="wizard-adults">{{ site_trans('booking.form_adults') }}</label>
+                                        <input
+                                            wire:model.live="adults"
+                                            type="number"
+                                            min="1"
+                                            max="{{ $party_type === 'group' ? 120 : 20 }}"
+                                            id="wizard-adults"
+                                            class="form-control @error('adults') is-invalid @enderror"
+                                            @disabled($selectedRoom && $datesReady && ($roomsAvailable ?? 1) < 1)
+                                        >
                                         @error('adults') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                                        @if($selectedRoom)
-                                            <small class="text-muted">{{ site_trans('booking.form_guests_hint', ['max' => $maxGuests, 'per_room' => $maxOccupancy]) }}</small>
-                                        @endif
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label" for="wizard-children">{{ site_trans('booking.form_children') }}</label>
-                                        <input wire:model.live="children" type="number" min="0" max="{{ max(0, min($party_type === 'group' ? 60 : 20, max(0, ($maxGuests ?? 1) - 1))) }}" id="wizard-children" class="form-control @error('children') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
+                                        <label class="form-label @error('children') text-danger @enderror" for="wizard-children">{{ site_trans('booking.form_children') }}</label>
+                                        <input
+                                            wire:model.live="children"
+                                            type="number"
+                                            min="0"
+                                            max="{{ $party_type === 'group' ? 60 : 20 }}"
+                                            id="wizard-children"
+                                            class="form-control @error('children') is-invalid @enderror"
+                                            @disabled($selectedRoom && $datesReady && ($roomsAvailable ?? 1) < 1)
+                                        >
                                         @error('children') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label" for="wizard-rooms">{{ site_trans('booking.form_rooms') }}</label>
-                                        <input wire:model.live="room_count" type="number" min="1" max="{{ max(1, $roomsAvailable ?? $roomInventory) }}" id="wizard-rooms" class="form-control @error('room_count') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
+                                        <label class="form-label @error('room_count') text-danger @enderror" for="wizard-rooms">{{ site_trans('booking.form_rooms') }}</label>
+                                        <input
+                                            wire:model.live="room_count"
+                                            type="number"
+                                            min="1"
+                                            max="{{ $party_type === 'group' ? 200 : 20 }}"
+                                            id="wizard-rooms"
+                                            class="form-control @error('room_count') is-invalid @enderror"
+                                            @disabled($selectedRoom && $datesReady && ($roomsAvailable ?? 1) < 1)
+                                        >
                                         @error('room_count') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                                        @if($selectedRoom)
-                                            <small class="text-muted">
-                                                {{ site_trans('booking.form_rooms_hint_dates', [
-                                                    'available' => max(0, $roomsAvailable ?? 0),
-                                                    'inventory' => $roomInventory,
-                                                ]) }}
-                                                @if(($minRoomsNeeded ?? 1) > 1)
-                                                    · {{ site_trans('booking.form_rooms_needed', ['count' => $minRoomsNeeded]) }}
-                                                @endif
-                                            </small>
-                                        @endif
                                     </div>
                                 </div>
                             @elseif($step === 2)
