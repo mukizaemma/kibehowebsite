@@ -225,22 +225,24 @@
 
                                 <fieldset class="book-wizard__confirm-via">
                                     <legend>{{ site_trans('booking.wizard_confirm_via_title') }}</legend>
-                                    <label class="book-wizard__radio">
-                                        <input type="radio" wire:model="confirm_via" value="email">
-                                        <span>
-                                            <strong>{{ site_trans('booking.wizard_confirm_email') }}</strong>
-                                            <small>{{ site_trans('booking.wizard_confirm_email_help') }}</small>
-                                        </span>
-                                    </label>
-                                    @if($hasWhatsapp)
-                                    <label class="book-wizard__radio">
-                                        <input type="radio" wire:model="confirm_via" value="whatsapp">
-                                        <span>
-                                            <strong>{{ site_trans('booking.wizard_confirm_whatsapp') }}</strong>
-                                            <small>{{ site_trans('booking.wizard_confirm_whatsapp_help') }}</small>
-                                        </span>
-                                    </label>
-                                    @endif
+                                    <div class="book-wizard__confirm-via-options">
+                                        <label class="book-wizard__radio">
+                                            <input type="radio" wire:model="confirm_via" value="email">
+                                            <span>
+                                                <strong>{{ site_trans('booking.wizard_confirm_email') }}</strong>
+                                                <small>{{ site_trans('booking.wizard_confirm_email_help') }}</small>
+                                            </span>
+                                        </label>
+                                        @if($hasWhatsapp)
+                                        <label class="book-wizard__radio">
+                                            <input type="radio" wire:model="confirm_via" value="whatsapp">
+                                            <span>
+                                                <strong>{{ site_trans('booking.wizard_confirm_whatsapp') }}</strong>
+                                                <small>{{ site_trans('booking.wizard_confirm_whatsapp_help') }}</small>
+                                            </span>
+                                        </label>
+                                        @endif
+                                    </div>
                                     @error('confirm_via') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </fieldset>
 
