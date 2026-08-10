@@ -197,9 +197,11 @@ Route::middleware(['auth', 'admin'])->prefix('content-management')->name('conten
     Route::get('/page-heroes', ContentManagementPageHeroes::class)->name('page-heroes');
     Route::post('/page-heroes/{id}/update', [App\Http\Controllers\ContentManagementController::class, 'updatePageHero'])->name('page-heroes.update');
     
-    // Reservations are handled via the external booking channel — not in this CMS.
-    Route::redirect('/reservations', '/content-management/dashboard')->name('reservations');
-    Route::redirect('/reservations/{id}', '/content-management/dashboard');
+    // Reservations — guest booking requests from the public book-now form
+    Route::get('/reservations', [App\Http\Controllers\ContentManagementController::class, 'reservations'])->name('reservations');
+    Route::get('/reservations/{id}', [App\Http\Controllers\ContentManagementController::class, 'showReservationPage'])->name('reservations.show');
+    Route::post('/reservations/{id}/reply', [App\Http\Controllers\ContentManagementController::class, 'replyReservation'])->name('reservations.reply');
+    Route::delete('/reservations/{id}', [App\Http\Controllers\ContentManagementController::class, 'destroyReservation'])->name('reservations.destroy');
 });
 
 // Legacy Admin Routes (keeping for backward compatibility)

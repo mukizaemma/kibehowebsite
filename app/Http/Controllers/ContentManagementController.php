@@ -23,9 +23,12 @@ use App\Models\ServiceImage;
 use App\Models\Roomimage;
 use App\Models\Facilityimage;
 use App\Models\PageHero;
+use App\Mail\BookingStatusUpdateGuestMail;
 use App\Models\Booking;
 use App\Models\BookingTrash;
-use Illuminate\Support\Facades\Mail;
+use App\Services\SiteNotificationMail;
+use App\Support\BookingReplyDrafts;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class ContentManagementController extends Controller
@@ -45,98 +48,134 @@ class ContentManagementController extends Controller
     }
 
     /**
-     * Reservations overview for Content Manager (rooms vs facilities).
+     * Reservations overview for Content Manager.
      */
-    public function reservations()
+    public function reservations(Request $request)
     {
-        $roomReservations = Booking::where('reservation_type', 'room')
-            ->with(['room', 'assignedRoom'])
-            ->latest()
-            ->take(200)
-            ->get();
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
-        $facilityReservations = Booking::where('reservation_type', 'facility')
-            ->with('facility')
-            ->latest()
-            ->take(200)
-            ->get();
+        $query = Booking::query()
+            ->with(['room', 'assignedRoom', 'facility', 'tourActivity'])
+            ->latest();
 
-        return view('content-management.reservations.index', compact('roomReservations', 'facilityReservations'));
+        if (filled($startDate)) {
+            try {
+                $start = Carbon::parse($startDate)->startOfDay();
+                $query->where('created_at', '>=', $start);
+            } catch (\Throwable) {
+                // ignore invalid date
+            }
+        }
+
+        if (filled($endDate)) {
+            try {
+                $end = Carbon::parse($endDate)->endOfDay();
+                $query->where('created_at', '<=', $end);
+            } catch (\Throwable) {
+                // ignore invalid date
+            }
+        }
+
+        $bookings = $query->paginate(40)->withQueryString();
+
+        $base = Booking::query();
+        if (filled($startDate)) {
+            try {
+                $base->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+            } catch (\Throwable) {
+            }
+        }
+        if (filled($endDate)) {
+            try {
+                $base->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+            } catch (\Throwable) {
+            }
+        }
+
+        $allForStats = (clone $base)->get(['id', 'status', 'message']);
+        $stats = [
+            'total' => $allForStats->count(),
+            'whatsapp' => $allForStats->filter(fn (Booking $b) => $this->bookingChannel($b) === 'WhatsApp')->count(),
+            'email' => $allForStats->filter(fn (Booking $b) => $this->bookingChannel($b) === 'Email')->count(),
+            'confirmed' => $allForStats->where('status', 'confirmed')->count(),
+            'pending' => $allForStats->where('status', 'pending')->count(),
+        ];
+
+        return view('content-management.reservations.index', compact('bookings', 'stats', 'startDate', 'endDate'));
     }
 
     /**
-     * Fetch single reservation (for modal view).
+     * Reservation detail + respond form.
+     */
+    public function showReservationPage($id)
+    {
+        $booking = Booking::with(['room', 'assignedRoom', 'facility', 'tourActivity'])->findOrFail($id);
+        $drafts = BookingReplyDrafts::for($booking);
+        $channel = $this->bookingChannel($booking);
+
+        return view('content-management.reservations.show', compact('booking', 'drafts', 'channel'));
+    }
+
+    /**
+     * JSON payload for modal/legacy callers.
      */
     public function showReservation($id)
     {
         $booking = Booking::with(['room', 'assignedRoom', 'facility', 'tourActivity'])->findOrFail($id);
+
         return response()->json($booking);
     }
 
     /**
-     * Reply to reservation with status & custom message.
-     * Status options: confirmed, rejected, full-booked, scam.
-     * Rejected or scam bookings are moved to trash table.
+     * Reply to reservation with status & custom message; optionally email guest.
      */
     public function replyReservation(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:confirmed,rejected,full-booked,scam',
-            'admin_reply' => 'required|string|max:2000',
+            'status' => 'required|in:confirmed,cancelled,rejected,full-booked,scam',
+            'admin_reply' => 'nullable|string|max:5000',
+            'email_guest' => 'nullable|boolean',
         ]);
 
         $booking = Booking::with(['room', 'facility', 'tourActivity'])->findOrFail($id);
+        $status = $request->status === 'rejected' ? 'cancelled' : $request->status;
+        $reply = trim((string) $request->input('admin_reply', ''));
+        if ($reply === '') {
+            $drafts = BookingReplyDrafts::for($booking);
+            $reply = $status === 'confirmed'
+                ? $drafts['confirmed']
+                : ($drafts['cancelled'] ?? $drafts['confirmed']);
+        }
 
-        $booking->status = $request->status;
-        $booking->admin_reply = $request->admin_reply;
+        $booking->status = $status;
+        $booking->admin_reply = $reply;
         $booking->admin_replied_at = now();
 
-        // Prepare email if guest has an email
+        $emailGuest = $request->boolean('email_guest', true);
         $guestEmail = $booking->email;
-        if ($guestEmail) {
-            $itemName = 'Reservation';
-            if ($booking->reservation_type === 'facility' && $booking->facility) {
-                $itemName = $booking->facility->title;
-            } elseif ($booking->reservation_type === 'tour_activity' && $booking->tourActivity) {
-                $itemName = $booking->tourActivity->title;
-            } elseif ($booking->room) {
-                $itemName = $booking->room->title;
-            }
-
+        if ($emailGuest && filled($guestEmail)) {
             $statusLabelMap = [
-                'confirmed'   => 'Confirmed',
-                'rejected'    => 'Rejected',
+                'confirmed' => 'Confirmed',
+                'cancelled' => 'Cancelled',
                 'full-booked' => 'Full-booked',
-                'scam'        => 'Marked as Scam',
+                'scam' => 'Marked as Scam',
             ];
-            $statusLabel = $statusLabelMap[$request->status] ?? ucfirst($request->status);
+            $statusLabel = $statusLabelMap[$status] ?? ucfirst($status);
+            $sent = SiteNotificationMail::sendToGuest(
+                $guestEmail,
+                new BookingStatusUpdateGuestMail($booking, $statusLabel, $reply)
+            );
+            if (! $sent) {
+                $booking->save();
 
-            $subject = 'Reservation ' . $statusLabel . ' - ' . $itemName;
-            $body = "Hello " . $booking->names . ",\n\n";
-            $body .= "Your reservation for " . $itemName . " has been " . strtolower($statusLabel) . ".\n\n";
-            $body .= "Message from the hotel:\n" . $request->admin_reply . "\n\n";
-
-            if ($booking->checkin_date || $booking->checkout_date) {
-                $body .= "Check-in: " . ($booking->checkin_date ? $booking->checkin_date->format('Y-m-d') : '') . "\n";
-                $body .= "Check-out: " . ($booking->checkout_date ? $booking->checkout_date->format('Y-m-d') : '') . "\n\n";
-            }
-
-            $body .= "Thank you.";
-
-            try {
-                Mail::raw($body, function ($message) use ($guestEmail, $subject) {
-                    $message->to($guestEmail)->subject($subject);
-                });
-            } catch (\Exception $e) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Reply saved but email could not be sent: ' . $e->getMessage(),
-                ], 500);
+                return redirect()
+                    ->route('content-management.reservations.show', $booking->id)
+                    ->with('error', 'Status saved but email could not be sent. Check Resend configuration.');
             }
         }
 
-        // Move to trash if rejected or scam
-        if (in_array($request->status, ['rejected', 'scam'])) {
+        if ($status === 'scam') {
             BookingTrash::create([
                 'original_booking_id' => $booking->id,
                 'names' => $booking->names,
@@ -146,13 +185,38 @@ class ContentManagementController extends Controller
                 'status' => $booking->status,
                 'payload' => $booking->toArray(),
             ]);
-
             $booking->delete();
-        } else {
-            $booking->save();
+
+            return redirect()
+                ->route('content-management.reservations')
+                ->with('success', 'Reservation updated'.($emailGuest ? ' and guest notified.' : '.'));
         }
 
-        return response()->json(['success' => true]);
+        $booking->save();
+
+        return redirect()
+            ->route('content-management.reservations.show', $booking->id)
+            ->with('success', 'Reservation updated'.($emailGuest && filled($guestEmail) ? ' and guest notified by email.' : '.'));
+    }
+
+    public function destroyReservation($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->delete();
+
+        return redirect()
+            ->route('content-management.reservations')
+            ->with('success', 'Reservation deleted.');
+    }
+
+    protected function bookingChannel(Booking $booking): string
+    {
+        $message = strtolower((string) ($booking->message ?? ''));
+        if (str_contains($message, 'confirmation preference: whatsapp') || str_contains($message, 'via whatsapp')) {
+            return 'WhatsApp';
+        }
+
+        return 'Email';
     }
 
     // Hotel Contacts Management

@@ -38,11 +38,11 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div>
                     <h4 class="mb-1">Website overview</h4>
-                    <p class="text-muted mb-0">Manage public content for the hotel website. Guest bookings are handled through your external reservation channel.</p>
+                    <p class="text-muted mb-0">Manage public content and respond to guest reservation requests from the book-now form.</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('setting') }}#channel-links" class="btn btn-outline-primary">
-                        <i class="fa fa-link me-2"></i>Booking channel
+                    <a href="{{ route('content-management.reservations') }}" class="btn btn-outline-warning text-dark">
+                        <i class="fa fa-calendar-check me-2"></i>Reservations
                     </a>
                     <a href="{{ route('content-management.rooms') }}" class="btn btn-primary">
                         <i class="fa fa-bed me-2"></i>Manage rooms
@@ -104,6 +104,11 @@
                     <h5 class="mb-3">Quick actions</h5>
                     <div class="row g-3">
                         <div class="col-sm-6 col-md-4">
+                            <a href="{{ route('content-management.reservations') }}" class="btn btn-light border w-100 py-3 text-start">
+                                <i class="fa fa-calendar-check text-warning me-2"></i>Reservations
+                            </a>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
                             <a href="{{ route('content-management.rooms') }}" class="btn btn-light border w-100 py-3 text-start">
                                 <i class="fa fa-bed text-primary me-2"></i>Rooms
                             </a>
@@ -121,11 +126,6 @@
                         <div class="col-sm-6 col-md-4">
                             <a href="{{ route('content-management.amenities') }}" class="btn btn-light border w-100 py-3 text-start">
                                 <i class="fa fa-list text-warning me-2"></i>Amenities
-                            </a>
-                        </div>
-                        <div class="col-sm-6 col-md-4">
-                            <a href="{{ route('content-management.gallery') }}" class="btn btn-light border w-100 py-3 text-start">
-                                <i class="fa fa-images text-secondary me-2"></i>Gallery
                             </a>
                         </div>
                         <div class="col-sm-6 col-md-4">
@@ -175,9 +175,9 @@
                 </div>
                 @else
                 <div class="bg-light rounded border p-4 h-100">
-                    <h6 class="mb-2"><i class="fa fa-external-link-alt text-primary me-2"></i>Reservations</h6>
-                    <p class="small text-muted mb-3">This dashboard is for website content only. Room bookings are managed through your external reservation channel.</p>
-                    <a href="{{ route('setting') }}#channel-links" class="btn btn-sm btn-outline-primary">Configure booking link</a>
+                    <h6 class="mb-2"><i class="fa fa-calendar-check text-warning me-2"></i>Reservations</h6>
+                    <p class="small text-muted mb-3">Review guest booking requests, confirm availability, and email a reply from the CMS.</p>
+                    <a href="{{ route('content-management.reservations') }}" class="btn btn-sm btn-warning text-dark">Open reservations</a>
                 </div>
                 @endunless
             </div>

@@ -1,251 +1,156 @@
+@extends('layouts.adminBase')
+
+@section('content')
 <div class="admin-livewire-page d-flex w-100 align-items-stretch">
 @include('content-management.includes.sidebar')
 <div class="content">
     @include('admin.includes.navbar')
 
     <div class="container-fluid pt-4 px-4">
-        <div class="bg-light rounded h-100 p-4">
-            <h4 class="mb-4">Reservations</h4>
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
-            <!-- Tabs -->
-            <ul class="nav nav-tabs mb-3" id="reservationTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="rooms-tab" data-bs-toggle="tab" data-bs-target="#rooms" type="button" role="tab" aria-controls="rooms" aria-selected="true">
-                        Room Reservations
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="facilities-tab" data-bs-toggle="tab" data-bs-target="#facilities" type="button" role="tab" aria-controls="facilities" aria-selected="false">
-                        Facility Reservations
-                    </button>
-                </li>
-            </ul>
+        <div class="bg-white rounded shadow-sm border p-4 mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <h4 class="mb-0">Recent Bookings</h4>
+            </div>
 
-            <div class="tab-content" id="reservationTabsContent">
-                <!-- Rooms tab -->
-                <div class="tab-pane fade show active" id="rooms" role="tabpanel" aria-labelledby="rooms-tab">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Guest</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Check-in</th>
-                                    <th>Check-out</th>
-                                    <th>Room</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($roomReservations as $booking)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $booking->names }}</td>
-                                        <td>{{ $booking->email }}</td>
-                                        <td>{{ $booking->phone }}</td>
-                                        <td>{{ optional($booking->checkin_date)->format('Y-m-d') }}</td>
-                                        <td>{{ optional($booking->checkout_date)->format('Y-m-d') }}</td>
-                                        <td>{{ $booking->assignedRoom->room_number ?? $booking->room->title ?? 'N/A' }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : ($booking->status === 'cancelled' ? 'danger' : 'secondary') }}">
-                                                {{ ucfirst($booking->status ?? 'pending') }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-info" onclick="openReservationModal({{ $booking->id }})">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted">No room reservations found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+            <form method="GET" action="{{ route('content-management.reservations') }}" class="row g-3 align-items-end mb-0">
+                <div class="col-sm-4 col-md-3">
+                    <label class="form-label mb-1" for="start_date">Start Date:</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ $startDate }}">
                 </div>
+                <div class="col-sm-4 col-md-3">
+                    <label class="form-label mb-1" for="end_date">End Date:</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ $endDate }}">
+                </div>
+                <div class="col-sm-4 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning text-dark px-4">Search</button>
+                    @if(filled($startDate) || filled($endDate))
+                        <a href="{{ route('content-management.reservations') }}" class="btn btn-outline-secondary">Clear</a>
+                    @endif
+                </div>
+            </form>
+        </div>
 
-                <!-- Facilities tab -->
-                <div class="tab-pane fade" id="facilities" role="tabpanel" aria-labelledby="facilities-tab">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Facility</th>
-                                    <th>Guest</th>
-                                    <th>Date</th>
-                                    <th>People</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($facilityReservations as $booking)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $booking->facility->title ?? 'N/A' }}</td>
-                                        <td>{{ $booking->names }}</td>
-                                        <td>{{ optional($booking->checkin_date)->format('Y-m-d') }}</td>
-                                        <td>{{ $booking->adults ?? '-' }}</td>
-                                        <td>{{ $booking->phone }}</td>
-                                        <td>{{ $booking->email }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : ($booking->status === 'cancelled' ? 'danger' : 'secondary') }}">
-                                                {{ ucfirst($booking->status ?? 'pending') }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-info" onclick="openReservationModal({{ $booking->id }})">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted">No facility reservations found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white rounded shadow-sm border p-3 h-100">
+                    <div class="text-warning text-uppercase small fw-semibold">Reservations</div>
+                    <div class="fs-3 fw-bold mt-1">{{ number_format($stats['total']) }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white rounded shadow-sm border p-3 h-100">
+                    <div class="text-warning text-uppercase small fw-semibold">WhatsApp</div>
+                    <div class="fs-3 fw-bold mt-1">{{ number_format($stats['whatsapp']) }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white rounded shadow-sm border p-3 h-100">
+                    <div class="text-warning text-uppercase small fw-semibold">Email</div>
+                    <div class="fs-3 fw-bold mt-1">{{ number_format($stats['email']) }}</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white rounded shadow-sm border p-3 h-100">
+                    <div class="text-warning text-uppercase small fw-semibold">Confirmed</div>
+                    <div class="fs-3 fw-bold mt-1 text-success">{{ number_format($stats['confirmed']) }}</div>
+                    <div class="small text-warning mt-1">{{ number_format($stats['pending']) }} pending</div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Reservation detail & reply modal -->
-<div class="modal fade" id="reservationModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reservation Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="bg-white rounded shadow-sm border p-3 p-md-4">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer Names</th>
+                            <th>Customer Phone</th>
+                            <th>Channel</th>
+                            <th>Room</th>
+                            <th>CheckIn Date</th>
+                            <th>CheckOut Date</th>
+                            <th>Adults/Children</th>
+                            <th>Additional Request</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($bookings as $booking)
+                            @php
+                                $channel = str_contains(strtolower((string) ($booking->message ?? '')), 'confirmation preference: whatsapp')
+                                    ? 'WhatsApp'
+                                    : 'Email';
+                                $status = strtolower((string) ($booking->status ?? 'pending'));
+                                $badgeClass = match ($status) {
+                                    'confirmed' => 'bg-success',
+                                    'cancelled', 'rejected' => 'bg-danger',
+                                    'full-booked' => 'bg-warning text-dark',
+                                    default => 'bg-secondary',
+                                };
+                                $roomLabel = $booking->room->title
+                                    ?? $booking->facility->title
+                                    ?? $booking->tourActivity->title
+                                    ?? '—';
+                                $requestNote = trim(preg_replace('/\s*Confirmation preference:\s*(email|whatsapp)\s*/i', '', (string) ($booking->message ?? '')));
+                            @endphp
+                            <tr>
+                                <td class="text-nowrap">{{ optional($booking->created_at)->format('Y-m-d H:i') }}</td>
+                                <td>
+                                    <div>{{ $booking->names }}</div>
+                                    <span class="badge {{ $badgeClass }}">{{ ucfirst($status) }}</span>
+                                </td>
+                                <td class="text-nowrap">{{ $booking->phone ?: '—' }}</td>
+                                <td>{{ $channel }}</td>
+                                <td>{{ $roomLabel }}</td>
+                                <td class="text-nowrap">{{ optional($booking->checkin_date)->format('Y-m-d') ?: '—' }}</td>
+                                <td class="text-nowrap">{{ optional($booking->checkout_date)->format('Y-m-d') ?: '—' }}</td>
+                                <td>{{ (int) ($booking->adults ?? 0) }} / {{ (int) ($booking->children ?? 0) }}</td>
+                                <td>{{ $requestNote !== '' ? \Illuminate\Support\Str::limit($requestNote, 60) : '' }}</td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <a href="{{ route('content-management.reservations.show', $booking->id) }}" class="btn btn-sm btn-warning" title="View / respond">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <form action="{{ route('content-management.reservations.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Delete this reservation?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger w-100" title="Delete">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">No reservations found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            <div class="modal-body">
-                <div id="reservationDetails" class="mb-4">
-                    <!-- Filled by JS -->
+
+            @if($bookings->hasPages())
+                <div class="mt-3">
+                    {{ $bookings->links() }}
                 </div>
-                <hr>
-                <form id="reservationReplyForm">
-                    @csrf
-                    <input type="hidden" id="reservation_id" name="reservation_id">
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control" required>
-                            <option value="confirmed">Confirmed</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="full-booked">Full-booked</option>
-                            <option value="scam">Scam</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Message to guest</label>
-                        <textarea name="admin_reply" class="form-control" rows="4" required placeholder="Write a personalized message that will be emailed to the guest."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="submitReservationReply()">Send Reply</button>
-            </div>
+            @endif
         </div>
     </div>
 </div>
-
-<script>
-function openReservationModal(id) {
-    const detailsDiv = document.getElementById('reservationDetails');
-    detailsDiv.innerHTML = '<p class="text-muted mb-0">Loading details...</p>';
-    document.getElementById('reservation_id').value = id;
-
-    fetch(`{{ route('content-management.reservations.show', ':id') }}`.replace(':id', id))
-        .then(response => response.json())
-        .then(data => {
-            let itemName = 'Reservation';
-            if (data.reservation_type === 'facility' && data.facility) {
-                itemName = data.facility.title;
-            } else if (data.reservation_type === 'tour_activity' && data.tour_activity) {
-                itemName = data.tour_activity.title;
-            } else if (data.room) {
-                itemName = data.room.title;
-            }
-
-            const checkin = data.checkin_date ?? '';
-            const checkout = data.checkout_date ?? '';
-
-            detailsDiv.innerHTML = `
-                <dl class="row mb-0">
-                    <dt class="col-sm-3">Guest</dt>
-                    <dd class="col-sm-9">${data.names ?? ''}</dd>
-
-                    <dt class="col-sm-3">Email</dt>
-                    <dd class="col-sm-9">${data.email ?? ''}</dd>
-
-                    <dt class="col-sm-3">Phone</dt>
-                    <dd class="col-sm-9">${data.phone ?? ''}</dd>
-
-                    <dt class="col-sm-3">Item</dt>
-                    <dd class="col-sm-9">${itemName}</dd>
-
-                    <dt class="col-sm-3">Type</dt>
-                    <dd class="col-sm-9">${data.reservation_type ?? ''}</dd>
-
-                    <dt class="col-sm-3">Check-in</dt>
-                    <dd class="col-sm-9">${checkin}</dd>
-
-                    <dt class="col-sm-3">Check-out</dt>
-                    <dd class="col-sm-9">${checkout}</dd>
-
-                    <dt class="col-sm-3">Status</dt>
-                    <dd class="col-sm-9">${data.status ?? 'pending'}</dd>
-
-                    <dt class="col-sm-3">Message</dt>
-                    <dd class="col-sm-9">${data.message ?? ''}</dd>
-                </dl>
-            `;
-        });
-
-    CmsAdmin.showModal('reservationModal');
-}
-
-function submitReservationReply() {
-    const form = document.getElementById('reservationReplyForm');
-    const id = document.getElementById('reservation_id').value;
-    const formData = new FormData(form);
-
-    fetch(`{{ route('content-management.reservations.reply', ':id') }}`.replace(':id', id), {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modalElement = document.getElementById('reservationModal');
-            if (modalElement) {
-                CmsAdmin.hideModal(modalElement);
-            }
-            setTimeout(() => location.reload(), 300);
-        } else if (data.message) {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        alert('An error occurred while sending the reply. Please try again.');
-        console.error(error);
-    });
-}
-</script>
 </div>
+@endsection
