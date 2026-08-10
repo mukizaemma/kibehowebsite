@@ -83,8 +83,6 @@
                             <th>Room</th>
                             <th>CheckIn Date</th>
                             <th>CheckOut Date</th>
-                            <th>Adults/Children</th>
-                            <th>Additional Request</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -105,7 +103,6 @@
                                     ?? $booking->facility->title
                                     ?? $booking->tourActivity->title
                                     ?? '—';
-                                $requestNote = trim(preg_replace('/\s*Confirmation preference:\s*(email|whatsapp)\s*/i', '', (string) ($booking->message ?? '')));
                             @endphp
                             <tr>
                                 <td class="text-nowrap">{{ optional($booking->created_at)->format('Y-m-d H:i') }}</td>
@@ -118,9 +115,7 @@
                                 <td>{{ $roomLabel }}</td>
                                 <td class="text-nowrap">{{ optional($booking->checkin_date)->format('Y-m-d') ?: '—' }}</td>
                                 <td class="text-nowrap">{{ optional($booking->checkout_date)->format('Y-m-d') ?: '—' }}</td>
-                                <td>{{ (int) ($booking->adults ?? 0) }} / {{ (int) ($booking->children ?? 0) }}</td>
-                                <td>{{ $requestNote !== '' ? \Illuminate\Support\Str::limit($requestNote, 60) : '' }}</td>
-                                <td>
+                                <td class="text-nowrap">
                                     <div class="d-flex flex-column gap-1">
                                         <a href="{{ route('content-management.reservations.show', $booking->id) }}" class="btn btn-sm btn-warning" title="View / respond">
                                             <i class="fa fa-eye"></i>
@@ -137,7 +132,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">No reservations found.</td>
+                                <td colspan="8" class="text-center text-muted py-4">No reservations found.</td>
                             </tr>
                         @endforelse
                     </tbody>
