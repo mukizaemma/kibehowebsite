@@ -268,7 +268,7 @@ a.text-primary {
     object-fit: contain;
 }
 
-/* Mobile header: keep menu button fully tappable */
+/* Mobile header: logo | centered contacts | menu */
 @media (max-width: 991.98px) {
     .main__header .container {
         max-width: 100%;
@@ -278,8 +278,9 @@ a.text-primary {
 
     .main__header .main__header__wrapper {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto !important;
-        column-gap: 0.5rem;
+        grid-template-columns: auto minmax(0, 1fr) auto !important;
+        grid-template-areas: "brand contacts right";
+        column-gap: 0.45rem;
         align-items: center;
         width: 100%;
         min-width: 0;
@@ -290,11 +291,35 @@ a.text-primary {
     }
 
     .main__header .main__header__brand {
+        grid-area: brand;
         min-width: 0;
+        flex: 0 0 auto;
+    }
+
+    .main__header .main__header__contacts {
+        grid-area: contacts;
+        justify-self: center;
+        align-self: center;
+        width: 100%;
         max-width: 100%;
+        min-width: 0;
+        padding-inline: 0.2rem;
+        text-align: center;
+        font-size: clamp(0.58rem, 2.7vw, 0.72rem);
+        line-height: 1.2;
+    }
+
+    .main__header .main__header__contacts a {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .main__header .main__header__contacts span.text-truncate {
+        max-width: min(100%, 42vw);
     }
 
     .main__header .main__header__wrapper .main__right {
+        grid-area: right;
         justify-content: flex-end;
         flex-wrap: nowrap !important;
         gap: 0.4rem !important;
@@ -342,6 +367,14 @@ a.text-primary {
 
     .main__header .header-book-cta {
         display: none !important;
+    }
+
+    .main__header .main__header__contacts {
+        font-size: clamp(0.55rem, 2.8vw, 0.68rem);
+    }
+
+    .main__header .main__header__contacts span.text-truncate {
+        max-width: min(100%, 46vw);
     }
 }
 

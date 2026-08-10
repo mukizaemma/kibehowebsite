@@ -49,7 +49,7 @@
                                         <label class="form-label" for="wizard-room">{{ site_trans('booking.form_room') }}</label>
                                         <select wire:model.live="room_id" id="wizard-room" class="form-select @error('room_id') is-invalid @enderror">
                                             <option value="">{{ site_trans('booking.form_room_placeholder') }}</option>
-                                            @foreach($rooms as $room)
+                                            @foreach($availableRooms as $room)
                                                 <option value="{{ $room->id }}">{{ $room->title }} — {{ hotel_price($room->price ?? 0, $setting) }}</option>
                                             @endforeach
                                         </select>

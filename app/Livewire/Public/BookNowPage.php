@@ -259,7 +259,7 @@ class BookNowPage extends Component
     public function render()
     {
         $setting = Setting::first();
-        $rooms = Room::query()
+        $availableRooms = Room::query()
             ->where('status', 'Active')
             ->orderBy('title')
             ->get();
@@ -271,7 +271,7 @@ class BookNowPage extends Component
 
         return view('frontend.book-now', [
             'setting' => $setting,
-            'rooms' => $rooms,
+            'availableRooms' => $availableRooms,
             'selectedRoom' => $this->selectedRoom(),
             'nights' => $this->nights(),
             'estimatedTotal' => $this->estimatedTotal(),

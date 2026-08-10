@@ -185,21 +185,23 @@
             border-radius: 8px;
             box-shadow: 0 8px 18px rgba(197, 160, 89, 0.28);
         }
-        /* Phone + email beside logo on small screens (top bar is hidden <576px) */
+        /* Phone + email — centered between logo and menu on small screens */
         .main__header__contacts {
             font-size: 0.68rem;
             line-height: 1.25;
-            max-width: min(40vw, 10.5rem);
             min-width: 0;
         }
         .main__header__contacts a {
             color: #111111;
             display: flex;
-            align-items: flex-start;
-            gap: 0.25rem;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
             text-decoration: none;
             font-weight: 500;
             min-width: 0;
+            max-width: 100%;
+            text-align: center;
         }
         .main__header__contacts a:hover {
             color: var(--brand-primary);
@@ -207,21 +209,12 @@
         .main__header__contacts .main__header__contacts-icon {
             color: var(--brand-primary);
             flex-shrink: 0;
-            margin-top: 1px;
             font-size: 0.65rem;
         }
         .main__header__contacts span.text-truncate {
             display: inline-block;
             max-width: 100%;
             vertical-align: bottom;
-        }
-        @media (max-width: 399.98px) {
-            .main__header__contacts-email {
-                display: none !important;
-            }
-            .main__header__contacts {
-                max-width: min(36vw, 8.5rem);
-            }
         }
         /* Language switcher + nav sizing: see kibeho-theme.css */
         /* Home hero: full viewport on desktop; landscape frame on phones (see kibeho-theme.css) */
@@ -475,27 +468,27 @@
     <header class="main__header header__function">
         <div class="container">
             <div class="main__header__wrapper">
-                    <div class="d-flex align-items-center min-w-0 flex-shrink-1 gap-2 main__header__brand">
+                    <div class="main__header__brand">
                         <div class="main__logo">
                             <a wire:navigate href="{{ localized_route('home')}}"><img class="logo__class" src="{{ $headerLogoUrl }}" alt="{{ $setting?->company ?? 'Kibeho Magnificat Hotel' }}"></a>
                         </div>
-                        @if((filled($headerPhone) || filled($headerEmail)))
-                        <div class="main__header__contacts d-flex d-sm-none flex-column justify-content-center gap-1 text-start min-w-0" aria-label="Contact shortcuts">
-                            @if(filled($headerPhone))
-                            <a class="link__item" href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}">
-                                <i class="fas fa-phone main__header__contacts-icon" aria-hidden="true"></i>
-                                <span class="text-truncate">{{ $headerPhone }}</span>
-                            </a>
-                            @endif
-                            @if(filled($headerEmail))
-                            <a class="link__item main__header__contacts-email" href="mailto:{{ $headerEmail }}">
-                                <i class="fas fa-envelope main__header__contacts-icon" aria-hidden="true"></i>
-                                <span class="text-truncate">{{ $headerEmail }}</span>
-                            </a>
-                            @endif
-                        </div>
+                    </div>
+                    @if((filled($headerPhone) || filled($headerEmail)))
+                    <div class="main__header__contacts d-flex d-lg-none flex-column justify-content-center align-items-center gap-1 min-w-0" aria-label="Contact shortcuts">
+                        @if(filled($headerPhone))
+                        <a class="link__item" href="tel:{{ preg_replace('/\s+/', '', $headerPhone) }}">
+                            <i class="fas fa-phone main__header__contacts-icon" aria-hidden="true"></i>
+                            <span class="text-truncate">{{ $headerPhone }}</span>
+                        </a>
+                        @endif
+                        @if(filled($headerEmail))
+                        <a class="link__item main__header__contacts-email" href="mailto:{{ $headerEmail }}">
+                            <i class="fas fa-envelope main__header__contacts-icon" aria-hidden="true"></i>
+                            <span class="text-truncate">{{ $headerEmail }}</span>
+                        </a>
                         @endif
                     </div>
+                    @endif
                     <div class="main__nav">
                         <div class="navigation d-none d-lg-block">
                             <nav class="navigation__menu" id="main__menu">
