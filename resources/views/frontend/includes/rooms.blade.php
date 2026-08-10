@@ -75,7 +75,7 @@
                                         style="padding: 6px 12px; font-size: 16px;">
                                             <span>View Details</span>
                                         </a>
-                                        @include('frontend.includes.reservation-link', ['style' => 'sm-btn fill', 'class' => ''])
+                                        @include('frontend.includes.reservation-link', ['style' => 'sm-btn fill', 'class' => '', 'room' => $room])
                                     </div>
                                 </div>
 

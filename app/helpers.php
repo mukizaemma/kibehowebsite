@@ -144,12 +144,24 @@ if (! function_exists('slideshow_cta_label')) {
 }
 
 if (! function_exists('hotel_book_now_url')) {
-    /** External booking URL when channel is active, otherwise the contact page. */
-    function hotel_book_now_url(?object $setting = null): string
+    /**
+     * External booking URL when channel is active, otherwise the offline wizard.
+     * Pass $roomId to preselect a room on the internal /book-now form.
+     */
+    function hotel_book_now_url(?object $setting = null, int|string|null $roomId = null): string
     {
         $url = hotel_reservation_url($setting);
+        if (filled($url)) {
+            return $url;
+        }
 
-        return filled($url) ? $url : localized_route('connect');
+        $params = [];
+        $roomId = (int) $roomId;
+        if ($roomId > 0) {
+            $params['room'] = $roomId;
+        }
+
+        return localized_route('connect', $params);
     }
 }
 
@@ -321,16 +333,25 @@ if (! function_exists('localized_route')) {
         $url = route($name, $parameters, $absolute);
 
         if (site_locale() === \App\Support\SiteLocale::FRENCH && translations_enabled()) {
-            $path = parse_url($url, PHP_URL_PATH) ?: '/';
+            $parts = parse_url($url) ?: [];
+            $path = $parts['path'] ?? '/';
             if (! str_starts_with(ltrim($path, '/'), 'fr/') && ltrim($path, '/') !== 'fr') {
                 $path = '/fr'.($path === '/' ? '' : $path);
             }
 
-            if ($absolute) {
-                return url($path);
+            $suffix = '';
+            if (! empty($parts['query'])) {
+                $suffix .= '?'.$parts['query'];
+            }
+            if (! empty($parts['fragment'])) {
+                $suffix .= '#'.$parts['fragment'];
             }
 
-            return $path;
+            if ($absolute) {
+                return url($path).$suffix;
+            }
+
+            return $path.$suffix;
         }
 
         return $url;

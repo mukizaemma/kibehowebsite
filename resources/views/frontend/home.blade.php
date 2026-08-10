@@ -108,7 +108,7 @@
                             <a wire:navigate href="{{ localized_route('room', ['slug' => $room->slug]) }}" class="theme-btn btn-style sm-btn border">
                                 <span>{{ site_trans('buttons.view_details') }}</span>
                             </a>
-                            @include('frontend.includes.reservation-link', ['style' => 'sm-btn fill'])
+                            @include('frontend.includes.reservation-link', ['style' => 'sm-btn fill', 'room' => $room])
                         </div>
                     </div>
                 </article>
