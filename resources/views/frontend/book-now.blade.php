@@ -96,14 +96,44 @@
                                             @foreach($availableRooms as $room)
                                                 <option value="{{ $room->id }}">
                                                     {{ $room->title }} — {{ hotel_price($room->price ?? 0, $setting) }}
-                                                    @if((int) ($room->number_of_rooms ?? 1) > 1)
-                                                        ({{ site_trans('booking.form_inventory', ['count' => (int) $room->number_of_rooms]) }})
-                                                    @endif
+                                                    ({{ site_trans('booking.form_room_option_meta', [
+                                                        'rooms' => (int) ($room->number_of_rooms ?? 1),
+                                                        'guests' => (int) ($room->max_occupancy ?? 1),
+                                                    ]) }})
                                                 </option>
                                             @endforeach
                                         </select>
                                         @error('room_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
+
+                                    @if($selectedRoom)
+                                        <div class="col-12">
+                                            <aside class="book-wizard__capacity-note @if(($roomsAvailable ?? 0) < 1) book-wizard__capacity-note--warn @endif" aria-live="polite">
+                                                <p class="mb-1">
+                                                    <strong>{{ site_trans('booking.capacity_title') }}</strong>
+                                                    {{ site_trans('booking.capacity_type_line', [
+                                                        'rooms' => $roomInventory,
+                                                        'guests' => $maxOccupancy,
+                                                    ]) }}
+                                                </p>
+                                                @if($datesReady)
+                                                    @if(($roomsAvailable ?? 0) < 1)
+                                                        <p class="mb-0">{{ site_trans('booking.capacity_dates_full') }}</p>
+                                                    @else
+                                                        <p class="mb-0">
+                                                            {{ site_trans('booking.capacity_dates_line', [
+                                                                'available' => $roomsAvailable,
+                                                                'inventory' => $roomInventory,
+                                                            ]) }}
+                                                        </p>
+                                                    @endif
+                                                @else
+                                                    <p class="mb-0 text-muted">{{ site_trans('booking.capacity_pick_dates') }}</p>
+                                                @endif
+                                            </aside>
+                                        </div>
+                                    @endif
+
                                     <div class="col-md-6">
                                         <label class="form-label" for="wizard-checkin">{{ site_trans('booking.form_checkin') }}</label>
                                         <input wire:model.live="checkin" type="date" id="wizard-checkin" class="form-control @error('checkin') is-invalid @enderror" min="{{ now()->toDateString() }}">
@@ -116,20 +146,31 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-adults">{{ site_trans('booking.form_adults') }}</label>
-                                        <input wire:model.live="adults" type="number" min="1" max="{{ $party_type === 'group' ? 120 : 20 }}" id="wizard-adults" class="form-control @error('adults') is-invalid @enderror">
+                                        <input wire:model.live="adults" type="number" min="1" max="{{ max(1, min($party_type === 'group' ? 120 : 20, $maxGuests ?? 20)) }}" id="wizard-adults" class="form-control @error('adults') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
                                         @error('adults') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                        @if($selectedRoom)
+                                            <small class="text-muted">{{ site_trans('booking.form_guests_hint', ['max' => $maxGuests, 'per_room' => $maxOccupancy]) }}</small>
+                                        @endif
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-children">{{ site_trans('booking.form_children') }}</label>
-                                        <input wire:model.live="children" type="number" min="0" max="{{ $party_type === 'group' ? 60 : 20 }}" id="wizard-children" class="form-control @error('children') is-invalid @enderror">
+                                        <input wire:model.live="children" type="number" min="0" max="{{ max(0, min($party_type === 'group' ? 60 : 20, max(0, ($maxGuests ?? 1) - 1))) }}" id="wizard-children" class="form-control @error('children') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
                                         @error('children') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label" for="wizard-rooms">{{ site_trans('booking.form_rooms') }}</label>
-                                        <input wire:model.live="room_count" type="number" min="1" max="{{ $roomInventory }}" id="wizard-rooms" class="form-control @error('room_count') is-invalid @enderror">
+                                        <input wire:model.live="room_count" type="number" min="1" max="{{ max(1, $roomsAvailable ?? $roomInventory) }}" id="wizard-rooms" class="form-control @error('room_count') is-invalid @enderror" @disabled(($roomsAvailable ?? 1) < 1 && $selectedRoom)>
                                         @error('room_count') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                         @if($selectedRoom)
-                                            <small class="text-muted">{{ site_trans('booking.form_rooms_hint', ['max' => $roomInventory]) }}</small>
+                                            <small class="text-muted">
+                                                {{ site_trans('booking.form_rooms_hint_dates', [
+                                                    'available' => max(0, $roomsAvailable ?? 0),
+                                                    'inventory' => $roomInventory,
+                                                ]) }}
+                                                @if(($minRoomsNeeded ?? 1) > 1)
+                                                    · {{ site_trans('booking.form_rooms_needed', ['count' => $minRoomsNeeded]) }}
+                                                @endif
+                                            </small>
                                         @endif
                                     </div>
                                 </div>
@@ -230,7 +271,13 @@
                                 @endif
 
                                 @if($step < 3)
-                                    <button type="button" class="book-wizard__btn book-wizard__btn--primary" wire:click="nextStep" wire:loading.attr="disabled">
+                                    <button
+                                        type="button"
+                                        class="book-wizard__btn book-wizard__btn--primary"
+                                        wire:click="nextStep"
+                                        wire:loading.attr="disabled"
+                                        @disabled($step === 1 && $selectedRoom && ($roomsAvailable ?? 1) < 1)
+                                    >
                                         <span wire:loading.remove wire:target="nextStep">{{ site_trans('booking.wizard_continue') }}</span>
                                         <span wire:loading wire:target="nextStep">{{ site_trans('booking.wizard_submitting') }}</span>
                                     </button>

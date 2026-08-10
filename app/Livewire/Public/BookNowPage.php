@@ -5,6 +5,7 @@ namespace App\Livewire\Public;
 use App\Models\Room;
 use App\Models\Setting;
 use App\Services\BookingSubmissionService;
+use App\Services\RoomAvailabilityService;
 use App\Support\BookingStayReasons;
 use App\Support\HotelChannels;
 use DateTime;
@@ -94,13 +95,15 @@ class BookNowPage extends Component
             $this->names = trim((string) ($user->name ?? ''));
             $this->email = trim((string) ($user->email ?? ''));
         }
+
+        $this->normalizeStayInput();
     }
 
     public function updated($property): void
     {
         if (in_array($property, ['room_id', 'checkin', 'checkout', 'adults', 'children', 'room_count', 'party_type'], true)) {
             $this->normalizeStayInput();
-            $this->resetValidation($property === 'room_count' ? 'room_count' : $property);
+            $this->resetValidation();
         }
 
         if (in_array($property, ['names', 'phone', 'email', 'country', 'stay_reason', 'message'], true)) {
@@ -199,11 +202,22 @@ class BookNowPage extends Component
         }
     }
 
-    protected function inventoryForSelectedRoom(): int
+    protected function availability(): RoomAvailabilityService
+    {
+        return app(RoomAvailabilityService::class);
+    }
+
+    /**
+     * @return array{inventory: int, available: int, held: int, max_occupancy: int, max_guests_for_request: int, dates_ready: bool}|null
+     */
+    protected function staySummary(): ?array
     {
         $room = $this->selectedRoom();
+        if (! $room) {
+            return null;
+        }
 
-        return max(1, (int) ($room?->number_of_rooms ?? 1));
+        return $this->availability()->summary($room, (string) $this->checkin, (string) $this->checkout);
     }
 
     protected function normalizeStayInput(): void
@@ -214,28 +228,68 @@ class BookNowPage extends Component
             ? $this->party_type
             : 'individual';
 
-        $isGroup = $this->party_type === 'group';
-        $this->adults = max(1, (int) ($this->adults ?? ($isGroup ? 4 : 2)));
-        $this->children = max(0, (int) ($this->children ?? 0));
-
-        $inventory = $this->inventoryForSelectedRoom();
-        $maxRooms = $isGroup ? $inventory : min(5, $inventory);
-        $this->room_count = max(1, min($maxRooms, (int) ($this->room_count ?? 1)));
-
         if ($this->room_id === '' || $this->room_id === null) {
             $this->room_id = null;
         } else {
             $this->room_id = (int) $this->room_id;
+        }
+
+        $isGroup = $this->party_type === 'group';
+        $this->adults = max(1, (int) ($this->adults ?? ($isGroup ? 4 : 2)));
+        $this->children = max(0, (int) ($this->children ?? 0));
+        $this->room_count = max(1, (int) ($this->room_count ?? 1));
+
+        $room = $this->selectedRoom();
+        if (! $room) {
+            return;
+        }
+
+        $availability = $this->availability();
+        $summary = $availability->summary($room, $this->checkin, $this->checkout);
+        $available = max(0, (int) $summary['available']);
+        $maxOccupancy = (int) $summary['max_occupancy'];
+
+        if ($available < 1) {
+            $this->room_count = 1;
+            $this->adults = min((int) $this->adults, $maxOccupancy);
+            $this->children = min((int) $this->children, max(0, $maxOccupancy - (int) $this->adults));
+
+            return;
+        }
+
+        $needed = $availability->minRoomsForGuests($room, (int) $this->adults, (int) $this->children);
+        $individualCap = min(5, $available);
+        $maxRooms = $isGroup ? $available : $individualCap;
+
+        // Prefer enough rooms for the guest count, then keep the guest’s choice within availability.
+        $desired = max((int) $this->room_count, $needed);
+        $this->room_count = max(1, min($maxRooms, $desired));
+
+        $capacity = $availability->maxGuestsForRooms($room, (int) $this->room_count);
+        $guests = (int) $this->adults + (int) $this->children;
+        if ($guests > $capacity) {
+            $overflow = $guests - $capacity;
+            $reduceChildren = min((int) $this->children, $overflow);
+            $this->children = (int) $this->children - $reduceChildren;
+            $overflow -= $reduceChildren;
+            if ($overflow > 0) {
+                $this->adults = max(1, (int) $this->adults - $overflow);
+            }
         }
     }
 
     protected function validateStay(): void
     {
         $this->normalizeStayInput();
-        $inventory = $this->inventoryForSelectedRoom();
+        $summary = $this->staySummary();
+        $available = max(0, (int) ($summary['available'] ?? 0));
+        $maxOccupancy = max(1, (int) ($summary['max_occupancy'] ?? 1));
         $isGroup = $this->party_type === 'group';
-        $maxAdults = $isGroup ? 120 : 20;
-        $maxChildren = $isGroup ? 60 : 20;
+
+        $maxRoomsRule = max(1, $available);
+        $maxGuests = max(1, $maxOccupancy * max(1, (int) $this->room_count));
+        $maxAdults = min($isGroup ? 120 : 20, $maxGuests);
+        $maxChildren = min($isGroup ? 60 : 20, max(0, $maxGuests - 1));
 
         $this->validate([
             'party_type' => 'required|in:individual,group',
@@ -244,9 +298,12 @@ class BookNowPage extends Component
             'checkout' => 'required|date|after:checkin',
             'adults' => 'required|integer|min:1|max:'.$maxAdults,
             'children' => 'nullable|integer|min:0|max:'.$maxChildren,
-            'room_count' => 'required|integer|min:1|max:'.$inventory,
+            'room_count' => 'required|integer|min:1|max:'.$maxRoomsRule,
         ], [
-            'room_count.max' => site_trans('booking.wizard_rooms_inventory', ['max' => $inventory]),
+            'room_count.max' => site_trans('booking.wizard_rooms_dates_inventory', [
+                'max' => $available,
+                'inventory' => (int) ($summary['inventory'] ?? $available),
+            ]),
         ]);
 
         $room = Room::find($this->room_id);
@@ -256,14 +313,15 @@ class BookNowPage extends Component
             ]);
         }
 
-        if ($room && $room->max_occupancy) {
-            $guests = (int) $this->adults + (int) $this->children;
-            $capacity = (int) $room->max_occupancy * max(1, (int) $this->room_count);
-            if ($guests > $capacity) {
-                throw ValidationException::withMessages([
-                    'adults' => site_trans('booking.wizard_capacity_exceeded', ['max' => $capacity]),
-                ]);
-            }
+        if ($room) {
+            $this->availability()->assertRequestFits(
+                $room,
+                (string) $this->checkin,
+                (string) $this->checkout,
+                (int) $this->room_count,
+                (int) $this->adults,
+                (int) $this->children
+            );
         }
     }
 
@@ -351,6 +409,7 @@ class BookNowPage extends Component
     public function render()
     {
         $setting = Setting::first();
+        $availability = $this->availability();
         $availableRooms = Room::query()
             ->where('status', 'Active')
             ->orderBy('title')
@@ -361,13 +420,29 @@ class BookNowPage extends Component
         $publicEmail = $channels['public_email'] ?? '';
         $hasWhatsapp = filled(preg_replace('/\D+/', '', (string) ($channels['whatsapp_e164'] ?? '')));
         $selectedRoom = $this->selectedRoom();
-        $inventory = max(1, (int) ($selectedRoom?->number_of_rooms ?? 1));
+        $summary = $selectedRoom
+            ? $availability->summary($selectedRoom, (string) $this->checkin, (string) $this->checkout)
+            : null;
+
+        $roomInventory = (int) ($summary['inventory'] ?? 1);
+        $roomsAvailable = (int) ($summary['available'] ?? $roomInventory);
+        $maxOccupancy = (int) ($summary['max_occupancy'] ?? 2);
+        $maxGuests = $maxOccupancy * max(1, (int) $this->room_count);
+        $minRoomsNeeded = $selectedRoom
+            ? $availability->minRoomsForGuests($selectedRoom, (int) $this->adults, (int) $this->children)
+            : 1;
 
         return view('frontend.book-now', [
             'setting' => $setting,
             'availableRooms' => $availableRooms,
             'selectedRoom' => $selectedRoom,
-            'roomInventory' => $inventory,
+            'roomInventory' => $roomInventory,
+            'roomsAvailable' => $roomsAvailable,
+            'roomsHeld' => (int) ($summary['held'] ?? 0),
+            'maxOccupancy' => $maxOccupancy,
+            'maxGuests' => $maxGuests,
+            'minRoomsNeeded' => $minRoomsNeeded,
+            'datesReady' => (bool) ($summary['dates_ready'] ?? false),
             'stayReasons' => BookingStayReasons::options(),
             'nights' => $this->nights(),
             'estimatedTotal' => $this->estimatedTotal(),

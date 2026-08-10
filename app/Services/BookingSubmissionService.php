@@ -9,7 +9,6 @@ use App\Models\Room;
 use App\Models\Setting;
 use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class BookingSubmissionService
 {
@@ -130,23 +129,15 @@ class BookingSubmissionService
             $children = (int) ($request->input('children') ?? 0);
             $extraBeds = (int) ($request->input('extra_beds') ?? 0);
             $roomCount = max(1, (int) ($request->input('rooms') ?? 1));
-            $inventory = max(1, (int) ($room->number_of_rooms ?? 1));
 
-            if ($roomCount > $inventory) {
-                throw ValidationException::withMessages([
-                    'rooms' => site_trans('booking.wizard_rooms_inventory', ['max' => $inventory]),
-                ]);
-            }
-
-            $maxGuestsPerRoom = (int) ($room->max_occupancy ?? 0);
-            $totalGuests = $adults + $children;
-            if ($maxGuestsPerRoom > 0 && $totalGuests > ($maxGuestsPerRoom * $roomCount)) {
-                $suggestedRooms = (int) ceil($totalGuests / $maxGuestsPerRoom);
-
-                throw ValidationException::withMessages([
-                    'rooms' => "Your selected number of rooms can't accommodate {$totalGuests} guests. Please set “Number of Rooms” to at least {$suggestedRooms}.",
-                ]);
-            }
+            app(RoomAvailabilityService::class)->assertRequestFits(
+                $room,
+                $request->input('checkin'),
+                $request->input('checkout'),
+                $roomCount,
+                $adults,
+                $children
+            );
 
             $adultsPerRoom = (int) max(1, ceil($adults / $roomCount));
             $childrenPerRoom = (int) max(0, ceil($children / $roomCount));
