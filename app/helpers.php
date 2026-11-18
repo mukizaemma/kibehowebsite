@@ -358,6 +358,21 @@ if (! function_exists('localized_route')) {
     }
 }
 
+if (! function_exists('desk_money')) {
+    /**
+     * Format one amount in its own currency. Never pass a mixed USD+RWF total.
+     */
+    function desk_money(float $amount, ?string $currency): string
+    {
+        $currency = strtolower((string) $currency) === 'rwf' ? 'rwf' : 'usd';
+        if ($currency === 'rwf') {
+            return 'RWF '.number_format($amount, 0);
+        }
+
+        return 'USD '.number_format($amount, 2);
+    }
+}
+
 if (! function_exists('locale_switch_url')) {
     function locale_switch_url(string $targetLocale): string
     {

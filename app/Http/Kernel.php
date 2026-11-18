@@ -70,6 +70,8 @@ class Kernel extends HttpKernel
         'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         'contentmanager' => \App\Http\Middleware\ContentManagerMiddleware::class,
         'frontoffice' => \App\Http\Middleware\FrontOfficeMiddleware::class,
+        'desk.module' => \App\Http\Middleware\EnsureDeskModule::class,
+        'desk.operation' => \App\Http\Middleware\EnsureDeskOperation::class,
         'normaluser' => \App\Http\Middleware\EnsureNormalUser::class,
         'TrackVisits' => \App\Http\Middleware\TrackVisits::class,
     ];

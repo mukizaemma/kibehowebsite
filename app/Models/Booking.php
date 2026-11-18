@@ -44,6 +44,9 @@ class Booking extends Model
         'checked_out_by',
         'checked_in_at',
         'checked_out_at',
+        'currency',
+        'reference',
+        'created_by',
     ];
 
     protected $casts = [
@@ -85,5 +88,39 @@ class Booking extends Model
 
     public function roomMovements(){
         return $this->hasMany(RoomMovement::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(BookingPayment::class);
+    }
+
+    public function charges()
+    {
+        return $this->hasMany(BookingCharge::class);
+    }
+
+    public function deskState(): string
+    {
+        $status = strtolower(str_replace([' ', '-'], '_', (string) $this->status));
+
+        return match ($status) {
+            'checked_in' => 'checked_in',
+            'checked_out' => 'checked_out',
+            'cancelled' => 'cancelled',
+            'no_show' => 'no_show',
+            default => 'reserved',
+        };
+    }
+
+    public function deskStateLabel(): string
+    {
+        return match ($this->deskState()) {
+            'checked_in' => 'Checked in',
+            'checked_out' => 'Checked out',
+            'cancelled' => 'Cancelled',
+            'no_show' => 'No-show',
+            default => 'Reserved',
+        };
     }
 }

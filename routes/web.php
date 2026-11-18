@@ -486,3 +486,72 @@ Route::get('/forgot-password', function () {
 Route::get('/reset-password/{token}', function ($token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
+
+Route::middleware(['auth', 'superadmin'])->prefix('desk/access')->group(function () {
+    Route::get('/', [App\Http\Controllers\Desk\DeskAccessController::class, 'index'])->name('desk.access');
+    Route::post('/{user}', [App\Http\Controllers\Desk\DeskAccessController::class, 'update'])->name('desk.access.update');
+});
+
+Route::middleware(['auth', 'desk.module:front_office'])->prefix('desk')->name('desk.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'home'])->name('home');
+    Route::get('/reservations', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'reservations'])->name('reservations.index');
+    Route::get('/reservations/create', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'create'])->name('reservations.create');
+    Route::post('/reservations', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'store'])->name('reservations.store');
+    Route::get('/reservations.pdf', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'reservationsPdf'])->name('reservations.pdf');
+    Route::get('/reservations/{booking}', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'show'])->name('reservations.show');
+    Route::get('/reservations/{booking}/edit', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'edit'])->name('reservations.edit');
+    Route::post('/reservations/{booking}', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'update'])->name('reservations.update');
+    Route::get('/reservations/{booking}/check-in', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'checkInForm'])->name('reservations.check-in');
+    Route::post('/reservations/{booking}/check-in', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'checkIn'])->name('reservations.check-in.store');
+    Route::get('/reservations/{booking}/check-out', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'checkOutForm'])->name('reservations.check-out');
+    Route::post('/reservations/{booking}/check-out', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'checkOut'])->name('reservations.check-out.store');
+    Route::get('/reservations/{booking}/cancel', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'cancelForm'])->middleware('desk.operation:cancel_reservation')->name('reservations.cancel');
+    Route::post('/reservations/{booking}/cancel', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'cancel'])->middleware('desk.operation:cancel_reservation')->name('reservations.cancel.store');
+    Route::get('/reservations/{booking}/no-show', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'noShowForm'])->middleware('desk.operation:no_show')->name('reservations.no-show');
+    Route::post('/reservations/{booking}/no-show', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'noShow'])->middleware('desk.operation:no_show')->name('reservations.no-show.store');
+    Route::get('/reservations/{booking}/receipt', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'receipt'])->name('reservations.receipt');
+    Route::get('/reservations/{booking}/receipt.pdf', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'receiptPdf'])->name('reservations.receipt.pdf');
+    Route::post('/reservations/{booking}/payments', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'storePayment'])->middleware('desk.operation:payments')->name('reservations.payments.store');
+    Route::get('/reservations/{booking}/charges/create', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'createCharge'])->name('reservations.charges.create');
+    Route::post('/reservations/{booking}/charges', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'storeCharge'])->name('reservations.charges.store');
+    Route::get('/charges/{charge}/remove', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'removeChargeForm'])->middleware('desk.operation:remove_charge')->name('charges.remove');
+    Route::post('/charges/{charge}/remove', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'removeCharge'])->middleware('desk.operation:remove_charge')->name('charges.remove.store');
+    Route::get('/calendar', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'calendar'])->name('calendar');
+    Route::get('/inventory', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'inventory'])->name('inventory');
+    Route::post('/inventory/overbook', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'updateOverbook'])->name('inventory.overbook');
+    Route::post('/inventory/closures', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'storeClosure'])->name('inventory.closures.store');
+    Route::get('/reports', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'reports'])->name('reports');
+    Route::get('/rates', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'rates'])->name('rates');
+    Route::post('/rates', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'updateRates'])->middleware('desk.operation:rates')->name('rates.update');
+    Route::get('/invoice-settings', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'invoiceSettings'])->name('invoice-settings');
+    Route::post('/invoice-settings', [App\Http\Controllers\Desk\FrontOfficeDeskController::class, 'updateInvoiceSettings'])->name('invoice-settings.update');
+});
+
+Route::middleware(['auth', 'desk.module:pos'])->prefix('desk/pos')->name('desk.pos.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Desk\PosDeskController::class, 'home'])->name('home');
+    Route::get('/sale', [App\Http\Controllers\Desk\PosDeskController::class, 'sale'])->name('sale');
+    Route::post('/sale/items', [App\Http\Controllers\Desk\PosDeskController::class, 'addItem'])->name('sale.items');
+    Route::post('/sale/items/remove', [App\Http\Controllers\Desk\PosDeskController::class, 'removeCartLine'])->name('sale.items.remove');
+    Route::post('/sale', [App\Http\Controllers\Desk\PosDeskController::class, 'storeSale'])->name('sale.store');
+    Route::post('/sale/clear', [App\Http\Controllers\Desk\PosDeskController::class, 'clearSale'])->name('sale.clear');
+    Route::get('/bills', [App\Http\Controllers\Desk\PosDeskController::class, 'bills'])->name('bills.index');
+    Route::get('/bills/{bill}', [App\Http\Controllers\Desk\PosDeskController::class, 'showBill'])->name('bills.show');
+    Route::post('/bills/{bill}/payments', [App\Http\Controllers\Desk\PosDeskController::class, 'storeBillPayment'])->middleware('desk.operation:payments')->name('bills.payments.store');
+    Route::post('/bills/{bill}/charge-room', [App\Http\Controllers\Desk\PosDeskController::class, 'chargeRoom'])->name('bills.charge-room');
+    Route::get('/bills/{bill}/cancel', [App\Http\Controllers\Desk\PosDeskController::class, 'cancelForm'])->middleware('desk.operation:cancel_bill')->name('bills.cancel');
+    Route::post('/bills/{bill}/cancel', [App\Http\Controllers\Desk\PosDeskController::class, 'cancel'])->middleware('desk.operation:cancel_bill')->name('bills.cancel.store');
+    Route::get('/bills/{bill}/lines/{line}/remove', [App\Http\Controllers\Desk\PosDeskController::class, 'removeLineForm'])->middleware('desk.operation:remove_line')->name('bills.lines.remove');
+    Route::post('/bills/{bill}/lines/{line}/remove', [App\Http\Controllers\Desk\PosDeskController::class, 'removeLine'])->middleware('desk.operation:remove_line')->name('bills.lines.remove.store');
+    Route::get('/bills/{bill}/pdf', [App\Http\Controllers\Desk\PosDeskController::class, 'billPdf'])->name('bills.pdf');
+    Route::get('/reservations', [App\Http\Controllers\Desk\PosDeskController::class, 'reservations'])->name('reservations');
+    Route::post('/reservations', [App\Http\Controllers\Desk\PosDeskController::class, 'storeReservation'])->name('reservations.store');
+    Route::get('/reports', [App\Http\Controllers\Desk\PosDeskController::class, 'reports'])->name('reports');
+    Route::get('/menu', [App\Http\Controllers\Desk\PosDeskController::class, 'menu'])->name('menu');
+    Route::post('/menu/categories', [App\Http\Controllers\Desk\PosDeskController::class, 'storeCategory'])->middleware('desk.operation:menu')->name('menu.categories.store');
+    Route::post('/menu/items', [App\Http\Controllers\Desk\PosDeskController::class, 'storeItem'])->middleware('desk.operation:menu')->name('menu.items.store');
+    Route::post('/menu/items/{item}', [App\Http\Controllers\Desk\PosDeskController::class, 'updateItem'])->middleware('desk.operation:menu')->name('menu.items.update');
+    Route::get('/menu/items/{item}/delete', [App\Http\Controllers\Desk\PosDeskController::class, 'deleteItemForm'])->middleware('desk.operation:menu')->name('menu.items.delete.form');
+    Route::post('/menu/items/{item}/delete', [App\Http\Controllers\Desk\PosDeskController::class, 'deleteItem'])->middleware('desk.operation:menu')->name('menu.items.delete');
+    Route::get('/settings', [App\Http\Controllers\Desk\PosDeskController::class, 'settings'])->name('settings');
+    Route::post('/settings', [App\Http\Controllers\Desk\PosDeskController::class, 'updateSettings'])->middleware('desk.operation:settings')->name('settings.update');
+});

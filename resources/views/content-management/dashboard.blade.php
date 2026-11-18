@@ -41,6 +41,12 @@
                     <p class="text-muted mb-0">Manage public content and respond to guest reservation requests from the book-now form.</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
+                    @if(auth()->user()->hasDeskModule('front_office'))
+                        <a href="{{ route('desk.home') }}" class="btn btn-dark">Front office</a>
+                    @endif
+                    @if(auth()->user()->hasDeskModule('pos'))
+                        <a href="{{ route('desk.pos.home') }}" class="btn btn-dark">Restaurant POS</a>
+                    @endif
                     <a href="{{ route('content-management.reservations') }}" class="btn btn-outline-warning text-dark">
                         <i class="fa fa-calendar-check me-2"></i>Reservations
                     </a>

@@ -99,7 +99,7 @@ class ContentManagementController extends Controller
             'whatsapp' => $allForStats->filter(fn (Booking $b) => $this->bookingChannel($b) === 'WhatsApp')->count(),
             'email' => $allForStats->filter(fn (Booking $b) => $this->bookingChannel($b) === 'Email')->count(),
             'confirmed' => $allForStats->where('status', 'confirmed')->count(),
-            'pending' => $allForStats->where('status', 'pending')->count(),
+            'pending' => $allForStats->whereIn('status', ['pending', 'reserved'])->count(),
         ];
 
         return view('content-management.reservations.index', compact('bookings', 'stats', 'startDate', 'endDate'));

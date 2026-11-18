@@ -34,6 +34,21 @@ $isEventsPageAdmin = $currentRoute === 'eventsPage' || str_contains(strtolower((
             <a href="{{ route('content-management.dashboard') }}" class="nav-item nav-link {{ $isCmsOrLegacyDashboard ? 'active' : '' }}">
                 <i class="fas fa-grip-horizontal me-2"></i>Dashboard
             </a>
+            @if(auth()->user()->hasDeskModule('front_office'))
+                <a href="{{ route('desk.home') }}" class="nav-item nav-link">
+                    <i class="fas fa-concierge-bell me-2"></i>Front office
+                </a>
+            @endif
+            @if(auth()->user()->hasDeskModule('pos'))
+                <a href="{{ route('desk.pos.home') }}" class="nav-item nav-link">
+                    <i class="fas fa-cash-register me-2"></i>Restaurant POS
+                </a>
+            @endif
+            @if(auth()->user()->isSuperAdmin())
+                <a href="{{ route('desk.access') }}" class="nav-item nav-link">
+                    <i class="fas fa-user-lock me-2"></i>Desk access
+                </a>
+            @endif
 
             <a href="{{ route('content-management.reservations') }}" class="nav-item nav-link {{ str_contains($currentRoute, 'content-management.reservations') ? 'active' : '' }}">
                 <i class="fas fa-calendar-check me-2"></i>Reservations

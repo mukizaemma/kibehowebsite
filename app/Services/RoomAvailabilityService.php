@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Booking;
 use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +15,7 @@ class RoomAvailabilityService
      */
     public static function holdingStatuses(): array
     {
-        return ['pending', 'confirmed'];
+        return RoomHoldService::HOLDING;
     }
 
     public function inventory(Room $room): int
@@ -34,14 +33,11 @@ class RoomAvailabilityService
      */
     public function availableCount(Room $room, ?string $checkin, ?string $checkout, ?int $ignoreBookingId = null): int
     {
-        $inventory = $this->inventory($room);
-        if (! $this->hasValidStayDates($checkin, $checkout)) {
-            return $inventory;
+        if (! Schema::hasTable('bookings')) {
+            return $this->inventory($room);
         }
 
-        $held = $this->heldRoomsCount($room, $checkin, $checkout, $ignoreBookingId);
-
-        return max(0, $inventory - $held);
+        return app(RoomHoldService::class)->availableUnits($room, $checkin, $checkout, $ignoreBookingId);
     }
 
     public function heldRoomsCount(Room $room, string $checkin, string $checkout, ?int $ignoreBookingId = null): int
@@ -50,21 +46,7 @@ class RoomAvailabilityService
             return 0;
         }
 
-        $query = Booking::query()
-            ->where('room_id', $room->id)
-            ->whereIn('status', self::holdingStatuses())
-            ->where(function ($q) {
-                $q->whereNull('reservation_type')->orWhere('reservation_type', 'room');
-            })
-            // Standard hotel nights: occupy check-in night through night before check-out.
-            ->whereDate('checkin_date', '<', $checkout)
-            ->whereDate('checkout_date', '>', $checkin);
-
-        if ($ignoreBookingId) {
-            $query->where('id', '!=', $ignoreBookingId);
-        }
-
-        return (int) $query->sum('rooms');
+        return app(RoomHoldService::class)->heldUnits($room, $checkin, $checkout, $ignoreBookingId);
     }
 
     public function minRoomsForGuests(Room $room, int $adults, int $children): int
@@ -97,7 +79,7 @@ class RoomAvailabilityService
         $inventory = $this->inventory($room);
         $datesReady = $this->hasValidStayDates($checkin, $checkout);
         $held = $datesReady ? $this->heldRoomsCount($room, (string) $checkin, (string) $checkout, $ignoreBookingId) : 0;
-        $available = $datesReady ? max(0, $inventory - $held) : $inventory;
+        $available = $this->availableCount($room, $checkin, $checkout, $ignoreBookingId);
 
         return [
             'inventory' => $inventory,

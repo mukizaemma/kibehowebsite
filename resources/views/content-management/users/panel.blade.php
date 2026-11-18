@@ -16,6 +16,9 @@
             <h5 class="mb-1">Users</h5>
             <p class="text-muted small mb-0">Assign <strong>Admin</strong> (content only) or <strong>Normal User</strong> (no admin). Super Admin accounts are created via seeding only.</p>
         </div>
+        @if(!empty($isManager) && auth()->user()->isSuperAdmin())
+        <a href="{{ route('desk.access') }}" class="btn btn-outline-dark">Desk access</a>
+        @endif
         @if(!empty($isManager))
         <button type="button" class="btn btn-primary" data-open-add-user-modal>
             <i class="fa fa-plus me-2"></i>Add New User

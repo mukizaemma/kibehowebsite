@@ -1,0 +1,475 @@
+.desk-app {
+    min-height: 100vh;
+    background: #f4f6f8;
+    color: #1a1a1a;
+    font-family: Heebo, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.desk-app h1,
+.desk-brand,
+.desk-card h2,
+.desk-card h3 {
+    font-weight: 700;
+}
+
+.desk-top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e6e8eb;
+    padding: 0.5rem 1rem;
+}
+
+.desk-brand {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+}
+
+.desk-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.desk-nav a,
+.desk-nav-toggle,
+.desk-app .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.desk-nav a {
+    color: #1a1a1a;
+    text-decoration: none;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+}
+
+.desk-nav a[aria-current="page"],
+.desk-nav a:hover {
+    background: #fff;
+}
+
+.desk-nav-toggle {
+    display: none;
+    margin-left: auto;
+    border: 1px solid #e6e8eb;
+    background: #fff;
+    border-radius: 8px;
+    padding: 0 0.9rem;
+}
+
+.desk-app__body {
+    padding: 1.25rem 1.5rem 2.5rem;
+}
+
+.desk-pagehead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.desk-pagehead h1 {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.desk-pagehead p,
+.desk-muted {
+    color: #6c757d;
+    margin: 0.2rem 0 0;
+}
+
+.desk-meta {
+    font-size: 0.78rem;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.desk-stats {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 1rem;
+}
+
+.desk-card,
+.desk-pos__card {
+    background: #fff;
+    border: 1px solid #e6e8eb;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.desk-card {
+    padding: 1rem 1.1rem;
+}
+
+.desk-stat__value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.25rem 0 0;
+}
+
+.desk-pos {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.desk-pos__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.desk-pos__card:hover {
+    border-color: #111;
+    color: #1a1a1a;
+}
+
+.desk-pos__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.desk-pos__icon--sale { background: #fff1e8; color: #c2410c; }
+.desk-pos__icon--invoice { background: #f3e8ff; color: #6b21a8; }
+.desk-pos__icon--dining { background: #e8f6ec; color: #16703a; }
+.desk-pos__icon--report { background: #e8f1fb; color: #1d4f91; }
+.desk-pos__icon--menu { background: #fbf3df; color: #8a5a00; }
+.desk-pos__icon--settings { background: #f1f2f4; color: #333; }
+
+.desk-table {
+    width: 100%;
+    font-size: 0.95rem;
+    border-collapse: collapse;
+}
+
+.desk-table th,
+.desk-table td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid #e6e8eb;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.desk-table .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.desk-table .actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.desk-table .stick {
+    position: sticky;
+    left: 0;
+    background: #fff;
+}
+
+.desk-empty {
+    color: #6c757d;
+    text-align: left;
+}
+
+.desk-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.desk-form .field {
+    margin-bottom: 0.9rem;
+}
+
+.desk-form input,
+.desk-form select,
+.desk-form textarea {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #e6e8eb;
+    border-radius: 8px;
+    padding: 0.45rem 0.7rem;
+    background: #fff;
+}
+
+.desk-form textarea {
+    min-height: 88px;
+}
+
+.desk-pair {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.desk-field {
+    position: relative;
+}
+
+.desk-popover {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 6px);
+    left: 0;
+    width: min(320px, 90vw);
+    background: #fbfaf7;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    padding: 0.8rem;
+}
+
+.desk-popover[hidden] {
+    display: none;
+}
+
+.desk-popover__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.desk-popover__days button {
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+}
+
+.desk-popover__days button.is-selected {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.desk-popover__days button.is-range {
+    background: #efeae2;
+}
+
+.desk-quote {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.desk-quote li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid #e6e8eb;
+}
+
+.desk-quote li:last-child {
+    font-weight: 700;
+    border-bottom: 0;
+}
+
+.desk-sale {
+    display: grid;
+    gap: 1rem;
+}
+
+.desk-cart__total {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 0.75rem 0 0.2rem;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+}
+
+.desk-cal-wrap {
+    overflow-x: auto;
+}
+
+.desk-cal {
+    display: grid;
+    grid-template-columns: 160px repeat(var(--days), minmax(52px, 1fr));
+    min-width: 880px;
+}
+
+.desk-cal__cell {
+    border-bottom: 1px solid #e6e8eb;
+    border-right: 1px solid #f0f1f3;
+    min-height: 44px;
+    padding: 4px;
+    background: #fff;
+}
+
+.desk-cal__room {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.desk-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.desk-bar {
+    display: block;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 4px;
+    padding: 0 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0.75rem;
+}
+
+.desk-bar--reserved { background: #efeae2; color: #1a1a1a; }
+.desk-bar--checked_in { background: #e8f1fb; color: #1d4f91; }
+.desk-bar--checked_out { background: #f1f2f4; color: #333; }
+.desk-bar--closure { background: #f8d7da; color: #842029; }
+
+.desk-pass {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.desk-pass--paid { color: #1f7a3a; background: #e8f6ec; }
+.desk-pass--unpaid { color: #6b5600; background: #fff6d6; border: 1px solid #e2b100; }
+
+.desk-alert {
+    margin-bottom: 1rem;
+}
+
+.desk-app :focus-visible {
+    outline: 2px solid #1a1a1a;
+    outline-offset: 2px;
+}
+
+.desk-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+}
+
+.desk-check input {
+    width: auto;
+    min-height: 0;
+}
+
+@media (min-width: 720px) {
+    .desk-pair {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 768px) {
+    .desk-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 992px) {
+    .desk-sale {
+        grid-template-columns: 1.4fr 0.8fr;
+        align-items: start;
+    }
+}
+
+@media (min-width: 1200px) {
+    .desk-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .desk-stats--with-restaurant {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .desk-app__body {
+        padding: 1rem;
+    }
+
+    .desk-nav-toggle {
+        display: inline-flex;
+    }
+
+    .desk-sale {
+        padding-bottom: 3.5rem;
+    }
+
+    .desk-cart__total {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 35;
+        margin: 0;
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #e6e8eb;
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .desk-nav {
+        display: none;
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .desk-top.is-open .desk-nav {
+        display: flex;
+    }
+
+    .desk-pagehead {
+        flex-direction: column;
+    }
+
+    .desk-pagehead .btn,
+    .desk-pagehead a.btn {
+        width: 100%;
+    }
+}
+
+@media print {
+    .desk-top,
+    .no-print,
+    .desk-actions {
+        display: none !important;
+    }
+
+    .desk-app {
+        background: #fff;
+    }
+}

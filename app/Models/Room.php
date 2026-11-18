@@ -35,6 +35,7 @@ class Room extends Model
         'bed_count',
         'bed_type',
         'amenity_id',
+        'overbook',
     ];
 
     public function amenities()
@@ -48,6 +49,11 @@ class Room extends Model
 
     public function bookings(){
         return $this->hasMany(Booking::class, 'assigned_room_id');
+    }
+
+    public function closures()
+    {
+        return $this->hasMany(RoomClosure::class);
     }
 
     /**

@@ -5,9 +5,7 @@ namespace App\Services;
 use App\Mail\BookingSubmittedAdminMail;
 use App\Mail\BookingSubmittedGuestMail;
 use App\Models\Booking;
-use App\Models\Room;
 use App\Models\Setting;
-use DateTime;
 use Illuminate\Http\Request;
 
 class BookingSubmissionService
@@ -116,34 +114,32 @@ class BookingSubmissionService
             $booking->total_amount = 0;
             $booking->balance_amount = 0;
         } else {
-            $booking->room_id = $request->input('room_id');
-            $booking->reservation_type = 'room';
-            $booking->facility_id = null;
-            $booking->tour_activity_id = null;
-
-            $room = Room::findOrFail($request->input('room_id'));
-            $checkin = new DateTime($request->input('checkin'));
-            $checkout = new DateTime($request->input('checkout'));
-            $nights = max(0, $checkin->diff($checkout)->days);
             $adults = (int) $request->input('adults');
             $children = (int) ($request->input('children') ?? 0);
             $extraBeds = (int) ($request->input('extra_beds') ?? 0);
             $roomCount = max(1, (int) ($request->input('rooms') ?? 1));
+            $message = (string) ($booking->message ?? '');
 
-            app(RoomAvailabilityService::class)->assertRequestFits(
-                $room,
-                $request->input('checkin'),
-                $request->input('checkout'),
-                $roomCount,
-                $adults,
-                $children
-            );
-
-            $adultsPerRoom = (int) max(1, ceil($adults / $roomCount));
-            $childrenPerRoom = (int) max(0, ceil($children / $roomCount));
-            $nightly = $room->nightlyRateForGuests($adultsPerRoom, $childrenPerRoom, $extraBeds);
-            $booking->total_amount = (int) round($nightly * $nights * $roomCount);
-            $booking->balance_amount = $booking->total_amount;
+            return app(RoomHoldService::class)->place([
+                'room_id' => $request->input('room_id'),
+                'checkin' => $request->input('checkin'),
+                'checkout' => $request->input('checkout'),
+                'rooms' => $roomCount,
+                'adults' => $adults,
+                'children' => $children,
+                'extra_beds' => $extraBeds,
+                'names' => $booking->names,
+                'email' => $booking->email,
+                'phone' => $booking->phone,
+                'country' => $booking->country,
+                'stay_reason' => $booking->stay_reason,
+                'party_type' => $booking->party_type,
+                'message' => $message,
+                'user_id' => auth()->check() ? auth()->id() : null,
+                'created_by' => null,
+                'booking_type' => 'online',
+                'status' => 'reserved',
+            ]);
         }
 
         $booking->save();

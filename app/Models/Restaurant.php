@@ -17,7 +17,25 @@ class Restaurant extends Model
         'image',
         'cuisine_section_title',
         'cuisine_section_lead',
+        'requires_reservation',
+        'minimum_amount',
+        'minimum_amount_local',
+        'momo_code',
+        'momo_account_name',
     ];
+
+    protected $casts = [
+        'requires_reservation' => 'boolean',
+        'minimum_amount' => 'decimal:2',
+        'minimum_amount_local' => 'decimal:2',
+    ];
+
+    public static function deskProfile(): self
+    {
+        return static::query()->orderBy('id')->first() ?: static::query()->create([
+            'title' => 'Restaurant',
+        ]);
+    }
 
     public function images()
     {

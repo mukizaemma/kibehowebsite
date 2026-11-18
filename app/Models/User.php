@@ -127,6 +127,26 @@ class User extends Authenticatable
         return $this->role && $this->role->slug === 'guest';
     }
 
+    public function hasDeskModule(string $module): bool
+    {
+        return app(\App\Services\DeskAccess::class)->allowsModule($this, $module);
+    }
+
+    public function allowsDeskOperation(string $operation): bool
+    {
+        return app(\App\Services\DeskAccess::class)->allowsOperation($this, $operation);
+    }
+
+    public function moduleGrants()
+    {
+        return $this->hasMany(UserModuleGrant::class);
+    }
+
+    public function operationDenials()
+    {
+        return $this->hasMany(UserOperationDenial::class);
+    }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class);
